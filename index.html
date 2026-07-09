@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CL ⚡ Ultimate Card</title>
+<meta name="description" content="CL — 99 rated. The future of football. Open the pack." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --gold-1: #f5d97b;
+    --gold-2: #e3b94d;
+    --gold-3: #b8860b;
+    --navy-1: #0a0f2c;
+    --navy-2: #141b45;
+    --ink: #1a1443;
+    --white: #fdfbf4;
+    --accent: #00e5ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body.locked { overflow: hidden; height: 100vh; }
+  body {
+    background: var(--navy-1);
+    color: var(--white);
+    font-family: 'Oswald', 'Arial Narrow', Arial, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .display { font-family: 'Russo One', 'Arial Black', sans-serif; }
+
+  /* ---------- stadium backdrop ---------- */
+  .stadium {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, #2a3570 0%, transparent 60%),
+      radial-gradient(ellipse 80% 50% at 50% 110%, #123b1f 0%, transparent 55%),
+      linear-gradient(180deg, #060a1e 0%, #0a0f2c 50%, #0b1230 100%);
+  }
+  .beam {
+    position: absolute; top: -20%; width: 26vw; height: 90vh;
+    background: linear-gradient(180deg, rgba(190,220,255,.16), transparent 75%);
+    clip-path: polygon(42% 0, 58% 0, 100% 100%, 0% 100%);
+    filter: blur(6px);
+    transform-origin: top center;
+    animation: sweep 9s ease-in-out infinite alternate;
+  }
+  .beam.b1 { left: 4%;  animation-delay: 0s; }
+  .beam.b2 { left: 38%; animation-delay: -3s; }
+  .beam.b3 { left: 72%; animation-delay: -6s; }
+  @keyframes sweep {
+    from { transform: rotate(-14deg); opacity: .5; }
+    to   { transform: rotate(14deg);  opacity: .9; }
+  }
+  .dust { position: absolute; border-radius: 50%; background: rgba(255,235,170,.7); animation: floatUp linear infinite; }
+  @keyframes floatUp {
+    from { transform: translateY(105vh) scale(1); opacity: 0; }
+    10%  { opacity: .8; }
+    to   { transform: translateY(-8vh) scale(.4); opacity: 0; }
+  }
+
+  /* ---------- pack screen ---------- */
+  #packScreen {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 28px; transition: opacity .5s;
+  }
+  #packScreen.hidden, #walkout.hidden { opacity: 0; pointer-events: none; }
+  .pack-title {
+    font-size: clamp(20px, 4vw, 34px); letter-spacing: .35em; text-transform: uppercase;
+    color: var(--gold-1); text-shadow: 0 0 24px rgba(245,217,123,.55);
+  }
+  #pack {
+    width: min(46vw, 230px); cursor: pointer; border: none; background: none; padding: 0;
+    filter: drop-shadow(0 0 32px rgba(245,217,123,.45));
+    animation: packFloat 2.6s ease-in-out infinite;
+    transition: transform .15s;
+  }
+  #pack:hover { transform: scale(1.05); }
+  #pack.shake { animation: packShake .45s ease-in-out 2; }
+  @keyframes packFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -14px; } }
+  @keyframes packShake {
+    0%,100% { rotate: 0deg; } 20% { rotate: -6deg; } 40% { rotate: 6deg; }
+    60% { rotate: -8deg; } 80% { rotate: 8deg; }
+  }
+  .tap-hint {
+    font-size: 15px; letter-spacing: .5em; text-transform: uppercase; color: rgba(255,255,255,.85);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+  #flash {
+    position: fixed; inset: 0; z-index: 90; background: #fff; opacity: 0; pointer-events: none;
+  }
+  #flash.boom { animation: boom .9s ease-out; }
+  @keyframes boom { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ---------- walkout ---------- */
+  #walkout {
+    position: fixed; inset: 0; z-index: 60;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center, #131b4d 0%, #05081a 75%);
+    transition: opacity .5s;
+  }
+  .walkout-item {
+    position: absolute; text-align: center; opacity: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .walkout-item.show { animation: slamIn .8s cubic-bezier(.2,1.6,.35,1) forwards; }
+  .walkout-item.gone { animation: flyOut .4s ease-in forwards; }
+  @keyframes slamIn {
+    from { opacity: 0; transform: scale(3.2); filter: blur(8px); }
+    to   { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+  @keyframes flyOut {
+    to { opacity: 0; transform: scale(.6) translateY(-40px); }
+  }
+  .walkout-label { font-size: 14px; letter-spacing: .6em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  .walkout-value { font-size: clamp(56px, 14vw, 130px); color: var(--gold-1); text-shadow: 0 0 50px rgba(245,217,123,.6); }
+  .walkout-item svg { filter: drop-shadow(0 0 30px rgba(245,217,123,.5)); }
+  #skipBtn {
+    position: absolute; bottom: 28px; right: 28px; z-index: 61;
+    background: none; border: 1px solid rgba(255,255,255,.35); color: rgba(255,255,255,.7);
+    font-family: inherit; letter-spacing: .3em; text-transform: uppercase; font-size: 12px;
+    padding: 10px 20px; border-radius: 999px; cursor: pointer;
+  }
+  #skipBtn:hover { border-color: var(--gold-1); color: var(--gold-1); }
+
+  /* ---------- main page ---------- */
+  #main { position: relative; z-index: 10; opacity: 0; transition: opacity .8s; }
+  #main.revealed { opacity: 1; }
+  section { max-width: 1080px; margin: 0 auto; padding: 90px 24px; }
+
+  .hero {
+    min-height: 100vh; display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: center; gap: clamp(24px, 6vw, 90px); padding-top: 60px;
+  }
+  .hero-copy { max-width: 420px; }
+  .kicker {
+    display: inline-block; font-size: 13px; letter-spacing: .45em; text-transform: uppercase;
+    color: var(--navy-1); background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+    padding: 7px 16px 6px; border-radius: 4px; margin-bottom: 22px; font-weight: 700;
+  }
+  .hero-copy h1 {
+    font-size: clamp(44px, 8vw, 84px); line-height: .95; text-transform: uppercase;
+    background: linear-gradient(180deg, #fff 30%, var(--gold-1) 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-copy p { margin-top: 20px; font-size: 19px; color: rgba(255,255,255,.75); line-height: 1.55; }
+  .hero-cta {
+    margin-top: 30px; display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(90deg, var(--gold-2), var(--gold-1));
+    color: var(--navy-1); text-decoration: none; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .18em; font-size: 14px; padding: 15px 28px; border-radius: 999px;
+    box-shadow: 0 8px 30px rgba(227,185,77,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(227,185,77,.5); }
+
+  /* ---------- the card ---------- */
+  .card-wrap { perspective: 1100px; }
+  #card {
+    position: relative; width: min(78vw, 330px); aspect-ratio: 300/470;
+    transform-style: preserve-3d; transition: transform .25s ease-out;
+    animation: cardArrive 1s cubic-bezier(.2,1.4,.4,1);
+    cursor: pointer;
+  }
+  @keyframes cardArrive {
+    from { transform: scale(.3) rotateY(180deg); opacity: 0; }
+    to   { transform: scale(1) rotateY(0); opacity: 1; }
+  }
+  #card svg.shape { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .card-content {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    color: var(--ink); padding: 8% 12%;
+  }
+  .card-top { display: flex; gap: 4%; align-items: flex-start; }
+  .card-rating { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .card-rating .ovr { font-family: 'Russo One'; font-size: clamp(38px, 9vw, 52px); }
+  .card-rating .pos { font-family: 'Russo One'; font-size: clamp(16px, 4vw, 22px); margin-top: 2px; }
+  .card-rating .flag { margin-top: 8px; width: clamp(28px, 7vw, 38px); border-radius: 3px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  .card-rating .crest { margin-top: 8px; width: clamp(26px, 6.5vw, 34px); }
+  .card-art { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .card-art svg { width: 92%; filter: drop-shadow(0 6px 10px rgba(26,20,67,.35)); }
+  .card-name {
+    text-align: center; font-family: 'Russo One'; font-size: clamp(30px, 7.5vw, 44px);
+    letter-spacing: .08em; border-top: 2px solid rgba(26,20,67,.4); border-bottom: 2px solid rgba(26,20,67,.4);
+    padding: 2px 0; margin: 2% 0 4%;
+  }
+  .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12%; padding: 0 6%; }
+  .card-stats div { display: flex; justify-content: space-between; font-size: clamp(15px, 3.8vw, 20px); font-weight: 700; letter-spacing: .04em; }
+  .card-stats b { font-family: 'Russo One'; font-weight: 400; }
+  #shine {
+    position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light;
+    background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.9), transparent 55%);
+    opacity: .55;
+  }
+  .card-hint { text-align: center; margin-top: 16px; font-size: 12px; letter-spacing: .35em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+
+  /* ---------- stats section ---------- */
+  .section-title { text-align: center; font-size: clamp(30px, 5vw, 46px); text-transform: uppercase; letter-spacing: .06em; }
+  .section-title span { color: var(--gold-1); }
+  .section-sub { text-align: center; color: rgba(255,255,255,.55); margin-top: 10px; font-size: 16px; letter-spacing: .1em; }
+  .stat-grid { margin-top: 54px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+  .stat-tile {
+    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid rgba(245,217,123,.25); border-radius: 18px;
+    padding: 34px 20px; text-align: center;
+    transition: transform .2s, border-color .2s;
+  }
+  .stat-tile:hover { transform: translateY(-6px); border-color: var(--gold-1); }
+  .stat-tile .num { font-family: 'Russo One'; font-size: 54px; color: var(--gold-1); }
+  .stat-tile .lbl { margin-top: 6px; font-size: 13px; letter-spacing: .35em; text-transform: uppercase; color: rgba(255,255,255,.65); }
+
+  .badges { margin-top: 60px; display: flex; flex-wrap: wrap; justify-content: center; gap: 46px; }
+  .badge { text-align: center; }
+  .badge .stars { font-size: 30px; letter-spacing: 6px; color: var(--gold-1); text-shadow: 0 0 16px rgba(245,217,123,.5); }
+  .badge .lbl { margin-top: 8px; font-size: 12px; letter-spacing: .35em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+
+  /* ---------- keepy-uppy ---------- */
+  #pitch {
+    position: relative; margin-top: 50px; height: 420px; border-radius: 22px; overflow: hidden;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 60px, transparent 60px 120px),
+      linear-gradient(180deg, #0d2b18 0%, #144022 100%);
+    border: 1px solid rgba(255,255,255,.14);
+    touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair;
+  }
+  #pitch::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 190px; height: 190px;
+    transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,.1); border-radius: 50%;
+  }
+  #ball {
+    position: absolute; width: 64px; height: 64px; left: 0; top: 0;
+    font-size: 56px; line-height: 64px; text-align: center;
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,.5));
+    will-change: transform; pointer-events: none;
+  }
+  #scoreHud {
+    position: absolute; top: 14px; left: 0; right: 0; display: flex; justify-content: center; gap: 34px;
+    font-family: 'Russo One'; font-size: 17px; letter-spacing: .1em; color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,.6); pointer-events: none;
+  }
+  #scoreHud .val { color: var(--gold-1); }
+  #gameMsg {
+    position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px;
+    align-items: center; justify-content: center; text-align: center;
+    background: rgba(4,8,20,.55); backdrop-filter: blur(3px);
+  }
+  #gameMsg.playing { display: none; }
+  #gameMsg h3 { font-size: clamp(24px, 4vw, 36px); text-transform: uppercase; color: var(--gold-1); }
+  #gameMsg p { color: rgba(255,255,255,.8); letter-spacing: .1em; }
+  #gameMsg button {
+    margin-top: 10px; font-family: 'Russo One'; font-size: 15px; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--navy-1); background: linear-gradient(90deg, var(--gold-2), var(--gold-1));
+    border: none; border-radius: 999px; padding: 14px 34px; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(227,185,77,.4);
+  }
+  #gameMsg button:hover { transform: translateY(-2px); }
+
+  footer {
+    position: relative; z-index: 10; text-align: center; padding: 50px 20px 70px;
+    color: rgba(255,255,255,.45); letter-spacing: .25em; text-transform: uppercase; font-size: 12px;
+  }
+  footer b { color: var(--gold-1); }
+  #replayBtn {
+    display: inline-block; margin-bottom: 22px; background: none; cursor: pointer;
+    border: 1px solid rgba(245,217,123,.4); color: var(--gold-1);
+    font-family: inherit; font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
+    padding: 12px 24px; border-radius: 999px;
+  }
+  #replayBtn:hover { background: rgba(245,217,123,.12); }
+
+  #confetti { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+
+  .reveal-on-scroll { opacity: 0; transform: translateY(36px); transition: opacity .7s, transform .7s; }
+  .reveal-on-scroll.in { opacity: 1; transform: none; }
+
+  @media (max-width: 720px) {
+    .hero { padding-top: 90px; }
+    .hero-copy { text-align: center; }
+    #pitch { height: 360px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01s !important; transition-duration: .01s !important; }
+  }
+</style>
+</head>
+<body class="locked">
+
+<div class="stadium" id="stadium">
+  <div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div>
+</div>
+
+<!-- ============ SVG defs used in several places ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Canada flag -->
+    <g id="flag-ca">
+      <rect width="60" height="40" fill="#fff"/>
+      <rect width="15" height="40" fill="#d52b1e"/>
+      <rect x="45" width="15" height="40" fill="#d52b1e"/>
+      <path fill="#d52b1e" d="M30 8l2 5 4-2-1.5 5.5L39 17l-3 3.5 4 2-4.5 1.5.8 4-5-2.2L31 31h-2l-.3-5.2-5 2.2.8-4L20 22.5l4-2-3-3.5 4.5-.5L24 11l4 2z"/>
+    </g>
+    <!-- CL FC crest -->
+    <g id="crest">
+      <path d="M30 2 L56 10 V32 C56 46 44 54 30 60 C16 54 4 46 4 32 V10 Z" fill="#1a1443" stroke="#f5d97b" stroke-width="3"/>
+      <path d="M33 12 L22 32 h8 L26 50 L40 27 h-9 L36 12 Z" fill="#f5d97b"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ============ STAGE 1: THE PACK ============ -->
+<div id="packScreen">
+  <div class="pack-title display">Ultimate Pack</div>
+  <button id="pack" aria-label="Open the pack">
+    <svg viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8a6a1c"/><stop offset=".35" stop-color="#f5d97b"/>
+          <stop offset=".55" stop-color="#fff3c4"/><stop offset=".75" stop-color="#e3b94d"/>
+          <stop offset="1" stop-color="#8a6a1c"/>
+        </linearGradient>
+        <linearGradient id="foilDark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#141b45"/><stop offset="1" stop-color="#0a0f2c"/>
+        </linearGradient>
+      </defs>
+      <path d="M14 26 L26 14 L38 26 L50 14 L62 26 L74 14 L86 26 L98 14 L110 26 L122 14 L134 26 L146 14 L158 26 L170 14 L182 26 L194 14 L206 26 V300 Q206 312 194 312 H26 Q14 312 14 300 Z" fill="url(#foil)" stroke="#5c430e" stroke-width="3"/>
+      <rect x="34" y="70" width="152" height="196" rx="14" fill="url(#foilDark)" stroke="#f5d97b" stroke-width="2.5"/>
+      <text x="110" y="118" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="26" fill="#f5d97b">RARE</text>
+      <text x="110" y="150" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="26" fill="#fff">GOLD</text>
+      <circle cx="110" cy="205" r="36" fill="none" stroke="#f5d97b" stroke-width="3"/>
+      <text x="110" y="219" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="38" fill="#f5d97b">?</text>
+      <text x="110" y="290" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="14" letter-spacing="6" fill="#3d2e08">×1 PLAYER</text>
+    </svg>
+  </button>
+  <div class="tap-hint">Tap to open</div>
+</div>
+
+<!-- ============ STAGE 2: WALKOUT ============ -->
+<div id="walkout" class="hidden">
+  <div class="walkout-item" id="w-pos">
+    <div class="walkout-label">Position</div>
+    <div class="walkout-value display">ST</div>
+  </div>
+  <div class="walkout-item" id="w-nation">
+    <div class="walkout-label">Nation</div>
+    <svg width="180" height="120" viewBox="0 0 60 40"><use href="#flag-ca"/></svg>
+  </div>
+  <div class="walkout-item" id="w-club">
+    <div class="walkout-label">Club</div>
+    <svg width="150" height="150" viewBox="0 0 60 62"><use href="#crest"/></svg>
+    <div class="walkout-value display" style="font-size:34px">CL FC</div>
+  </div>
+  <button id="skipBtn">Skip</button>
+</div>
+
+<div id="flash"></div>
+<canvas id="confetti"></canvas>
+
+<!-- ============ STAGE 3: THE PAGE ============ -->
+<main id="main">
+  <section class="hero">
+    <div class="card-wrap">
+      <div id="card" title="Move your mouse over the card!">
+        <svg class="shape" viewBox="0 0 300 470" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="cardGold" x1="0" y1="0" x2=".7" y2="1">
+              <stop offset="0" stop-color="#f8e6a6"/><stop offset=".3" stop-color="#eccb70"/>
+              <stop offset=".55" stop-color="#fdf2c0"/><stop offset=".8" stop-color="#e0b64a"/>
+              <stop offset="1" stop-color="#c69a2e"/>
+            </linearGradient>
+          </defs>
+          <path d="M24 6 H276 Q294 6 294 24 V330 Q294 352 277 366 L166 458 Q150 470 134 458 L23 366 Q6 352 6 330 V24 Q6 6 24 6 Z"
+                fill="url(#cardGold)" stroke="#8a6a1c" stroke-width="3"/>
+          <path d="M24 6 H276 Q294 6 294 24 V330 Q294 352 277 366 L166 458 Q150 470 134 458 L23 366 Q6 352 6 330 V24 Q6 6 24 6 Z"
+                fill="none" stroke="#fff8dd" stroke-width="1.5" opacity=".8" transform="translate(0,3) scale(.985)" transform-origin="150 235"/>
+        </svg>
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-rating">
+              <div class="ovr">99</div>
+              <div class="pos">ST</div>
+              <svg class="flag" viewBox="0 0 60 40"><use href="#flag-ca"/></svg>
+              <svg class="crest" viewBox="0 0 60 62"><use href="#crest"/></svg>
+            </div>
+            <div class="card-art">
+              <!-- jersey #10 -->
+              <svg viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg">
+                <path d="M62 18 L86 8 Q100 20 114 8 L138 18 L172 40 L156 72 L138 62 V170 Q138 178 130 178 H70 Q62 178 62 170 V62 L44 72 L28 40 Z"
+                      fill="#1a1443" stroke="#f5d97b" stroke-width="4"/>
+                <path d="M86 8 Q100 20 114 8 L120 12 Q100 30 80 12 Z" fill="#f5d97b"/>
+                <path d="M62 18 L44 72 L28 40 Z M138 18 L156 72 L172 40 Z" fill="none"/>
+                <text x="100" y="86" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="20" fill="#f5d97b" letter-spacing="2">CL</text>
+                <text x="100" y="150" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="62" fill="#f5d97b">10</text>
+              </svg>
+            </div>
+          </div>
+          <div class="card-name">CL</div>
+          <div class="card-stats">
+            <div><b>99</b><span>PAC</span></div>
+            <div><b>98</b><span>DRI</span></div>
+            <div><b>99</b><span>SHO</span></div>
+            <div><b>97</b><span>DEF</span></div>
+            <div><b>98</b><span>PAS</span></div>
+            <div><b>99</b><span>PHY</span></div>
+          </div>
+        </div>
+        <div id="shine"></div>
+      </div>
+      <div class="card-hint">← Move over the card →</div>
+    </div>
+
+    <div class="hero-copy">
+      <span class="kicker">Team of the Year</span>
+      <h1>The Legend<br>of CL</h1>
+      <p>Fastest boots in the schoolyard. Ice-cold finisher. 99 rated — because 100 would be unfair to everyone else.</p>
+      <a class="hero-cta" href="#game">⚽ Play Keepy-Uppy</a>
+    </div>
+  </section>
+
+  <section id="stats" class="reveal-on-scroll">
+    <h2 class="section-title">Season <span>Stats</span></h2>
+    <p class="section-sub">SCHOOLYARD LEAGUE · SEASON 2026</p>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="num" data-count="47">0</div><div class="lbl">Goals</div></div>
+      <div class="stat-tile"><div class="num" data-count="23">0</div><div class="lbl">Assists</div></div>
+      <div class="stat-tile"><div class="num" data-count="12">0</div><div class="lbl">Trophies</div></div>
+      <div class="stat-tile"><div class="num" data-count="99">0</div><div class="lbl">Overall</div></div>
+    </div>
+    <div class="badges">
+      <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Skill Moves</div></div>
+      <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Weak Foot</div></div>
+      <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Celebrations</div></div>
+    </div>
+  </section>
+
+  <section id="game" class="reveal-on-scroll">
+    <h2 class="section-title">Keepy<span>-</span>Uppy</h2>
+    <p class="section-sub">TAP THE BALL — DON'T LET IT DROP!</p>
+    <div id="pitch">
+      <div id="scoreHud">
+        <div>JUGGLES&nbsp;<span class="val" id="score">0</span></div>
+        <div>BEST&nbsp;<span class="val" id="best">0</span></div>
+      </div>
+      <div id="ball">⚽</div>
+      <div id="gameMsg">
+        <h3 id="msgTitle">Ready?</h3>
+        <p id="msgText">Tap the ball to juggle. One touch = one point.</p>
+        <button id="playBtn">Kick Off</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <button id="replayBtn">↺ Open Another Pack</button>
+  <div><b>CL</b> · EST. IN THE SCHOOLYARD · FUTURE BALLON D'OR WINNER</div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- floating dust particles ---------- */
+  const stadium = $("#stadium");
+  for (let i = 0; i < 26; i++) {
+    const d = document.createElement("div");
+    d.className = "dust";
+    const s = 2 + Math.random() * 4;
+    d.style.cssText = `left:${Math.random() * 100}vw;width:${s}px;height:${s}px;` +
+      `animation-duration:${9 + Math.random() * 14}s;animation-delay:-${Math.random() * 20}s;`;
+    stadium.appendChild(d);
+  }
+
+  /* ---------- tiny synth (no audio files) ---------- */
+  let actx = null;
+  function beep(freq, dur = 0.18, type = "triangle", vol = 0.25, when = 0) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator(), g = actx.createGain();
+      const t = actx.currentTime + when;
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(actx.destination);
+      o.start(t); o.stop(t + dur + 0.05);
+    } catch { /* audio blocked — no problem */ }
+  }
+  const fanfare = () => [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.35, "triangle", 0.22, i * 0.12));
+
+  /* ---------- confetti ---------- */
+  const canvas = $("#confetti"), ctx = canvas.getContext("2d");
+  let pieces = [], confettiRunning = false;
+  function fitCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  addEventListener("resize", fitCanvas); fitCanvas();
+  function burstConfetti() {
+    const colors = ["#f5d97b", "#e3b94d", "#ffffff", "#00e5ff", "#ff5470"];
+    for (let i = 0; i < 170; i++) {
+      pieces.push({
+        x: innerWidth / 2 + (Math.random() - 0.5) * 220,
+        y: innerHeight * 0.35,
+        vx: (Math.random() - 0.5) * 16,
+        vy: -6 - Math.random() * 12,
+        w: 6 + Math.random() * 7, h: 4 + Math.random() * 5,
+        rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+        color: colors[i % colors.length], life: 1,
+      });
+    }
+    if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(tickConfetti); }
+  }
+  function tickConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces = pieces.filter((p) => p.life > 0);
+    for (const p of pieces) {
+      p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.006;
+      ctx.save(); ctx.globalAlpha = Math.max(p.life, 0); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+    }
+    if (pieces.length) requestAnimationFrame(tickConfetti);
+    else { confettiRunning = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+
+  /* ---------- pack opening + walkout ---------- */
+  const packScreen = $("#packScreen"), walkout = $("#walkout"), flash = $("#flash"), main = $("#main");
+  let opening = false, walkoutSkipped = false;
+
+  async function openPack() {
+    if (opening) return;
+    opening = true;
+    walkoutSkipped = false;
+    beep(220, 0.3, "sawtooth", 0.15); beep(330, 0.3, "sawtooth", 0.15, 0.15);
+    const pack = $("#pack");
+    pack.classList.add("shake");
+    await wait(reducedMotion ? 50 : 900);
+    flash.classList.remove("boom"); void flash.offsetWidth; flash.classList.add("boom");
+    beep(1200, 0.5, "square", 0.12);
+    packScreen.classList.add("hidden");
+    walkout.classList.remove("hidden");
+    await runWalkout();
+    finishReveal();
+  }
+
+  async function showItem(id, holdMs) {
+    if (walkoutSkipped) return;
+    const el = $(id);
+    el.classList.remove("gone"); el.classList.add("show");
+    beep(660, 0.2, "triangle", 0.2);
+    await wait(reducedMotion ? 60 : holdMs);
+    el.classList.add("gone");
+    await wait(reducedMotion ? 20 : 420);
+    el.classList.remove("show", "gone");
+  }
+
+  async function runWalkout() {
+    await wait(300);
+    await showItem("#w-pos", 1100);
+    await showItem("#w-nation", 1100);
+    await showItem("#w-club", 1200);
+  }
+
+  function finishReveal() {
+    walkoutSkipped = true;
+    document.body.classList.remove("locked");
+    walkout.classList.add("hidden");
+    packScreen.classList.add("hidden");
+    flash.classList.remove("boom"); void flash.offsetWidth; flash.classList.add("boom");
+    main.classList.add("revealed");
+    // restart card entrance animation
+    const card = $("#card");
+    card.style.animation = "none"; void card.offsetWidth; card.style.animation = "";
+    burstConfetti();
+    fanfare();
+    opening = false;
+  }
+
+  $("#pack").addEventListener("click", openPack);
+  $("#skipBtn").addEventListener("click", () => { walkoutSkipped = true; finishReveal(); });
+  $("#replayBtn").addEventListener("click", () => {
+    scrollTo({ top: 0, behavior: "instant" });
+    document.body.classList.add("locked");
+    main.classList.remove("revealed");
+    walkout.classList.add("hidden");
+    packScreen.classList.remove("hidden");
+    $("#pack").classList.remove("shake");
+    opening = false;
+  });
+
+  /* ---------- card tilt + holo shine ---------- */
+  const card = $("#card"), shine = $("#shine");
+  function tilt(e) {
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    card.style.transform = `rotateX(${(0.5 - py) * 20}deg) rotateY(${(px - 0.5) * 20}deg)`;
+    shine.style.background =
+      `radial-gradient(circle at ${px * 100}% ${py * 100}%, rgba(255,255,255,.95), transparent 55%)`;
+  }
+  card.addEventListener("pointermove", tilt);
+  card.addEventListener("pointerleave", () => {
+    card.style.transform = "";
+    shine.style.background = "radial-gradient(circle at 50% 40%, rgba(255,255,255,.9), transparent 55%)";
+  });
+
+  /* ---------- scroll reveals + counters ---------- */
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      if (!en.isIntersecting) continue;
+      en.target.classList.add("in");
+      en.target.querySelectorAll("[data-count]").forEach(runCounter);
+      io.unobserve(en.target);
+    }
+  }, { threshold: 0.25 });
+  document.querySelectorAll(".reveal-on-scroll").forEach((el) => io.observe(el));
+
+  function runCounter(el) {
+    const target = +el.dataset.count, t0 = performance.now(), dur = 1400;
+    (function step(t) {
+      const k = Math.min((t - t0) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+
+  /* ---------- keepy-uppy ---------- */
+  const pitch = $("#pitch"), ball = $("#ball"), msg = $("#gameMsg");
+  const scoreEl = $("#score"), bestEl = $("#best");
+  const msgTitle = $("#msgTitle"), msgText = $("#msgText");
+  const BALL = 64, GRAV = 0.45;
+  let bx = 0, by = 0, bvx = 0, bvy = 0, brot = 0, score = 0, playing = false, lastT = 0;
+  let best = +(localStorage.getItem("cl-keepy-best") || 0);
+  bestEl.textContent = best;
+
+  function placeBall() {
+    ball.style.transform = `translate(${bx}px, ${by}px) rotate(${brot}deg)`;
+  }
+  // idle ball sits center-ish behind the "Ready?" overlay
+  bx = pitch.clientWidth / 2 - BALL / 2; by = pitch.clientHeight * 0.3;
+  placeBall();
+
+  function startGame() {
+    bx = pitch.clientWidth / 2 - BALL / 2;
+    by = pitch.clientHeight * 0.45;
+    bvx = 0; bvy = -10; brot = 0; score = 0; // opening toss upward: time to react
+    placeBall();
+    scoreEl.textContent = 0;
+    playing = true;
+    msg.classList.add("playing");
+    beep(880, 0.15, "square", 0.15);
+    lastT = performance.now();
+    requestAnimationFrame(gameTick);
+  }
+
+  function gameOver() {
+    playing = false;
+    const isRecord = score > best;
+    if (isRecord) { best = score; localStorage.setItem("cl-keepy-best", best); bestEl.textContent = best; }
+    msgTitle.textContent = isRecord && score > 0 ? "🏆 New Record!" : score >= 10 ? "World Class!" : "Full Time!";
+    msgText.textContent = `${score} juggle${score === 1 ? "" : "s"}. ${isRecord && score > 0 ? "CL would be proud." : "Tap faster next time!"}`;
+    $("#playBtn").textContent = "Play Again";
+    msg.classList.remove("playing");
+    beep(196, 0.4, "sawtooth", 0.18);
+  }
+
+  function gameTick(t) {
+    if (!playing) return;
+    // dt in units of one 60fps frame, so speed is identical on 60Hz and 120Hz screens
+    const dt = Math.min((t - lastT) / 16.667, 3) || 1;
+    lastT = t;
+    const w = pitch.clientWidth, h = pitch.clientHeight;
+    bvy += GRAV * dt;
+    bx += bvx * dt; by += bvy * dt; brot += bvx * 2 * dt;
+    if (bx < 0) { bx = 0; bvx = Math.abs(bvx) * 0.85; }
+    if (bx > w - BALL) { bx = w - BALL; bvx = -Math.abs(bvx) * 0.85; }
+    if (by < -BALL * 2) { by = -BALL * 2; bvy = Math.max(bvy, 0); }
+    placeBall();
+    if (by > h - BALL + 10) { gameOver(); return; }
+    requestAnimationFrame(gameTick);
+  }
+
+  pitch.addEventListener("pointerdown", (e) => {
+    if (!playing) return;
+    const r = pitch.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    const cx = bx + BALL / 2, cy = by + BALL / 2;
+    const dist = Math.hypot(mx - cx, my - cy);
+    if (dist < BALL * 1.15) {
+      score++; scoreEl.textContent = score;
+      bvy = -(10.5 + Math.min(score * 0.12, 4));
+      bvx += (cx - mx) * 0.22 + (Math.random() - 0.5) * 2;
+      bvx = Math.max(-9, Math.min(9, bvx));
+      beep(700 + Math.min(score * 18, 500), 0.09, "square", 0.14);
+    }
+  });
+  $("#playBtn").addEventListener("click", startGame);
+})();
+</script>
+</body>
+</html>
