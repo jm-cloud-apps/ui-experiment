@@ -919,7 +919,7 @@
   function pkNewLean(){ pkLean=Math.floor(Math.random()*3); const gw=pkGoal.getBoundingClientRect().width||pkScene.clientWidth*0.74;
     pkKeeper.style.transform=`translateX(${(pkLean-1)*gw*0.17}px) rotate(${(pkLean-1)*6}deg)`; }
   function pkStartPower(){ cancelAnimationFrame(pkRaf); (function loop(){ if(pkPhase!=="aim") return;
-    pkPower+=pkDir*2.4; if(pkPower>=100){pkPower=100;pkDir=-1;} else if(pkPower<=0){pkPower=0;pkDir=1;}
+    pkPower+=pkDir*3.1; if(pkPower>=100){pkPower=100;pkDir=-1;} else if(pkPower<=0){pkPower=0;pkDir=1;}
     pkPowerFill.style.width=pkPower+"%";
     pkPowerFill.style.background = pkPower>90 ? "#ff5470" : (pkPower<35 ? "#8fd6ff" : "linear-gradient(90deg,var(--gold-2),var(--gold-1))");
     pkRaf=requestAnimationFrame(loop); })(); }
@@ -934,35 +934,51 @@
     pkPhase="aim"; pkNewLean(); pkStartPower(); pkZones.classList.add("live"); }
 
   function pkResolveShot(col,row,power,kcol){
-    if(row===0 && power>90) return "over";                         // top row + too much = over the bar
+    if(row===0 && power>90) return "over";                          // overhit high = over the bar
     if(kcol===col){
-      if(row===0 && (col===0||col===2) && power>=60) return "goal"; // top-corner banger
-      if(power>=80 && (col===0||col===2)) return "goal";           // hard side shot beats the dive
-      return "save";
+      if(row===0 && (col===0||col===2) && power>=78) return "goal"; // only a top-corner screamer beats him
+      return "save";                                                // keeper on your line = saved
     }
-    if(Math.abs(kcol-col)===1 && power<30) return "save";          // weak shot, keeper scrambles across
+    if(Math.abs(kcol-col)===1 && power<45) return "save";           // keeper scrambles across on soft shots
     return "goal";
   }
 
   function pkShoot(col,row,forcePower){ if(pkPhase!=="aim") return; pkPhase="resolving"; cancelAnimationFrame(pkRaf);
     const power = forcePower!=null?forcePower:pkPower;
     pkZones.classList.remove("live");
-    let kcol; const reflex=Math.min(pkScore*0.04,0.4);
-    if(Math.random()<reflex) kcol=col;
-    else kcol = Math.random()<0.7 ? pkLean : Math.floor(Math.random()*3);
+    // keeper's guess — reads you more often the longer the round runs
+    const pRead=Math.min(0.14 + pkScore*0.05, 0.62);
+    let kcol;
+    if(Math.random()<pRead) kcol=col;                         // reads the shot
+    else if(Math.random()<0.75) kcol=pkLean;                  // dives to his lean (the tell)
+    else kcol=Math.floor(Math.random()*3);                    // pure guess
     const result = pkResolveShot(col,row,power,kcol);
     beep(320,0.12,"square",0.16);
-    // animate ball to the chosen zone
-    const zone=pkZones.querySelector(`.pk-zone[data-col="${col}"][data-row="${row}"]`);
-    const zr=zone.getBoundingClientRect(), br=pkBall.getBoundingClientRect();
-    const tx=(zr.left+zr.width/2)-(br.left+br.width/2), ty=(zr.top+zr.height/2)-(br.top+br.height/2);
-    pkBall.style.transition="transform .42s cubic-bezier(.4,.55,.3,1)";
-    pkBall.style.transform=`translate(${tx}px,${ty}px) scale(.6)`;
-    // keeper dives
-    const gr=pkGoal.getBoundingClientRect();
-    pkKeeper.style.transition="transform .4s cubic-bezier(.3,.8,.4,1)";
-    pkKeeper.style.transform=`translateX(${(kcol-1)*gr.width*0.30}px) rotate(${(kcol-1)*66}deg)`;
-    setTimeout(()=>pkResult(result), reduced?60:500);
+
+    // geometry so the visuals always match the result
+    const goal=pkGoal.getBoundingClientRect(), br=pkBall.getBoundingClientRect();
+    const bcx=br.left+br.width/2, bcy=br.top+br.height/2;
+    const colX=c=>goal.left+goal.width*((c*2+1)/6), centerX=goal.left+goal.width/2;
+    const lineY=goal.top+goal.height*0.82;                    // keeper glove height
+    const netY=r=>goal.top+goal.height*(r===0?0.26:0.56);     // inside the net
+    // on a save the keeper must end up on the ball; otherwise he goes to his guess
+    const diveCol = result==="save" ? col : kcol;
+    pkKeeper.style.transition="transform .34s cubic-bezier(.3,.85,.4,1)";
+    pkKeeper.style.transform=`translateX(${colX(diveCol)-centerX}px) rotate(${(diveCol-1)*72}deg)`;
+    // ball path
+    let tx,ty,sc;
+    if(result==="over"){ tx=colX(col)-bcx; ty=(goal.top-goal.height*0.22)-bcy; sc=.42; }
+    else if(result==="save"){ tx=colX(col)-bcx; ty=lineY-bcy; sc=.62; }   // stops at the keeper
+    else { tx=colX(col)-bcx; ty=netY(row)-bcy; sc=.5; }                   // into the net
+    pkBall.style.transition="transform .4s cubic-bezier(.4,.5,.35,1)";
+    pkBall.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+    if(result==="save"){                                                  // let the ball reach the keeper, THEN parry it away
+      setTimeout(()=>{ if(pkPhase!=="resolving") return; const away=col<=1?1:-1;
+        pkBall.style.transition="transform .34s ease-out";
+        pkBall.style.transform=`translate(${tx+away*goal.width*0.28}px,${ty+goal.height*0.62}px) scale(.72) rotate(80deg)`;
+      }, reduced?30:430);
+    }
+    setTimeout(()=>pkResult(result), reduced?60:(result==="save"?820:560));
   }
 
   function pkResult(result){
