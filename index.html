@@ -4,1022 +4,758 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ultimate Football ⚽</title>
-<meta name="description" content="Ultimate Football — open a pack, become a legend, keep the ball up!" />
+<meta name="description" content="Ultimate Football — pick a club, buy packs, pull legends, build your squad." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --gold-1: #f5d97b;
-    --gold-2: #e3b94d;
-    --gold-3: #b8860b;
-    --navy-1: #0a0f2c;
-    --navy-2: #141b45;
-    --ink: #1a1443;
-    --white: #fdfbf4;
-    --accent: #00e5ff;
+    --gold-1:#f5d97b; --gold-2:#e3b94d; --navy-1:#0a0f2c; --navy-2:#141b45;
+    --ink:#1a1443; --white:#fdfbf4;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body.locked { overflow: hidden; height: 100vh; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
   body {
-    background: var(--navy-1);
-    color: var(--white);
-    font-family: 'Oswald', 'Arial Narrow', Arial, sans-serif;
-    overflow-x: hidden;
-    min-height: 100vh;
+    background:var(--navy-1); color:var(--white);
+    font-family:'Oswald','Arial Narrow',Arial,sans-serif; min-height:100vh; overflow-x:hidden;
   }
-  h1, h2, h3, .display { font-family: 'Russo One', 'Arial Black', sans-serif; }
+  h1,h2,h3,.display { font-family:'Russo One','Arial Black',sans-serif; }
+  button { font-family:inherit; }
 
   /* ---------- stadium backdrop ---------- */
-  .stadium {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  .stadium { position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
       radial-gradient(ellipse 120% 60% at 50% -10%, #2a3570 0%, transparent 60%),
       radial-gradient(ellipse 80% 50% at 50% 110%, #123b1f 0%, transparent 55%),
-      linear-gradient(180deg, #060a1e 0%, #0a0f2c 50%, #0b1230 100%);
-  }
-  .beam {
-    position: absolute; top: -20%; width: 26vw; height: 90vh;
-    background: linear-gradient(180deg, rgba(190,220,255,.16), transparent 75%);
-    clip-path: polygon(42% 0, 58% 0, 100% 100%, 0% 100%);
-    filter: blur(6px);
-    transform-origin: top center;
-    animation: sweep 9s ease-in-out infinite alternate;
-  }
-  .beam.b1 { left: 4%;  animation-delay: 0s; }
-  .beam.b2 { left: 38%; animation-delay: -3s; }
-  .beam.b3 { left: 72%; animation-delay: -6s; }
-  @keyframes sweep {
-    from { transform: rotate(-14deg); opacity: .5; }
-    to   { transform: rotate(14deg);  opacity: .9; }
-  }
-  .dust { position: absolute; border-radius: 50%; background: rgba(255,235,170,.7); animation: floatUp linear infinite; }
-  @keyframes floatUp {
-    from { transform: translateY(105vh) scale(1); opacity: 0; }
-    10%  { opacity: .8; }
-    to   { transform: translateY(-8vh) scale(.4); opacity: 0; }
-  }
+      linear-gradient(180deg, #060a1e 0%, #0a0f2c 50%, #0b1230 100%); }
+  .beam { position:absolute; top:-20%; width:26vw; height:90vh;
+    background:linear-gradient(180deg, rgba(190,220,255,.14), transparent 75%);
+    clip-path:polygon(42% 0,58% 0,100% 100%,0% 100%); filter:blur(6px);
+    transform-origin:top center; animation:sweep 9s ease-in-out infinite alternate; }
+  .beam.b1{left:4%} .beam.b2{left:38%;animation-delay:-3s} .beam.b3{left:72%;animation-delay:-6s}
+  @keyframes sweep { from{transform:rotate(-14deg);opacity:.5} to{transform:rotate(14deg);opacity:.85} }
+  .dust { position:absolute; border-radius:50%; background:rgba(255,235,170,.6); animation:floatUp linear infinite; }
+  @keyframes floatUp { from{transform:translateY(105vh) scale(1);opacity:0} 10%{opacity:.7} to{transform:translateY(-8vh) scale(.4);opacity:0} }
 
-  /* ---------- pack screen ---------- */
-  #packScreen {
-    position: fixed; inset: 0; z-index: 50;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 24px; transition: opacity .5s;
-  }
-  #packScreen.hidden, #walkout.hidden { opacity: 0; pointer-events: none; }
-  .pack-title {
-    font-size: clamp(22px, 5vw, 40px); letter-spacing: .2em; text-transform: uppercase;
-    color: var(--gold-1); text-shadow: 0 0 24px rgba(245,217,123,.55); text-align: center;
-  }
-  .pack-sub {
-    font-size: 14px; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,255,255,.6);
-    margin-top: -14px;
-  }
-  #pack {
-    width: min(46vw, 230px); cursor: pointer; border: none; background: none; padding: 0;
-    filter: drop-shadow(0 0 32px rgba(245,217,123,.45));
-    animation: packFloat 2.6s ease-in-out infinite;
-    transition: transform .15s;
-    touch-action: manipulation;
-  }
-  #pack:hover { transform: scale(1.05); }
-  #pack.shake { animation: packShake .45s ease-in-out 2; }
-  @keyframes packFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -14px; } }
-  @keyframes packShake {
-    0%,100% { rotate: 0deg; } 20% { rotate: -6deg; } 40% { rotate: 6deg; }
-    60% { rotate: -8deg; } 80% { rotate: 8deg; }
-  }
-  .tap-hint {
-    font-size: 15px; letter-spacing: .5em; text-transform: uppercase; color: rgba(255,255,255,.85);
-    animation: blink 1.4s ease-in-out infinite;
-  }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+  #app { position:relative; z-index:10; max-width:1080px; margin:0 auto; padding:0 16px 90px; }
 
-  #flash {
-    position: fixed; inset: 0; z-index: 90; background: #fff; opacity: 0; pointer-events: none;
-  }
-  #flash.boom { animation: boom .9s ease-out; }
-  @keyframes boom { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+  /* ---------- top bar ---------- */
+  #topbar { position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:14px 6px 12px; background:var(--navy-1); border-bottom:1px solid rgba(255,255,255,.06); }
+  .club { display:flex; align-items:center; gap:10px; min-width:0; }
+  .club .crest { width:34px; flex:0 0 auto; }
+  .club .crest svg { width:100%; height:auto; display:block; }
+  .club .meta { min-width:0; }
+  .club .meta small { display:block; font-size:10px; letter-spacing:.3em; color:rgba(255,255,255,.5); text-transform:uppercase; }
+  .club .meta .cname { font-family:'Russo One'; font-size:16px; color:var(--gold-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .coins { display:flex; align-items:center; gap:8px; font-family:'Russo One'; font-size:19px; color:var(--gold-1);
+    background:rgba(245,217,123,.1); border:1px solid rgba(245,217,123,.35); border-radius:999px; padding:8px 16px; white-space:nowrap; }
+  .coins .bump { animation:bump .4s ease; }
+  @keyframes bump { 30%{transform:scale(1.25); color:#fff} }
 
-  /* ---------- walkout ---------- */
-  #walkout {
-    position: fixed; inset: 0; z-index: 60;
-    display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(ellipse at center, #131b4d 0%, #05081a 75%);
-    transition: opacity .5s;
-  }
-  .walkout-item {
-    position: absolute; text-align: center; opacity: 0;
-    display: flex; flex-direction: column; align-items: center; gap: 14px;
-  }
-  .walkout-item.show { animation: slamIn .8s cubic-bezier(.2,1.6,.35,1) forwards; }
-  .walkout-item.gone { animation: flyOut .4s ease-in forwards; }
-  @keyframes slamIn {
-    from { opacity: 0; transform: scale(3.2); filter: blur(8px); }
-    to   { opacity: 1; transform: scale(1); filter: blur(0); }
-  }
-  @keyframes flyOut {
-    to { opacity: 0; transform: scale(.6) translateY(-40px); }
-  }
-  .walkout-label { font-size: 14px; letter-spacing: .6em; text-transform: uppercase; color: rgba(255,255,255,.55); }
-  .walkout-value { font-size: clamp(56px, 14vw, 130px); color: var(--gold-1); text-shadow: 0 0 50px rgba(245,217,123,.6); }
-  .walkout-item svg { filter: drop-shadow(0 0 30px rgba(245,217,123,.5)); }
-  .walkout-portrait svg { width: min(44vw, 220px); height: auto; }
-  .walkout-crest svg { width: 150px; height: auto; }
-  #skipBtn {
-    position: absolute; bottom: 28px; right: 28px; z-index: 61;
-    background: none; border: 1px solid rgba(255,255,255,.35); color: rgba(255,255,255,.7);
-    font-family: inherit; letter-spacing: .3em; text-transform: uppercase; font-size: 12px;
-    padding: 10px 20px; border-radius: 999px; cursor: pointer;
-    touch-action: manipulation;
-  }
-  #skipBtn:hover { border-color: var(--gold-1); color: var(--gold-1); }
+  /* ---------- tabs ---------- */
+  #tabs { position:sticky; top:60px; z-index:29; display:flex; gap:6px; padding:6px; margin:0 0 22px;
+    background:#11183b; border:1px solid rgba(255,255,255,.1); border-radius:14px; box-shadow:0 8px 20px rgba(4,7,20,.6); }
+  #tabs button { flex:1; background:none; border:none; color:rgba(255,255,255,.6); cursor:pointer;
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; padding:11px 4px; border-radius:10px; transition:.15s; }
+  #tabs button:hover { color:#fff; }
+  #tabs button.active { color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); box-shadow:0 6px 18px rgba(227,185,77,.3); }
+  .tab { display:none; animation:fadeUp .35s ease; }
+  .tab.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
 
-  /* ---------- main page ---------- */
-  #main { position: relative; z-index: 10; opacity: 0; transition: opacity .8s; }
-  #main.revealed { opacity: 1; }
-  section { max-width: 1080px; margin: 0 auto; padding: 90px 24px; }
+  .section-head { text-align:center; margin-bottom:22px; }
+  .section-head h2 { font-size:clamp(24px,4.5vw,36px); text-transform:uppercase; letter-spacing:.05em; }
+  .section-head h2 span { color:var(--gold-1); }
+  .section-head p { color:rgba(255,255,255,.55); margin-top:6px; font-size:14px; letter-spacing:.08em; }
 
-  .hero {
-    min-height: 100vh; display: flex; flex-wrap: wrap; align-items: center;
-    justify-content: center; gap: clamp(24px, 6vw, 90px); padding-top: 60px;
-  }
-  .hero-copy { max-width: 420px; }
-  .kicker {
-    display: inline-block; font-size: 13px; letter-spacing: .45em; text-transform: uppercase;
-    color: var(--navy-1); background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
-    padding: 7px 16px 6px; border-radius: 4px; margin-bottom: 22px; font-weight: 700;
-  }
-  .hero-copy h1 {
-    font-size: clamp(44px, 8vw, 84px); line-height: .95; text-transform: uppercase;
-    background: linear-gradient(180deg, #fff 30%, var(--gold-1) 90%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .hero-copy p { margin-top: 20px; font-size: 19px; color: rgba(255,255,255,.75); line-height: 1.55; }
-  .hero-cta {
-    margin-top: 30px; display: inline-flex; align-items: center; gap: 10px;
-    background: linear-gradient(90deg, var(--gold-2), var(--gold-1));
-    color: var(--navy-1); text-decoration: none; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .18em; font-size: 14px; padding: 15px 28px; border-radius: 999px;
-    box-shadow: 0 8px 30px rgba(227,185,77,.35);
-    transition: transform .15s, box-shadow .15s;
-  }
-  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(227,185,77,.5); }
+  /* ---------- pack grid ---------- */
+  .pack-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; }
+  .pack { position:relative; border-radius:18px; padding:20px 14px 16px; text-align:center; overflow:hidden;
+    background:linear-gradient(165deg, var(--c1), var(--c2)); border:1px solid rgba(255,255,255,.28);
+    box-shadow:0 10px 26px rgba(0,0,0,.4); color:var(--tc); }
+  .pack::before { content:""; position:absolute; inset:0; background:
+    linear-gradient(115deg, transparent 30%, rgba(255,255,255,.5) 48%, transparent 62%); opacity:.5;
+    animation:packShine 5s linear infinite; mix-blend-mode:overlay; }
+  @keyframes packShine { from{transform:translateX(-120%)} to{transform:translateX(120%)} }
+  .pack.special { box-shadow:0 0 30px rgba(255,215,61,.55), 0 10px 26px rgba(0,0,0,.5); }
+  .pack .pack-ico { font-size:40px; line-height:1; filter:drop-shadow(0 3px 5px rgba(0,0,0,.35)); }
+  .pack .pack-name { font-family:'Russo One'; font-size:20px; margin-top:8px; letter-spacing:.03em; }
+  .pack .pack-sub { font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.85; margin-top:2px; }
+  .pack .pack-odds { margin-top:12px; font-size:12px; font-weight:700; letter-spacing:.04em;
+    background:rgba(0,0,0,.22); border-radius:8px; padding:5px 6px; }
+  .pack .pack-odds b { font-family:'Russo One'; font-weight:400; }
+  .pack .pack-buy { margin-top:12px; width:100%; cursor:pointer; border:none; border-radius:10px;
+    font-family:'Russo One'; font-size:14px; letter-spacing:.03em; padding:11px 6px; color:var(--navy-1);
+    background:rgba(255,255,255,.92); box-shadow:0 4px 12px rgba(0,0,0,.3); transition:transform .12s, opacity .12s; }
+  .pack .pack-buy:hover:not(:disabled) { transform:translateY(-2px); }
+  .pack .pack-buy:disabled { opacity:.45; cursor:not-allowed; }
+  .pack .pack-buy .price { display:inline-flex; gap:4px; align-items:center; }
 
-  /* ---------- the card ---------- */
-  .card-wrap { perspective: 1100px; }
-  #card {
-    position: relative; width: min(78vw, 330px); aspect-ratio: 300/470;
-    transform-style: preserve-3d; transition: transform .25s ease-out;
-    animation: cardArrive 1s cubic-bezier(.2,1.4,.4,1);
-    cursor: pointer;
-  }
-  @keyframes cardArrive {
-    from { transform: scale(.3) rotateY(180deg); opacity: 0; }
-    to   { transform: scale(1) rotateY(0); opacity: 1; }
-  }
-  #card svg.shape { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .card-content {
-    position: absolute; inset: 0; display: flex; flex-direction: column;
-    color: var(--ink); padding: 8% 12%;
-  }
-  .card-top { display: flex; gap: 4%; align-items: flex-start; }
-  .card-rating { display: flex; flex-direction: column; align-items: center; line-height: 1; }
-  .card-rating .ovr { font-family: 'Russo One'; font-size: clamp(38px, 9vw, 52px); }
-  .card-rating .pos { font-family: 'Russo One'; font-size: clamp(16px, 4vw, 22px); margin-top: 2px; }
-  .card-rating .flag { margin-top: 8px; width: clamp(28px, 7vw, 38px); border-radius: 3px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
-  .card-rating .crest { margin-top: 8px; width: clamp(26px, 6.5vw, 34px); }
-  .card-rating .crest svg { width: 100%; height: auto; display: block; }
-  .card-art { flex: 1; display: flex; align-items: center; justify-content: center; }
-  .card-art svg { width: 88%; height: auto; filter: drop-shadow(0 6px 10px rgba(26,20,67,.35)); }
-  .card-name {
-    text-align: center; font-family: 'Russo One'; font-size: clamp(30px, 7.5vw, 44px);
-    letter-spacing: .08em; border-top: 2px solid rgba(26,20,67,.4); border-bottom: 2px solid rgba(26,20,67,.4);
-    padding: 2px 0; margin: 2% 0 4%;
-  }
-  .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12%; padding: 0 6%; }
-  .card-stats div { display: flex; justify-content: space-between; font-size: clamp(15px, 3.8vw, 20px); font-weight: 700; letter-spacing: .04em; }
-  .card-stats b { font-family: 'Russo One'; font-weight: 400; }
-  #shine {
-    position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light;
-    background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.9), transparent 55%);
-    opacity: .55;
-  }
-  .card-hint { text-align: center; margin-top: 16px; font-size: 12px; letter-spacing: .35em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+  /* ---------- upgrades ---------- */
+  .upg-wrap { display:grid; gap:16px; max-width:640px; margin:0 auto; }
+  .upg { background:linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border:1px solid rgba(245,217,123,.25); border-radius:16px; padding:20px; display:flex; gap:16px; align-items:center; }
+  .upg .u-ico { font-size:38px; }
+  .upg .u-body { flex:1; min-width:0; }
+  .upg .u-body h3 { font-size:18px; text-transform:uppercase; letter-spacing:.04em; }
+  .upg .u-body .u-eff { color:rgba(255,255,255,.7); font-size:14px; margin-top:3px; }
+  .upg .u-body .u-eff b { color:var(--gold-1); }
+  .upg .u-bar { height:7px; border-radius:99px; background:rgba(255,255,255,.12); margin-top:9px; overflow:hidden; }
+  .upg .u-bar i { display:block; height:100%; background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border-radius:99px; transition:width .3s; }
+  .upg button { cursor:pointer; border:none; border-radius:11px; font-family:'Russo One'; font-size:14px; padding:12px 16px;
+    color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); box-shadow:0 6px 16px rgba(227,185,77,.3);
+    white-space:nowrap; transition:transform .12s, opacity .12s; }
+  .upg button:hover:not(:disabled) { transform:translateY(-2px); }
+  .upg button:disabled { opacity:.45; cursor:not-allowed; }
+  .upg button.maxed { background:rgba(255,255,255,.15); color:var(--gold-1); box-shadow:none; }
+  #resetRow { text-align:center; margin-top:26px; }
+  #resetBtn { background:none; border:1px solid rgba(255,120,120,.4); color:rgba(255,150,150,.8); cursor:pointer;
+    font-size:11px; letter-spacing:.2em; text-transform:uppercase; padding:9px 18px; border-radius:99px; }
+  #resetBtn:hover { background:rgba(255,120,120,.12); }
 
-  /* ---------- stats section ---------- */
-  .section-title { text-align: center; font-size: clamp(30px, 5vw, 46px); text-transform: uppercase; letter-spacing: .06em; }
-  .section-title span { color: var(--gold-1); }
-  .section-sub { text-align: center; color: rgba(255,255,255,.55); margin-top: 10px; font-size: 16px; letter-spacing: .1em; }
-  .stat-grid { margin-top: 54px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-  .stat-tile {
-    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
-    border: 1px solid rgba(245,217,123,.25); border-radius: 18px;
-    padding: 34px 20px; text-align: center;
-    transition: transform .2s, border-color .2s;
-  }
-  .stat-tile:hover { transform: translateY(-6px); border-color: var(--gold-1); }
-  .stat-tile .num { font-family: 'Russo One'; font-size: 54px; color: var(--gold-1); }
-  .stat-tile .lbl { margin-top: 6px; font-size: 13px; letter-spacing: .35em; text-transform: uppercase; color: rgba(255,255,255,.65); }
+  /* ---------- squad ---------- */
+  .squad-summary { display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin-bottom:24px; }
+  .sqstat { background:linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border:1px solid rgba(245,217,123,.22); border-radius:14px; padding:14px 22px; text-align:center; min-width:104px; }
+  .sqstat .n { font-family:'Russo One'; font-size:30px; color:var(--gold-1); }
+  .sqstat .l { font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:rgba(255,255,255,.6); margin-top:2px; }
+  .tier-block { margin-bottom:26px; }
+  .tier-block h3 { font-size:15px; text-transform:uppercase; letter-spacing:.12em; margin-bottom:12px;
+    display:flex; align-items:center; gap:10px; }
+  .tier-dot { width:13px; height:13px; border-radius:4px; box-shadow:0 0 8px currentColor; }
+  .tier-block h3 .cnt { margin-left:auto; font-size:12px; color:rgba(255,255,255,.5); letter-spacing:.1em; }
+  .mini-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:12px; }
+  .mini { position:relative; cursor:pointer; border:none; text-align:center; border-radius:14px; padding:12px 8px 10px;
+    background:linear-gradient(160deg, var(--c1), var(--c2)); color:var(--tc); box-shadow:0 6px 16px rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.25); transition:transform .12s; overflow:hidden; }
+  .mini:hover { transform:translateY(-4px); }
+  .mini .mini-ovr { position:absolute; top:7px; left:9px; font-family:'Russo One'; font-size:18px; line-height:1; }
+  .mini .mini-dupe { position:absolute; top:7px; right:8px; font-size:10px; font-weight:700; background:rgba(0,0,0,.28); border-radius:6px; padding:2px 5px; }
+  .mini .mini-art { display:block; width:66px; height:70px; margin:6px auto 4px; }
+  .mini .mini-art svg { width:100%; height:100%; }
+  .mini .mini-name { display:block; font-family:'Russo One'; font-size:12px; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini .mini-pos { display:block; font-size:10px; letter-spacing:.16em; opacity:.8; text-transform:uppercase; margin-top:1px; }
+  .empty-note { text-align:center; color:rgba(255,255,255,.45); padding:40px 10px; font-size:15px; letter-spacing:.06em; }
+  .empty-note button { margin-top:14px; }
+  .link-btn { cursor:pointer; border:none; border-radius:11px; font-family:'Russo One'; font-size:14px; padding:12px 22px;
+    color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); box-shadow:0 6px 16px rgba(227,185,77,.3); }
 
-  .badges { margin-top: 60px; display: flex; flex-wrap: wrap; justify-content: center; gap: 46px; }
-  .badge { text-align: center; }
-  .badge .stars { font-size: 30px; letter-spacing: 6px; color: var(--gold-1); text-shadow: 0 0 16px rgba(245,217,123,.5); }
-  .badge .lbl { margin-top: 8px; font-size: 12px; letter-spacing: .35em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+  /* ---------- FIFA card (reveal + modal) ---------- */
+  .card-wrap { perspective:1100px; display:flex; justify-content:center; }
+  .fifa-card { position:relative; width:min(74vw,300px); aspect-ratio:300/430; border-radius:20px;
+    background:linear-gradient(158deg, var(--c1), var(--c2)); color:var(--tc);
+    border:2px solid rgba(255,255,255,.5); box-shadow:0 20px 50px rgba(0,0,0,.55);
+    transform-style:preserve-3d; transition:transform .2s ease-out; padding:20px 20px 16px; overflow:hidden; }
+  .fifa-card.special { box-shadow:0 0 44px rgba(255,215,61,.6), 0 20px 50px rgba(0,0,0,.6); }
+  .fc-shine { position:absolute; inset:0; pointer-events:none; mix-blend-mode:soft-light;
+    background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.85), transparent 55%); opacity:.5; }
+  .fc-top { display:flex; gap:10px; align-items:flex-start; }
+  .fc-rating { display:flex; flex-direction:column; align-items:center; line-height:1; }
+  .fc-ovr { font-family:'Russo One'; font-size:clamp(34px,9vw,46px); }
+  .fc-pos { font-family:'Russo One'; font-size:clamp(14px,4vw,19px); margin-top:3px; }
+  .fc-flag { margin-top:8px; width:34px; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.4); }
+  .fc-crest { margin-top:8px; width:30px; }
+  .fc-crest svg { width:100%; height:auto; display:block; }
+  .fc-art { flex:1; display:flex; align-items:flex-end; justify-content:center; }
+  .fc-art svg { width:86%; height:auto; filter:drop-shadow(0 6px 10px rgba(0,0,0,.3)); }
+  .fc-name { text-align:center; font-family:'Russo One'; font-size:clamp(22px,6vw,32px); letter-spacing:.05em;
+    border-top:2px solid rgba(0,0,0,.28); padding-top:4px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fc-tier { text-align:center; font-size:10px; letter-spacing:.24em; text-transform:uppercase; opacity:.75; margin:1px 0 6px; }
+  .fc-stats { display:grid; grid-template-columns:1fr 1fr; gap:2px 14%; padding:0 6%;
+    border-top:2px solid rgba(0,0,0,.28); padding-top:8px; }
+  .fc-stats div { display:flex; justify-content:space-between; font-size:clamp(14px,3.6vw,18px); font-weight:700; }
+  .fc-stats b { font-family:'Russo One'; font-weight:400; }
+
+  /* ---------- reveal overlay ---------- */
+  #reveal { position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center; flex-direction:column; gap:18px;
+    background:radial-gradient(ellipse at center, rgba(19,27,77,.9) 0%, rgba(4,7,20,.96) 75%); padding:24px; }
+  #reveal.show { display:flex; }
+  #reveal .rv-card { animation:slamIn .7s cubic-bezier(.2,1.6,.35,1); }
+  @keyframes slamIn { from{opacity:0; transform:scale(2.6); filter:blur(8px)} to{opacity:1; transform:scale(1); filter:blur(0)} }
+  #rvResult { text-align:center; min-height:30px; }
+  #rvResult .tag { font-family:'Russo One'; font-size:22px; letter-spacing:.04em; }
+  #rvResult .tag.newp { color:var(--gold-1); text-shadow:0 0 18px rgba(245,217,123,.6); }
+  #rvResult .tag.dupe { color:#8fd6ff; }
+  #rvResult .sub { color:rgba(255,255,255,.7); font-size:14px; margin-top:4px; letter-spacing:.06em; }
+  #rvBtns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  #rvBtns button { cursor:pointer; border:none; border-radius:999px; font-family:'Russo One'; font-size:14px; letter-spacing:.05em; padding:13px 26px; }
+  #rvAgain { color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); box-shadow:0 8px 22px rgba(227,185,77,.4); }
+  #rvAgain:disabled { opacity:.4; cursor:not-allowed; }
+  #rvDone { color:#fff; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); }
+
+  /* ---------- team select + card modal ---------- */
+  .overlay { position:fixed; inset:0; z-index:80; display:none; align-items:center; justify-content:center; padding:22px;
+    background:rgba(4,7,20,.86); backdrop-filter:blur(5px); }
+  .overlay.show { display:flex; }
+  #teamSelect .box { max-width:720px; width:100%; text-align:center; }
+  #teamSelect h2 { font-size:clamp(24px,5vw,38px); text-transform:uppercase; color:var(--gold-1); }
+  #teamSelect p { color:rgba(255,255,255,.6); margin:8px 0 22px; letter-spacing:.08em; }
+  .team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:14px; max-height:64vh; overflow:auto; padding:4px; }
+  .team-pick { cursor:pointer; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.05); border-radius:14px;
+    padding:16px 10px; color:#fff; transition:.14s; }
+  .team-pick:hover { border-color:var(--gold-1); background:rgba(245,217,123,.1); transform:translateY(-3px); }
+  .team-pick svg { width:52px; height:auto; }
+  .team-pick .tp-name { font-family:'Russo One'; font-size:13px; margin-top:8px; }
+  #cardModal .box { display:flex; flex-direction:column; align-items:center; gap:18px; }
+  #cardModal .mclose { cursor:pointer; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff;
+    border-radius:999px; font-size:12px; letter-spacing:.2em; text-transform:uppercase; padding:10px 22px; }
+
+  /* ---------- toast ---------- */
+  #toast { position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(20px); z-index:95;
+    background:rgba(10,15,44,.95); border:1px solid var(--gold-1); color:var(--gold-1); font-weight:700; letter-spacing:.04em;
+    padding:12px 22px; border-radius:999px; opacity:0; pointer-events:none; transition:.3s; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   /* ---------- keepy-uppy ---------- */
-  #pitch {
-    position: relative; margin-top: 50px; height: 420px; border-radius: 22px; overflow: hidden;
-    background:
-      repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 60px, transparent 60px 120px),
-      linear-gradient(180deg, #0d2b18 0%, #144022 100%);
-    border: 1px solid rgba(255,255,255,.14);
-    touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair;
-  }
-  #pitch::after {
-    content: ""; position: absolute; left: 50%; top: 50%; width: 190px; height: 190px;
-    transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,.1); border-radius: 50%;
-    pointer-events: none; /* decorative — was sitting on top of the Kick Off button and eating every tap */
-  }
-  #hudChip {
-    position: absolute; top: 10px; left: 14px; z-index: 2;
-    display: flex; align-items: center; gap: 8px; pointer-events: none;
-  }
-  #hudChip svg { width: 38px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
-  #hudName {
-    font-family: 'Russo One'; font-size: 13px; letter-spacing: .08em; color: var(--gold-1);
-    text-shadow: 0 2px 6px rgba(0,0,0,.6);
-  }
-  #ball {
-    position: absolute; width: 64px; height: 64px; left: 0; top: 0;
-    font-size: 56px; line-height: 64px; text-align: center;
-    filter: drop-shadow(0 8px 10px rgba(0,0,0,.5));
-    will-change: transform; pointer-events: none;
-  }
-  #scoreHud {
-    position: absolute; top: 14px; left: 0; right: 0; display: flex; justify-content: center; gap: 34px;
-    font-family: 'Russo One'; font-size: 17px; letter-spacing: .1em; color: #fff;
-    text-shadow: 0 2px 6px rgba(0,0,0,.6); pointer-events: none;
-  }
-  #scoreHud .val { color: var(--gold-1); }
-  #gameMsg {
-    position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px;
-    align-items: center; justify-content: center; text-align: center;
-    background: rgba(4,8,20,.55); backdrop-filter: blur(3px);
-  }
-  #gameMsg.playing { display: none; }
-  #gameMsg h3 { font-size: clamp(24px, 4vw, 36px); text-transform: uppercase; color: var(--gold-1); }
-  #gameMsg p { color: rgba(255,255,255,.8); letter-spacing: .1em; padding: 0 16px; }
-  #gameMsg button {
-    margin-top: 10px; font-family: 'Russo One'; font-size: 15px; letter-spacing: .15em; text-transform: uppercase;
-    color: var(--navy-1); background: linear-gradient(90deg, var(--gold-2), var(--gold-1));
-    border: none; border-radius: 999px; padding: 14px 34px; cursor: pointer;
-    box-shadow: 0 8px 24px rgba(227,185,77,.4);
-    touch-action: manipulation;
-  }
-  #gameMsg button:hover { transform: translateY(-2px); }
+  #pitch { position:relative; margin:0 auto; max-width:680px; height:420px; border-radius:22px; overflow:hidden;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 60px, transparent 60px 120px),
+      linear-gradient(180deg,#0d2b18 0%,#144022 100%); border:1px solid rgba(255,255,255,.14);
+    touch-action:none; user-select:none; -webkit-user-select:none; cursor:crosshair; }
+  #pitch::after { content:""; position:absolute; left:50%; top:50%; width:190px; height:190px; transform:translate(-50%,-50%);
+    border:2px solid rgba(255,255,255,.1); border-radius:50%; pointer-events:none; }
+  #hudChip { position:absolute; top:10px; left:14px; z-index:2; display:flex; align-items:center; gap:8px; pointer-events:none; }
+  #hudChip svg { width:36px; height:auto; filter:drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+  #hudName { font-family:'Russo One'; font-size:13px; color:var(--gold-1); text-shadow:0 2px 6px rgba(0,0,0,.6); }
+  #ball { position:absolute; width:64px; height:64px; left:0; top:0; font-size:56px; line-height:64px; text-align:center;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.5)); will-change:transform; pointer-events:none; }
+  #scoreHud { position:absolute; top:14px; left:0; right:0; display:flex; justify-content:center; gap:30px;
+    font-family:'Russo One'; font-size:16px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.6); pointer-events:none; }
+  #scoreHud .val { color:var(--gold-1); }
+  #gameMsg { position:absolute; inset:0; z-index:3; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center;
+    text-align:center; background:rgba(4,8,20,.55); backdrop-filter:blur(3px); }
+  #gameMsg.playing { display:none; }
+  #gameMsg h3 { font-size:clamp(24px,4vw,34px); text-transform:uppercase; color:var(--gold-1); }
+  #gameMsg p { color:rgba(255,255,255,.8); letter-spacing:.08em; padding:0 16px; }
+  #gameMsg button { margin-top:10px; font-family:'Russo One'; font-size:15px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border:none; border-radius:999px;
+    padding:14px 34px; cursor:pointer; box-shadow:0 8px 24px rgba(227,185,77,.4); touch-action:manipulation; }
+  #gameMsg button:hover { transform:translateY(-2px); }
 
-  footer {
-    position: relative; z-index: 10; text-align: center; padding: 50px 20px 70px;
-    color: rgba(255,255,255,.45); letter-spacing: .25em; text-transform: uppercase; font-size: 12px;
-  }
-  footer b { color: var(--gold-1); }
-  #replayBtn {
-    display: inline-block; margin-bottom: 22px; background: none; cursor: pointer;
-    border: 1px solid rgba(245,217,123,.4); color: var(--gold-1);
-    font-family: inherit; font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
-    padding: 12px 24px; border-radius: 999px;
-    touch-action: manipulation;
-  }
-  #replayBtn:hover { background: rgba(245,217,123,.12); }
+  #flash { position:fixed; inset:0; z-index:90; background:#fff; opacity:0; pointer-events:none; }
+  #flash.boom { animation:boom .9s ease-out; }
+  @keyframes boom { 0%{opacity:0} 12%{opacity:1} 100%{opacity:0} }
+  #confetti { position:fixed; inset:0; z-index:88; pointer-events:none; }
 
-  #confetti { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+  footer { position:relative; z-index:10; text-align:center; padding:30px 20px 40px; color:rgba(255,255,255,.4);
+    letter-spacing:.22em; text-transform:uppercase; font-size:11px; }
+  footer b { color:var(--gold-1); }
 
-  .reveal-on-scroll { opacity: 0; transform: translateY(36px); transition: opacity .7s, transform .7s; }
-  .reveal-on-scroll.in { opacity: 1; transform: none; }
-
-  @media (max-width: 720px) {
-    .hero { padding-top: 90px; }
-    .hero-copy { text-align: center; }
-    #pitch { height: 360px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01s !important; transition-duration: .01s !important; }
-  }
+  @media (max-width:520px){ #pitch{height:360px} #tabs{top:60px} }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01s!important;transition-duration:.01s!important} }
 </style>
 </head>
-<body class="locked">
+<body>
 
-<div class="stadium" id="stadium">
-  <div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div>
-</div>
+<div class="stadium" id="stadium"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div></div>
 
-<!-- ============ SVG defs: national flags ============ -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <g id="flag-ca">
-      <rect width="60" height="40" fill="#fff"/>
-      <rect width="15" height="40" fill="#d52b1e"/>
-      <rect x="45" width="15" height="40" fill="#d52b1e"/>
-      <path fill="#d52b1e" d="M30 8l2 5 4-2-1.5 5.5L39 17l-3 3.5 4 2-4.5 1.5.8 4-5-2.2L31 31h-2l-.3-5.2-5 2.2.8-4L20 22.5l4-2-3-3.5 4.5-.5L24 11l4 2z"/>
-    </g>
-    <g id="flag-fr">
-      <rect width="20" height="40" fill="#0055A4"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#EF4135"/>
-    </g>
-    <g id="flag-no">
-      <rect width="60" height="40" fill="#BA0C2F"/>
-      <rect x="14" width="10" height="40" fill="#fff"/><rect y="15" width="60" height="10" fill="#fff"/>
-      <rect x="16.5" width="5" height="40" fill="#00205B"/><rect y="17.5" width="60" height="5" fill="#00205B"/>
-    </g>
-    <g id="flag-pt">
-      <rect width="24" height="40" fill="#046A38"/><rect x="24" width="36" height="40" fill="#DA291C"/>
-      <circle cx="24" cy="20" r="8" fill="#FFE900" stroke="#046A38" stroke-width="2"/>
-    </g>
-    <g id="flag-ar">
-      <rect width="60" height="40" fill="#74ACDF"/><rect y="13.3" width="60" height="13.3" fill="#fff"/>
-      <circle cx="30" cy="20" r="4.5" fill="#F6B40E"/>
-    </g>
-    <g id="flag-br">
-      <rect width="60" height="40" fill="#009739"/>
-      <path d="M30 4 L56 20 L30 36 L4 20 Z" fill="#FEDD00"/>
-      <circle cx="30" cy="20" r="8" fill="#012169"/>
-    </g>
-    <g id="flag-es">
-      <rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/>
-    </g>
-    <g id="flag-eg">
-      <rect width="60" height="40" fill="#CE1126"/><rect y="13.3" width="60" height="13.3" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#151515"/>
-      <path d="M30 16 l3 4 -3 5 -3 -5 z" fill="#C09300"/>
-    </g>
-    <g id="flag-en">
-      <rect width="60" height="40" fill="#fff"/>
-      <rect x="26" width="8" height="40" fill="#CE1124"/><rect y="16" width="60" height="8" fill="#CE1124"/>
-    </g>
-    <g id="flag-be">
-      <rect width="20" height="40" fill="#151515"/><rect x="20" width="20" height="40" fill="#FDDA25"/><rect x="40" width="20" height="40" fill="#EF3340"/>
-    </g>
-    <g id="flag-pl">
-      <rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#DC143C"/>
-    </g>
-    <g id="flag-de">
-      <rect width="60" height="13.3" fill="#151515"/><rect y="13.3" width="60" height="13.3" fill="#DD0000"/><rect y="26.6" width="60" height="13.4" fill="#FFCE00"/>
-    </g>
-  </defs>
-</svg>
+<!-- national flags -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="flag-ca"><rect width="60" height="40" fill="#fff"/><rect width="15" height="40" fill="#d52b1e"/><rect x="45" width="15" height="40" fill="#d52b1e"/><path fill="#d52b1e" d="M30 8l2 5 4-2-1.5 5.5L39 17l-3 3.5 4 2-4.5 1.5.8 4-5-2.2L31 31h-2l-.3-5.2-5 2.2.8-4L20 22.5l4-2-3-3.5 4.5-.5L24 11l4 2z"/></g>
+  <g id="flag-fr"><rect width="20" height="40" fill="#0055A4"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#EF4135"/></g>
+  <g id="flag-no"><rect width="60" height="40" fill="#BA0C2F"/><rect x="14" width="10" height="40" fill="#fff"/><rect y="15" width="60" height="10" fill="#fff"/><rect x="16.5" width="5" height="40" fill="#00205B"/><rect y="17.5" width="60" height="5" fill="#00205B"/></g>
+  <g id="flag-pt"><rect width="24" height="40" fill="#046A38"/><rect x="24" width="36" height="40" fill="#DA291C"/><circle cx="24" cy="20" r="8" fill="#FFE900" stroke="#046A38" stroke-width="2"/></g>
+  <g id="flag-ar"><rect width="60" height="40" fill="#74ACDF"/><rect y="13.3" width="60" height="13.3" fill="#fff"/><circle cx="30" cy="20" r="4.5" fill="#F6B40E"/></g>
+  <g id="flag-br"><rect width="60" height="40" fill="#009739"/><path d="M30 4 L56 20 L30 36 L4 20 Z" fill="#FEDD00"/><circle cx="30" cy="20" r="8" fill="#012169"/></g>
+  <g id="flag-es"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></g>
+  <g id="flag-eg"><rect width="60" height="40" fill="#CE1126"/><rect y="13.3" width="60" height="13.3" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#151515"/><path d="M30 16 l3 4 -3 5 -3 -5 z" fill="#C09300"/></g>
+  <g id="flag-en"><rect width="60" height="40" fill="#fff"/><rect x="26" width="8" height="40" fill="#CE1124"/><rect y="16" width="60" height="8" fill="#CE1124"/></g>
+  <g id="flag-be"><rect width="20" height="40" fill="#151515"/><rect x="20" width="20" height="40" fill="#FDDA25"/><rect x="40" width="20" height="40" fill="#EF3340"/></g>
+  <g id="flag-pl"><rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#DC143C"/></g>
+  <g id="flag-de"><rect width="60" height="13.3" fill="#151515"/><rect y="13.3" width="60" height="13.3" fill="#DD0000"/><rect y="26.6" width="60" height="13.4" fill="#FFCE00"/></g>
+  <g id="flag-nl"><rect width="60" height="13.3" fill="#AE1C28"/><rect y="13.3" width="60" height="13.4" fill="#fff"/><rect y="26.7" width="60" height="13.3" fill="#21468B"/></g>
+  <g id="flag-se"><rect width="60" height="40" fill="#006AA7"/><rect x="18" width="8" height="40" fill="#FECC00"/><rect y="16" width="60" height="8" fill="#FECC00"/></g>
+  <g id="flag-dk"><rect width="60" height="40" fill="#C60C30"/><rect x="18" width="8" height="40" fill="#fff"/><rect y="16" width="60" height="8" fill="#fff"/></g>
+  <g id="flag-kr"><rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="8" fill="#0047A0"/><path d="M22 20 a8 8 0 0 1 16 0 z" fill="#CD2E3A"/></g>
+</defs></svg>
 
-<!-- ============ STAGE 1: THE PACK ============ -->
-<div id="packScreen">
-  <div class="pack-title display">Ultimate Football</div>
-  <div class="pack-sub">Open a pack · Become a legend</div>
-  <button id="pack" aria-label="Open the pack">
-    <svg viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#8a6a1c"/><stop offset=".35" stop-color="#f5d97b"/>
-          <stop offset=".55" stop-color="#fff3c4"/><stop offset=".75" stop-color="#e3b94d"/>
-          <stop offset="1" stop-color="#8a6a1c"/>
-        </linearGradient>
-        <linearGradient id="foilDark" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#141b45"/><stop offset="1" stop-color="#0a0f2c"/>
-        </linearGradient>
-      </defs>
-      <path d="M14 26 L26 14 L38 26 L50 14 L62 26 L74 14 L86 26 L98 14 L110 26 L122 14 L134 26 L146 14 L158 26 L170 14 L182 26 L194 14 L206 26 V300 Q206 312 194 312 H26 Q14 312 14 300 Z" fill="url(#foil)" stroke="#5c430e" stroke-width="3"/>
-      <rect x="34" y="70" width="152" height="196" rx="14" fill="url(#foilDark)" stroke="#f5d97b" stroke-width="2.5"/>
-      <text x="110" y="118" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="26" fill="#f5d97b">RARE</text>
-      <text x="110" y="150" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="26" fill="#fff">GOLD</text>
-      <circle cx="110" cy="205" r="36" fill="none" stroke="#f5d97b" stroke-width="3"/>
-      <text x="110" y="219" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="38" fill="#f5d97b">?</text>
-      <text x="110" y="290" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="14" letter-spacing="6" fill="#3d2e08">×1 LEGEND</text>
-    </svg>
-  </button>
-  <div class="tap-hint">Tap to open</div>
-</div>
-
-<!-- ============ STAGE 2: WALKOUT ============ -->
-<div id="walkout" class="hidden">
-  <div class="walkout-item" id="w-pos">
-    <div class="walkout-label">Position</div>
-    <div class="walkout-value display" id="wPos">ST</div>
-  </div>
-  <div class="walkout-item" id="w-nation">
-    <div class="walkout-label">Nation</div>
-    <svg width="180" height="120" viewBox="0 0 60 40"><use id="wFlag" href="#flag-ca"/></svg>
-  </div>
-  <div class="walkout-item" id="w-club">
-    <div class="walkout-label">Club</div>
-    <span id="wCrest" class="walkout-crest"></span>
-    <div class="walkout-value display" id="wClubName" style="font-size:34px">CL FC</div>
-  </div>
-  <div class="walkout-item" id="w-player">
-    <div class="walkout-label">Player</div>
-    <span id="wPortrait" class="walkout-portrait"></span>
-    <div class="walkout-value display" id="wName" style="font-size:clamp(30px,7vw,48px)">?</div>
-  </div>
-  <button id="skipBtn">Skip</button>
-</div>
-
-<div id="flash"></div>
-<canvas id="confetti"></canvas>
-
-<!-- ============ STAGE 3: THE PAGE ============ -->
-<main id="main">
-  <section class="hero">
-    <div class="card-wrap">
-      <div id="card" title="Move your mouse over the card!">
-        <svg class="shape" viewBox="0 0 300 470" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="cardGold" x1="0" y1="0" x2=".7" y2="1">
-              <stop offset="0" stop-color="#f8e6a6"/><stop offset=".3" stop-color="#eccb70"/>
-              <stop offset=".55" stop-color="#fdf2c0"/><stop offset=".8" stop-color="#e0b64a"/>
-              <stop offset="1" stop-color="#c69a2e"/>
-            </linearGradient>
-          </defs>
-          <path d="M24 6 H276 Q294 6 294 24 V330 Q294 352 277 366 L166 458 Q150 470 134 458 L23 366 Q6 352 6 330 V24 Q6 6 24 6 Z"
-                fill="url(#cardGold)" stroke="#8a6a1c" stroke-width="3"/>
-          <path d="M24 6 H276 Q294 6 294 24 V330 Q294 352 277 366 L166 458 Q150 470 134 458 L23 366 Q6 352 6 330 V24 Q6 6 24 6 Z"
-                fill="none" stroke="#fff8dd" stroke-width="1.5" opacity=".8" transform="translate(0,3) scale(.985)" transform-origin="150 235"/>
-        </svg>
-        <div class="card-content">
-          <div class="card-top">
-            <div class="card-rating">
-              <div class="ovr" id="cOvr">99</div>
-              <div class="pos" id="cPos">ST</div>
-              <svg class="flag" viewBox="0 0 60 40"><use id="cFlag" href="#flag-ca"/></svg>
-              <span class="crest" id="cCrest"></span>
-            </div>
-            <div class="card-art" id="cardArt"></div>
-          </div>
-          <div class="card-name" id="cName">CL</div>
-          <div class="card-stats">
-            <div><b id="sPAC">99</b><span>PAC</span></div>
-            <div><b id="sDRI">98</b><span>DRI</span></div>
-            <div><b id="sSHO">99</b><span>SHO</span></div>
-            <div><b id="sDEF">97</b><span>DEF</span></div>
-            <div><b id="sPAS">98</b><span>PAS</span></div>
-            <div><b id="sPHY">99</b><span>PHY</span></div>
-          </div>
-        </div>
-        <div id="shine"></div>
-      </div>
-      <div class="card-hint">← Move over the card →</div>
+<div id="app">
+  <header id="topbar">
+    <div class="club"><span class="crest" id="clubCrest"></span>
+      <div class="meta"><small>Your Club</small><div class="cname" id="clubName">—</div></div>
     </div>
+    <div class="coins">🪙 <span id="coinVal">0</span></div>
+  </header>
 
-    <div class="hero-copy">
-      <span class="kicker" id="heroKicker">Elite Gold</span>
-      <h1 id="heroName">CL</h1>
-      <p id="heroBlurb">Open a pack to meet your player.</p>
-      <a class="hero-cta" href="#game">⚽ Kick Off</a>
-    </div>
+  <nav id="tabs">
+    <button data-tab="packs" class="active">Packs</button>
+    <button data-tab="squad">Squad</button>
+    <button data-tab="upgrades">Upgrades</button>
+    <button data-tab="play">Play</button>
+  </nav>
+
+  <section id="tab-packs" class="tab active">
+    <div class="section-head"><h2>Pack <span>Store</span></h2><p>Higher packs = better odds at a bigger legend. Buy with coins.</p></div>
+    <div class="pack-grid" id="packGrid"></div>
   </section>
 
-  <section id="stats" class="reveal-on-scroll">
-    <h2 class="section-title">Season <span>Stats</span></h2>
-    <p class="section-sub">ULTIMATE LEAGUE · SEASON 2026</p>
-    <div class="stat-grid">
-      <div class="stat-tile"><div class="num" id="tGoals" data-count="47">0</div><div class="lbl">Goals</div></div>
-      <div class="stat-tile"><div class="num" id="tAssists" data-count="23">0</div><div class="lbl">Assists</div></div>
-      <div class="stat-tile"><div class="num" id="tTrophies" data-count="12">0</div><div class="lbl">Trophies</div></div>
-      <div class="stat-tile"><div class="num" id="tOverall" data-count="99">0</div><div class="lbl">Overall</div></div>
-    </div>
-    <div class="badges">
-      <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Skill Moves</div></div>
-      <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Weak Foot</div></div>
-      <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Celebrations</div></div>
-    </div>
+  <section id="tab-squad" class="tab">
+    <div class="section-head"><h2>Your <span>Squad</span></h2><p id="squadSub">Every player you pull lands here.</p></div>
+    <div class="squad-summary" id="squadSummary"></div>
+    <div id="squadBody"></div>
   </section>
 
-  <section id="game" class="reveal-on-scroll">
-    <h2 class="section-title">Keepy<span>-</span>Uppy</h2>
-    <p class="section-sub" id="playAs">TAP THE BALL — DON'T LET IT DROP!</p>
+  <section id="tab-upgrades" class="tab">
+    <div class="section-head"><h2>Upgrade <span>Shop</span></h2><p>Spend coins to pull better and open faster.</p></div>
+    <div class="upg-wrap" id="upgWrap"></div>
+    <div id="resetRow"><button id="resetBtn">Reset save</button></div>
+  </section>
+
+  <section id="tab-play" class="tab">
+    <div class="section-head"><h2>Keepy<span>-</span>Uppy</h2><p>Optional mini-game — every juggle earns coins!</p></div>
     <div id="pitch">
       <div id="hudChip"><span id="hudFace"></span><span id="hudName"></span></div>
-      <div id="scoreHud">
-        <div>JUGGLES&nbsp;<span class="val" id="score">0</span></div>
-        <div>BEST&nbsp;<span class="val" id="best">0</span></div>
-      </div>
+      <div id="scoreHud"><div>JUGGLES&nbsp;<span class="val" id="score">0</span></div><div>BEST&nbsp;<span class="val" id="best">0</span></div></div>
       <div id="ball">⚽</div>
       <div id="gameMsg">
         <h3 id="msgTitle">Ready?</h3>
-        <p id="msgText">Tap the ball to juggle. One touch = one point.</p>
+        <p id="msgText">Tap the ball to juggle. Each juggle = 8 coins.</p>
         <button id="playBtn" type="button">Kick Off</button>
       </div>
     </div>
   </section>
-</main>
+</div>
 
-<footer>
-  <button id="replayBtn">↺ Open Another Pack</button>
-  <div><b>Ultimate Football</b> · Open packs · Become legends</div>
-</footer>
+<footer><b>Ultimate Football</b> · Pick a club · Pull legends · Build your squad</footer>
+
+<!-- reveal overlay -->
+<div id="reveal">
+  <div class="card-wrap"><div class="rv-card" id="rvCard"></div></div>
+  <div id="rvResult"></div>
+  <div id="rvBtns"><button id="rvAgain">Open Again</button><button id="rvDone">Continue</button></div>
+</div>
+
+<!-- team select -->
+<div class="overlay" id="teamSelect"><div class="box">
+  <h2>Choose Your Club</h2><p>This is your team. Every player you pull joins your squad.</p>
+  <div class="team-grid" id="teamGrid"></div>
+</div></div>
+
+<!-- card modal -->
+<div class="overlay" id="cardModal"><div class="box">
+  <div class="card-wrap"><div class="fifa-card" id="modalCard"></div></div>
+  <button class="mclose" id="modalClose">Close</button>
+</div></div>
+
+<div id="flash"></div>
+<canvas id="confetti"></canvas>
+<div id="toast"></div>
 
 <script>
 (() => {
   "use strict";
-  const $ = (s) => document.querySelector(s);
+  const $ = (s,r=document) => r.querySelector(s);
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // localStorage can throw in private mode / restricted profiles — never let it kill the script
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
   const store = {
-    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch { /* no storage — fine */ } },
+    get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+    set(k,v){ try { localStorage.setItem(k,v); } catch {} },
+    del(k){ try { localStorage.removeItem(k); } catch {} },
   };
 
-  /* ---------- floating dust particles ---------- */
+  /* dust */
   const stadium = $("#stadium");
-  for (let i = 0; i < 26; i++) {
-    const d = document.createElement("div");
-    d.className = "dust";
-    const s = 2 + Math.random() * 4;
-    d.style.cssText = `left:${Math.random() * 100}vw;width:${s}px;height:${s}px;` +
-      `animation-duration:${9 + Math.random() * 14}s;animation-delay:-${Math.random() * 20}s;`;
-    stadium.appendChild(d);
-  }
+  for (let i=0;i<22;i++){ const d=document.createElement("div"); d.className="dust";
+    const s=2+Math.random()*4; d.style.cssText=`left:${Math.random()*100}vw;width:${s}px;height:${s}px;animation-duration:${9+Math.random()*14}s;animation-delay:-${Math.random()*20}s;`;
+    stadium.appendChild(d); }
 
-  /* ---------- tiny synth (no audio files) ---------- */
-  let actx = null;
-  function beep(freq, dur = 0.18, type = "triangle", vol = 0.25, when = 0) {
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      const o = actx.createOscillator(), g = actx.createGain();
-      const t = actx.currentTime + when;
-      o.type = type; o.frequency.setValueAtTime(freq, t);
-      g.gain.setValueAtTime(vol, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      o.connect(g).connect(actx.destination);
-      o.start(t); o.stop(t + dur + 0.05);
-    } catch { /* audio blocked — no problem */ }
-  }
-  const fanfare = () => [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.35, "triangle", 0.22, i * 0.12));
+  /* audio */
+  let actx=null;
+  function beep(freq,dur=0.18,type="triangle",vol=0.22,when=0){ try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+when;
+    o.type=type; o.frequency.setValueAtTime(freq,t); g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+dur+0.05);
+  }catch{} }
+  const fanfare = () => [523,659,784,1047].forEach((f,i)=>beep(f,0.34,"triangle",0.2,i*0.11));
 
-  /* ---------- confetti ---------- */
-  const canvas = $("#confetti"), ctx = canvas.getContext("2d");
-  let pieces = [], confettiRunning = false;
-  function fitCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
-  addEventListener("resize", fitCanvas); fitCanvas();
-  function burstConfetti() {
-    const colors = ["#f5d97b", "#e3b94d", "#ffffff", "#00e5ff", "#ff5470"];
-    for (let i = 0; i < 170; i++) {
-      pieces.push({
-        x: innerWidth / 2 + (Math.random() - 0.5) * 220,
-        y: innerHeight * 0.35,
-        vx: (Math.random() - 0.5) * 16,
-        vy: -6 - Math.random() * 12,
-        w: 6 + Math.random() * 7, h: 4 + Math.random() * 5,
-        rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
-        color: colors[i % colors.length], life: 1,
-      });
-    }
-    if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(tickConfetti); }
-  }
-  function tickConfetti() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    pieces = pieces.filter((p) => p.life > 0);
-    for (const p of pieces) {
-      p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.006;
-      ctx.save(); ctx.globalAlpha = Math.max(p.life, 0); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-      ctx.fillStyle = p.color; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
-    }
-    if (pieces.length) requestAnimationFrame(tickConfetti);
-    else { confettiRunning = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
-  }
+  /* confetti */
+  const canvas=$("#confetti"), cx=canvas.getContext("2d");
+  let pieces=[], running=false;
+  const fit=()=>{canvas.width=innerWidth;canvas.height=innerHeight;}; addEventListener("resize",fit); fit();
+  function burst(){ const cols=["#f5d97b","#e3b94d","#fff","#00e5ff","#ff5470"];
+    for(let i=0;i<150;i++) pieces.push({x:innerWidth/2+(Math.random()-.5)*220,y:innerHeight*.35,vx:(Math.random()-.5)*16,vy:-6-Math.random()*12,w:6+Math.random()*7,h:4+Math.random()*5,rot:Math.random()*Math.PI,vr:(Math.random()-.5)*.3,color:cols[i%cols.length],life:1});
+    if(!running){running=true;requestAnimationFrame(tick);} }
+  function tick(){ cx.clearRect(0,0,canvas.width,canvas.height); pieces=pieces.filter(p=>p.life>0);
+    for(const p of pieces){ p.vy+=.35; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life-=.006;
+      cx.save(); cx.globalAlpha=Math.max(p.life,0); cx.translate(p.x,p.y); cx.rotate(p.rot); cx.fillStyle=p.color; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore(); }
+    if(pieces.length) requestAnimationFrame(tick); else { running=false; cx.clearRect(0,0,canvas.width,canvas.height); } }
+  function flashBoom(){ const f=$("#flash"); f.classList.remove("boom"); void f.offsetWidth; f.classList.add("boom"); }
 
-  /* ================================================================
-     THE ROSTER — every player you can pull from a pack
-     ================================================================ */
+  /* ================= CLUBS ================= */
   const CLUBS = {
-    CLFC: { name: "CL FC",       init: "CL",  c1: "#1a1443", c2: "#f5d97b", bolt: true },
-    SAN:  { name: "Santos",      init: "SAN", c1: "#111111", c2: "#ffffff" },
-    MIA:  { name: "Inter Miami", init: "MIA", c1: "#f7b5cd", c2: "#1a1a1a" },
-    ALN:  { name: "Al-Nassr",    init: "ALN", c1: "#ffd83d", c2: "#123d8c" },
-    RMA:  { name: "Real Madrid", init: "RMA", c1: "#f5f5f7", c2: "#1c2c5b" },
-    MCI:  { name: "Man City",    init: "MCI", c1: "#6cabdd", c2: "#ffffff" },
-    NAP:  { name: "Napoli",      init: "NAP", c1: "#199fd6", c2: "#ffffff" },
-    LIV:  { name: "Liverpool",   init: "LIV", c1: "#d0021b", c2: "#ffffff" },
-    BAY:  { name: "Bayern",      init: "BAY", c1: "#dc052d", c2: "#ffffff" },
-    BAR:  { name: "Barcelona",   init: "BAR", c1: "#a50044", c2: "#f5d97b" },
+    CLFC:{name:"CL FC",init:"CL",c1:"#1a1443",c2:"#f5d97b",bolt:true},
+    SAN:{name:"Santos",init:"SAN",c1:"#111",c2:"#fff"},
+    NAP:{name:"Napoli",init:"NAP",c1:"#199fd6",c2:"#fff"},
+    BAR:{name:"Barcelona",init:"BAR",c1:"#a50044",c2:"#f5d97b"},
+    RMA:{name:"Real Madrid",init:"RMA",c1:"#eeeeee",c2:"#1c2c5b"},
+    AJA:{name:"Ajax",init:"AJA",c1:"#fff",c2:"#d2122e"},
+    MIA:{name:"Inter Miami",init:"MIA",c1:"#f7b5cd",c2:"#111"},
+    ALN:{name:"Al-Nassr",init:"ALN",c1:"#ffd83d",c2:"#123d8c"},
+    MCI:{name:"Man City",init:"MCI",c1:"#6cabdd",c2:"#fff"},
+    LIV:{name:"Liverpool",init:"LIV",c1:"#d0021b",c2:"#fff"},
+    ARS:{name:"Arsenal",init:"ARS",c1:"#EF0107",c2:"#fff"},
+    CHE:{name:"Chelsea",init:"CHE",c1:"#034694",c2:"#fff"},
+    TOT:{name:"Tottenham",init:"TOT",c1:"#fff",c2:"#132257"},
+    NEW:{name:"Newcastle",init:"NEW",c1:"#111",c2:"#fff"},
+    AVL:{name:"Aston Villa",init:"AVL",c1:"#670E36",c2:"#95BFE5"},
+    MUN:{name:"Man United",init:"MUN",c1:"#DA291C",c2:"#FBE122"},
+    BAY:{name:"Bayern",init:"BAY",c1:"#dc052d",c2:"#fff"},
+    PSG:{name:"PSG",init:"PSG",c1:"#004170",c2:"#DA291C"},
   };
+  const TEAMS = ["MUN","MCI","LIV","ARS","CHE","TOT","NEW","RMA","BAR","BAY","PSG","MIA"];
 
-  const PLAYERS = [
-    { name: "CL", pos: "ST", rating: 99, nation: "ca", num: 10, weight: 0.4, club: CLUBS.CLFC,
-      skin: "#e8b98a", hair: { style: "spiky", color: "#2b1c10" }, beard: null,
-      jersey: { body: "#1a1443", trim: "#f5d97b" },
-      stats: { PAC: 99, SHO: 99, PAS: 98, DRI: 98, DEF: 97, PHY: 99 },
-      blurb: "Fastest boots in the schoolyard. Ice-cold finisher. 99 rated — because 100 would be unfair to everyone else." },
-    { name: "PELÉ", pos: "CF", rating: 98, nation: "br", num: 10, weight: 0.7, club: CLUBS.SAN,
-      skin: "#6f4522", hair: { style: "crop", color: "#151515" }, beard: null,
-      jersey: { body: "#f6f6f6", trim: "#111111" },
-      stats: { PAC: 95, SHO: 96, PAS: 93, DRI: 96, DEF: 60, PHY: 76 },
-      blurb: "The King of football. Three World Cups. Legend forever." },
-    { name: "MESSI", pos: "RW", rating: 97, nation: "ar", num: 10, weight: 0.7, club: CLUBS.MIA,
-      skin: "#ecc39b", hair: { style: "medium", color: "#6b4a2f" }, beard: "beard",
-      jersey: { body: "#f7b5cd", trim: "#1a1a1a" },
-      stats: { PAC: 85, SHO: 92, PAS: 94, DRI: 97, DEF: 34, PHY: 68 },
-      blurb: "The GOAT. The ball is glued to his left foot." },
-    { name: "RONALDO", pos: "ST", rating: 97, nation: "pt", num: 7, weight: 0.7, club: CLUBS.ALN,
-      skin: "#d9a878", hair: { style: "slick", color: "#161616" }, beard: null,
-      jersey: { body: "#ffd83d", trim: "#123d8c" },
-      stats: { PAC: 87, SHO: 93, PAS: 82, DRI: 89, DEF: 35, PHY: 77 },
-      blurb: "SIUUU! The champion of champions. Header from the clouds." },
-    { name: "MBAPPÉ", pos: "ST", rating: 96, nation: "fr", num: 10, weight: 0.7, club: CLUBS.RMA,
-      skin: "#8d5a30", hair: { style: "crop", color: "#141414" }, beard: null,
-      jersey: { body: "#f5f5f7", trim: "#1c2c5b" },
-      stats: { PAC: 97, SHO: 93, PAS: 86, DRI: 94, DEF: 36, PHY: 78 },
-      blurb: "Zoom! Blink and he's already celebrating." },
-    { name: "HAALAND", pos: "ST", rating: 96, nation: "no", num: 9, weight: 0.7, club: CLUBS.MCI,
-      skin: "#f2cfa5", hair: { style: "bun", color: "#e9c46a" }, beard: null,
-      jersey: { body: "#6cabdd", trim: "#ffffff" },
-      stats: { PAC: 94, SHO: 96, PAS: 78, DRI: 85, DEF: 45, PHY: 94 },
-      blurb: "The goal robot. Beep. Boop. Goal." },
-    { name: "DE BRUYNE", pos: "CM", rating: 94, nation: "be", num: 17, weight: 1, club: CLUBS.NAP,
-      skin: "#f6d7b3", hair: { style: "crop", color: "#c98d4e" }, beard: null,
-      jersey: { body: "#199fd6", trim: "#ffffff" },
-      stats: { PAC: 76, SHO: 88, PAS: 97, DRI: 88, DEF: 64, PHY: 78 },
-      blurb: "X-ray vision. Sees passes nobody else can see." },
-    { name: "VINÍCIUS JR", pos: "LW", rating: 94, nation: "br", num: 7, weight: 1, club: CLUBS.RMA,
-      skin: "#8d5a30", hair: { style: "fluffy", color: "#141414" }, beard: null,
-      jersey: { body: "#f5f5f7", trim: "#1c2c5b" },
-      stats: { PAC: 95, SHO: 86, PAS: 82, DRI: 95, DEF: 32, PHY: 70 },
-      blurb: "Dancing feet. Defenders get dizzy just watching him." },
-    { name: "SALAH", pos: "RW", rating: 93, nation: "eg", num: 11, weight: 1, club: CLUBS.LIV,
-      skin: "#b97a4a", hair: { style: "curly", color: "#191919" }, beard: "beard",
-      jersey: { body: "#d0021b", trim: "#ffffff" },
-      stats: { PAC: 92, SHO: 91, PAS: 84, DRI: 92, DEF: 45, PHY: 76 },
-      blurb: "The Egyptian King. Cut inside, curl it, top corner." },
-    { name: "BELLINGHAM", pos: "CM", rating: 93, nation: "en", num: 5, weight: 1, club: CLUBS.RMA,
-      skin: "#9c6435", hair: { style: "crop", color: "#141414" }, beard: null,
-      jersey: { body: "#f5f5f7", trim: "#1c2c5b" },
-      stats: { PAC: 82, SHO: 88, PAS: 87, DRI: 90, DEF: 72, PHY: 86 },
-      blurb: "Hey Jude! Box-to-box superstar." },
-    { name: "NEYMAR", pos: "LW", rating: 92, nation: "br", num: 10, weight: 1, club: CLUBS.SAN,
-      skin: "#c98e5f", hair: { style: "fluffy", color: "#3a2716" }, beard: "stubble",
-      jersey: { body: "#f6f6f6", trim: "#111111" },
-      stats: { PAC: 88, SHO: 88, PAS: 89, DRI: 95, DEF: 30, PHY: 62 },
-      blurb: "Skills for days. Does rainbow flicks in his sleep." },
-    { name: "KANE", pos: "ST", rating: 92, nation: "en", num: 9, weight: 1, club: CLUBS.BAY,
-      skin: "#f2cfa5", hair: { style: "crop", color: "#8a6b46" }, beard: null,
-      jersey: { body: "#dc052d", trim: "#ffffff" },
-      stats: { PAC: 70, SHO: 95, PAS: 89, DRI: 84, DEF: 48, PHY: 84 },
-      blurb: "Goals, goals, goals. He simply never misses." },
-    { name: "YAMAL", pos: "RW", rating: 91, nation: "es", num: 10, weight: 1, club: CLUBS.BAR,
-      skin: "#c98e5f", hair: { style: "curly", color: "#191919" }, beard: null,
-      jersey: { body: "#a50044", trim: "#f5d97b" },
-      stats: { PAC: 93, SHO: 85, PAS: 86, DRI: 95, DEF: 32, PHY: 60 },
-      blurb: "The wonderkid. Breaking records before finishing homework." },
-    { name: "LEWANDOWSKI", pos: "ST", rating: 91, nation: "pl", num: 9, weight: 1, club: CLUBS.BAR,
-      skin: "#f0c9a2", hair: { style: "slick", color: "#7a5a37" }, beard: "stubble",
-      jersey: { body: "#a50044", trim: "#f5d97b" },
-      stats: { PAC: 78, SHO: 94, PAS: 81, DRI: 86, DEF: 42, PHY: 82 },
-      blurb: "The goal machine. Once scored 5 goals in 9 minutes. Really." },
-    { name: "MUSIALA", pos: "CAM", rating: 90, nation: "de", num: 10, weight: 1, club: CLUBS.BAY,
-      skin: "#9c6435", hair: { style: "curly", color: "#191919" }, beard: null,
-      jersey: { body: "#dc052d", trim: "#ffffff" },
-      stats: { PAC: 85, SHO: 82, PAS: 83, DRI: 94, DEF: 60, PHY: 64 },
-      blurb: "Wriggles through defenders like it's a video game." },
+  /* ================= TIERS ================= */
+  const TIERS = [
+    {key:"common",   name:"Common",   sub:"Bad Players",    ico:"🥉", c1:"#c3ccd6",c2:"#8a97a3",tc:"#1a1443",dot:"#aab6c2",odds:.95,price:40,  sell:12,  rMin:45,rMax:58},
+    {key:"uncommon", name:"Uncommon", sub:"Silver Players", ico:"🥈", c1:"#e3e8ee",c2:"#98a6b4",tc:"#1a1443",dot:"#cfd6dd",odds:.90,price:100, sell:30,  rMin:60,rMax:69},
+    {key:"rare",     name:"Rare",     sub:"Gold Players",   ico:"🥇", c1:"#f8e39a",c2:"#c9a13b",tc:"#1a1443",dot:"#f5d97b",odds:.86,price:220, sell:70,  rMin:70,rMax:79},
+    {key:"epic",     name:"Epic",     sub:"Decent Players", ico:"💎", c1:"#8ff0d4",c2:"#1f9e82",tc:"#0c2e26",dot:"#5fe0c0",odds:.79,price:450, sell:150, rMin:78,rMax:84},
+    {key:"legendary",name:"Legendary",sub:"Premier League", ico:"🔥", c1:"#c39bff",c2:"#6d3bd6",tc:"#fff",   dot:"#b388ff",odds:.67,price:900, sell:320, rMin:85,rMax:91},
+    {key:"mythic",   name:"Mythic",   sub:"Champions",      ico:"⭐", c1:"#ff9ec6",c2:"#c62f77",tc:"#fff",   dot:"#ff7ab0",odds:.50,price:1800,sell:750, rMin:90,rMax:96},
+    {key:"god",      name:"God",      sub:"Legends",        ico:"👑", c1:"#ff6b6b",c2:"#7a1020",tc:"#fff",   dot:"#ffd83d",odds:.24,price:4000,sell:1600,rMin:96,rMax:99,special:true},
   ];
+  const TI = {}; TIERS.forEach((t,i)=>TI[t.key]=i);
+  const tierByKey = (k)=>TIERS[TI[k]];
 
-  let lastPulledName = null;
-  function pickPlayer() {
-    const pool = PLAYERS.filter((p) => p.name !== lastPulledName);
-    const total = pool.reduce((a, p) => a + p.weight, 0);
-    let r = Math.random() * total;
-    for (const p of pool) { r -= p.weight; if (r <= 0) { lastPulledName = p.name; return p; } }
-    lastPulledName = pool[pool.length - 1].name;
-    return pool[pool.length - 1];
-  }
+  /* ================= NAMED ROSTER ================= */
+  // compact: n name, p pos, r rating, nat, num, cl clubKey, sk skin, hs hair style, hc hair color, bd beard, jb/jt jersey, st [PAC,SHO,PAS,DRI,DEF,PHY], bl blurb
+  const NAMED = {
+    god:[
+      {n:"CL",p:"ST",r:99,nat:"ca",num:10,cl:"CLFC",sk:"#e8b98a",hs:"spiky",hc:"#2b1c10",jb:"#1a1443",jt:"#f5d97b",st:[99,99,98,98,97,99],bl:"99 rated — because 100 would be unfair to everyone else."},
+      {n:"PELÉ",p:"CF",r:98,nat:"br",num:10,cl:"SAN",sk:"#6f4522",hs:"crop",hc:"#151515",jb:"#f6f6f6",jt:"#111",st:[95,96,93,96,60,76],bl:"The King of football. Three World Cups."},
+      {n:"MARADONA",p:"CAM",r:98,nat:"ar",num:10,cl:"NAP",sk:"#c98e5f",hs:"fluffy",hc:"#2b1c10",bd:"stubble",st:[93,92,93,97,55,72],bl:"The Hand of God. Pure magic in his boots."},
+      {n:"RONALDINHO",p:"CAM",r:97,nat:"br",num:10,cl:"BAR",sk:"#8d5a30",hs:"fluffy",hc:"#3a2716",st:[90,88,92,97,45,74],bl:"Samba smile, impossible tricks."},
+      {n:"ZIDANE",p:"CAM",r:97,nat:"fr",num:5,cl:"RMA",sk:"#e8b98a",hs:"crop",hc:"#8a6b46",bd:"stubble",st:[84,86,93,95,68,84],bl:"Elegance in the number 10 shirt."},
+      {n:"CRUYFF",p:"CF",r:96,nat:"nl",num:14,cl:"AJA",sk:"#f2cfa5",hs:"medium",hc:"#3a2716",st:[92,90,92,94,60,72],bl:"Invented the turn named after him."},
+    ],
+    mythic:[
+      {n:"MESSI",p:"RW",r:96,nat:"ar",num:10,cl:"MIA",sk:"#ecc39b",hs:"medium",hc:"#6b4a2f",bd:"beard",st:[85,92,94,97,34,68],bl:"The GOAT. The ball is glued to his left foot."},
+      {n:"RONALDO",p:"ST",r:95,nat:"pt",num:7,cl:"ALN",sk:"#d9a878",hs:"slick",hc:"#161616",st:[87,93,82,89,35,77],bl:"SIUUU! The champion of champions."},
+      {n:"MBAPPÉ",p:"ST",r:96,nat:"fr",num:9,cl:"RMA",sk:"#8d5a30",hs:"crop",hc:"#141414",st:[97,93,86,94,36,78],bl:"Blink and he is already celebrating."},
+      {n:"NEYMAR",p:"LW",r:92,nat:"br",num:10,cl:"SAN",sk:"#c98e5f",hs:"fluffy",hc:"#3a2716",bd:"stubble",st:[88,88,89,95,30,62],bl:"Rainbow flicks in his sleep."},
+      {n:"VINÍCIUS JR",p:"LW",r:94,nat:"br",num:7,cl:"RMA",sk:"#8d5a30",hs:"fluffy",hc:"#141414",st:[95,86,82,95,32,70],bl:"Dancing feet. Defenders get dizzy."},
+      {n:"YAMAL",p:"RW",r:91,nat:"es",num:10,cl:"BAR",sk:"#c98e5f",hs:"curly",hc:"#191919",st:[93,85,86,95,32,60],bl:"The wonderkid breaking every record."},
+      {n:"LEWANDOWSKI",p:"ST",r:91,nat:"pl",num:9,cl:"BAR",sk:"#f0c9a2",hs:"slick",hc:"#7a5a37",bd:"stubble",st:[78,94,81,86,42,82],bl:"The goal machine. Never misses."},
+      {n:"BELLINGHAM",p:"CM",r:93,nat:"en",num:5,cl:"RMA",sk:"#9c6435",hs:"crop",hc:"#141414",st:[82,88,87,90,72,86],bl:"Hey Jude! Box-to-box superstar."},
+    ],
+    legendary:[
+      {n:"HAALAND",p:"ST",r:91,nat:"no",num:9,cl:"MCI",sk:"#f2cfa5",hs:"bun",hc:"#e9c46a",st:[94,96,78,85,45,94],bl:"The goal robot. Beep. Boop. Goal."},
+      {n:"SALAH",p:"RW",r:90,nat:"eg",num:11,cl:"LIV",sk:"#b97a4a",hs:"curly",hc:"#191919",bd:"beard",st:[92,91,84,92,45,76],bl:"The Egyptian King. Cut inside, top corner."},
+      {n:"SAKA",p:"RW",r:87,nat:"en",num:7,cl:"ARS",sk:"#8d5a30",hs:"crop",hc:"#141414",st:[87,84,84,89,52,74],bl:"Starboy on the wing."},
+      {n:"ØDEGAARD",p:"CAM",r:88,nat:"no",num:8,cl:"ARS",sk:"#f2cfa5",hs:"medium",hc:"#c98d4e",st:[80,83,89,90,60,66],bl:"The conductor of the midfield."},
+      {n:"PALMER",p:"CAM",r:86,nat:"en",num:20,cl:"CHE",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",st:[80,86,85,88,54,70],bl:"Cold Palmer. Ice in his veins."},
+      {n:"FODEN",p:"CAM",r:88,nat:"en",num:47,cl:"MCI",sk:"#f2cfa5",hs:"crop",hc:"#8a6b46",st:[83,85,86,91,58,66],bl:"The Stockport Iniesta."},
+      {n:"SON",p:"LW",r:87,nat:"kr",num:7,cl:"TOT",sk:"#f0c9a2",hs:"crop",hc:"#151515",st:[88,89,83,88,43,74],bl:"Two-footed lightning."},
+      {n:"VAN DIJK",p:"CB",r:89,nat:"nl",num:4,cl:"LIV",sk:"#9c6435",hs:"crop",hc:"#141414",bd:"stubble",st:[77,60,71,72,90,86],bl:"The wall. Simply unbeatable."},
+    ],
+    epic:[
+      {n:"ISAK",p:"ST",r:84,nat:"se",num:14,cl:"LIV",sk:"#9c6435",hs:"crop",hc:"#141414",st:[86,85,74,86,40,74],bl:"Silky Swedish striker."},
+      {n:"WATKINS",p:"ST",r:83,nat:"en",num:11,cl:"AVL",sk:"#8d5a30",hs:"crop",hc:"#141414",st:[89,83,76,82,45,78],bl:"Relentless runner in behind."},
+      {n:"GAKPO",p:"LW",r:83,nat:"nl",num:18,cl:"LIV",sk:"#9c6435",hs:"crop",hc:"#141414",st:[85,82,80,85,48,80],bl:"Powerful and direct."},
+      {n:"HØJLUND",p:"ST",r:80,nat:"dk",num:9,cl:"MUN",sk:"#e8b98a",hs:"crop",hc:"#c98d4e",st:[88,80,68,80,38,80],bl:"Raw pace and power."},
+      {n:"MADDISON",p:"CAM",r:82,nat:"en",num:10,cl:"TOT",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",bd:"stubble",st:[74,80,86,85,52,64],bl:"The creative spark."},
+      {n:"GORDON",p:"LW",r:81,nat:"en",num:10,cl:"NEW",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",st:[92,78,76,84,50,68],bl:"Electric pace down the flank."},
+      {n:"MOUNT",p:"CM",r:80,nat:"en",num:7,cl:"MUN",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",st:[76,78,82,82,66,72],bl:"A tireless engine."},
+      {n:"TRIPPIER",p:"RB",r:82,nat:"en",num:2,cl:"NEW",sk:"#e8b98a",hs:"crop",hc:"#8a6b46",bd:"stubble",st:[78,66,86,80,80,74],bl:"Deadly delivery from the right."},
+    ],
+  };
+  function buildNamed(key,o,i){ const cl=CLUBS[o.cl];
+    return { id:key+"-"+i, tierKey:key, name:o.n, pos:o.p, rating:o.r, nation:o.nat, num:o.num, club:cl,
+      skin:o.sk, hair:{style:o.hs,color:o.hc}, beard:o.bd||null, jersey:{body:o.jb||cl.c1,trim:o.jt||cl.c2},
+      stats:{PAC:o.st[0],SHO:o.st[1],PAS:o.st[2],DRI:o.st[3],DEF:o.st[4],PHY:o.st[5]}, blurb:o.bl||"" }; }
 
-  /* ================================================================
-     Cartoon portrait + crest generators (pure SVG, no image files)
-     ================================================================ */
-  function hairSVG(p) {
-    const hc = p.hair.color;
-    const dome = `M56 96 Q52 30 100 28 Q148 30 144 96 L134 96 Q138 50 100 48 Q62 50 66 96 Z`;
-    switch (p.hair.style) {
-      case "crop":
-        return `<path d="${dome}" fill="${hc}"/>`;
-      case "slick":
-        return `<path d="${dome}" fill="${hc}"/><path d="M70 42 Q78 18 98 26 Q82 26 76 44 Z" fill="${hc}"/>`;
-      case "spiky":
-        return `<path d="${dome}" fill="${hc}"/>` +
-          `<path d="M60 54 L68 26 L78 46 L88 20 L98 44 L108 22 L118 46 L128 28 L138 54 Q120 40 100 42 Q78 40 60 54 Z" fill="${hc}"/>`;
-      case "bun":
-        return `<path d="${dome}" fill="${hc}"/><circle cx="100" cy="22" r="14" fill="${hc}"/>`;
-      case "fluffy":
-        return `<path d="${dome}" fill="${hc}"/><circle cx="72" cy="52" r="19" fill="${hc}"/>` +
-          `<circle cx="100" cy="40" r="23" fill="${hc}"/><circle cx="128" cy="52" r="19" fill="${hc}"/>`;
-      case "curly":
-        return `<path d="${dome}" fill="${hc}"/>` +
-          `<circle cx="66" cy="66" r="12" fill="${hc}"/><circle cx="80" cy="50" r="13" fill="${hc}"/>` +
-          `<circle cx="100" cy="42" r="14" fill="${hc}"/><circle cx="120" cy="50" r="13" fill="${hc}"/>` +
-          `<circle cx="134" cy="66" r="12" fill="${hc}"/>`;
-      case "medium":
-        return `<path d="M54 112 Q48 26 100 26 Q152 26 146 112 L136 112 Q140 50 100 48 Q60 50 64 112 Z" fill="${hc}"/>`;
-      default:
-        return "";
-    }
-  }
+  /* ================= GENERATED ROSTER (common/uncommon/rare) ================= */
+  const GEN_COUNT = { common:12, uncommon:12, rare:12 };
+  const NAMES_F=["J","M","L","A","D","R","S","T","K","N","P","C","E","F","G","H","B","O"];
+  const NAMES_L=["Carter","Silva","Novak","Bauer","Rossi","Dupont","Meyer","Larsen","Costa","Vidal","Popov","Haas","Nguyen","Ferrari","Walsh","Berg","Diaz","Osei","Tanaka","Moreau","Fischer","Kowal","Reyes","Blake"];
+  const GEN_NAT=["ca","fr","no","pt","ar","br","es","eg","en","be","pl","de","nl","se","dk","kr"];
+  const POSN=["ST","CF","RW","LW","CAM","CM","CDM","RB","LB","CB","GK"];
+  const SKINS=["#f2cfa5","#e8b98a","#d9a878","#c98e5f","#b97a4a","#9c6435","#8d5a30","#6f4522"];
+  const HAIRS=["crop","slick","spiky","bun","fluffy","curly","medium"];
+  const HAIRC=["#151515","#2b1c10","#3a2716","#6b4a2f","#8a6b46","#e9c46a","#c98d4e"];
+  const BEARDS=[null,null,null,"stubble","beard"];
+  const JB=["#2b3a67","#7a1f2b","#1f6b4a","#5a2d6b","#b8860b","#2a2a2a","#1c4b8c","#8c5a1c"];
+  function strHash(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+  function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  const genCache={};
+  function genPlayer(key,i){ const id=key+"-"+i; if(genCache[id]) return genCache[id];
+    const t=tierByKey(key); const rnd=mulberry32(strHash(key)^Math.imul(i+1,2654435761));
+    const pick=a=>a[Math.floor(rnd()*a.length)];
+    const first=pick(NAMES_F), last=pick(NAMES_L), pos=pick(POSN);
+    const rating=t.rMin+Math.floor(rnd()*(t.rMax-t.rMin+1));
+    const body=pick(JB), trim= rnd()<.5?"#ffffff":"#f5d97b";
+    const club={name:last+" FC",init:last.slice(0,3).toUpperCase(),c1:body,c2:trim};
+    const atk=["ST","CF","RW","LW","CAM"].includes(pos), def=["CB","LB","RB","CDM","GK"].includes(pos);
+    const j=v=>clamp(Math.round(rating+v+(rnd()*10-5)),24,99);
+    const p={ id, tierKey:key, name:first+". "+last, pos, rating, nation:pick(GEN_NAT), num:1+Math.floor(rnd()*29), club,
+      skin:pick(SKINS), hair:{style:pick(HAIRS),color:pick(HAIRC)}, beard:pick(BEARDS), jersey:{body,trim},
+      stats:{PAC:j(atk?6:def?-2:2),SHO:j(atk?7:def?-14:-2),PAS:j(def?-2:3),DRI:j(atk?6:def?-8:2),DEF:j(def?11:atk?-22:-6),PHY:j(def?7:0)},
+      blurb:t.sub };
+    genCache[id]=p; return p; }
 
-  function portraitSVG(p) {
-    const s = p.skin, hc = p.hair.color, j = p.jersey;
-    let beard = "";
-    if (p.beard) {
-      const op = p.beard === "stubble" ? 0.35 : 1;
-      beard =
-        `<path d="M60 96 Q62 142 100 144 Q138 142 140 96 L132 98 Q132 128 100 130 Q68 128 68 98 Z" fill="${hc}" opacity="${op}"/>` +
-        `<path d="M84 105 Q100 97 116 105 L116 109 Q100 103 84 109 Z" fill="${hc}" opacity="${op}"/>`;
-    }
+  const poolCount=(key)=> NAMED[key]?NAMED[key].length:GEN_COUNT[key];
+  function poolGet(key,i){ if(NAMED[key]) return NAMED[key][i]; return genPlayer(key,i); }
+  function resolve(id){ const k=id.slice(0,id.lastIndexOf("-")), i=+id.slice(id.lastIndexOf("-")+1); return poolGet(k,i); }
+  // finalize NAMED into full player objects
+  Object.keys(NAMED).forEach(key=>{ NAMED[key]=NAMED[key].map((o,i)=>buildNamed(key,o,i)); });
+
+  /* ================= SVG portrait / crest ================= */
+  function hairSVG(p){ const hc=p.hair.color;
+    const dome=`M56 96 Q52 30 100 28 Q148 30 144 96 L134 96 Q138 50 100 48 Q62 50 66 96 Z`;
+    switch(p.hair.style){
+      case "crop": return `<path d="${dome}" fill="${hc}"/>`;
+      case "slick": return `<path d="${dome}" fill="${hc}"/><path d="M70 42 Q78 18 98 26 Q82 26 76 44 Z" fill="${hc}"/>`;
+      case "spiky": return `<path d="${dome}" fill="${hc}"/><path d="M60 54 L68 26 L78 46 L88 20 L98 44 L108 22 L118 46 L128 28 L138 54 Q120 40 100 42 Q78 40 60 54 Z" fill="${hc}"/>`;
+      case "bun": return `<path d="${dome}" fill="${hc}"/><circle cx="100" cy="22" r="14" fill="${hc}"/>`;
+      case "fluffy": return `<path d="${dome}" fill="${hc}"/><circle cx="72" cy="52" r="19" fill="${hc}"/><circle cx="100" cy="40" r="23" fill="${hc}"/><circle cx="128" cy="52" r="19" fill="${hc}"/>`;
+      case "curly": return `<path d="${dome}" fill="${hc}"/><circle cx="66" cy="66" r="12" fill="${hc}"/><circle cx="80" cy="50" r="13" fill="${hc}"/><circle cx="100" cy="42" r="14" fill="${hc}"/><circle cx="120" cy="50" r="13" fill="${hc}"/><circle cx="134" cy="66" r="12" fill="${hc}"/>`;
+      case "medium": return `<path d="M54 112 Q48 26 100 26 Q152 26 146 112 L136 112 Q140 50 100 48 Q60 50 64 112 Z" fill="${hc}"/>`;
+      default: return "";
+    } }
+  function portraitSVG(p){ const s=p.skin, hc=p.hair.color, j=p.jersey; let beard="";
+    if(p.beard){ const op=p.beard==="stubble"?0.35:1;
+      beard=`<path d="M60 96 Q62 142 100 144 Q138 142 140 96 L132 98 Q132 128 100 130 Q68 128 68 98 Z" fill="${hc}" opacity="${op}"/><path d="M84 105 Q100 97 116 105 L116 109 Q100 103 84 109 Z" fill="${hc}" opacity="${op}"/>`; }
     return `<svg viewBox="0 0 200 214" xmlns="http://www.w3.org/2000/svg">
       <circle cx="59" cy="94" r="9" fill="${s}"/><circle cx="141" cy="94" r="9" fill="${s}"/>
       <rect x="86" y="122" width="28" height="36" rx="6" fill="${s}"/>
-      <path d="M34 212 Q34 168 68 158 L86 152 Q100 162 114 152 L132 158 Q166 168 166 212 Z"
-            fill="${j.body}" stroke="${j.trim}" stroke-width="4"/>
+      <path d="M34 212 Q34 168 68 158 L86 152 Q100 162 114 152 L132 158 Q166 168 166 212 Z" fill="${j.body}" stroke="${j.trim}" stroke-width="4"/>
       <path d="M86 152 Q100 162 114 152 L118 156 Q100 170 82 156 Z" fill="${j.trim}"/>
-      <text x="100" y="202" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif"
-            font-size="26" fill="${j.trim}">${p.num}</text>
-      <ellipse cx="100" cy="92" rx="40" ry="46" fill="${s}"/>
-      ${hairSVG(p)}
-      ${beard}
+      <text x="100" y="202" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="26" fill="${j.trim}">${p.num}</text>
+      <ellipse cx="100" cy="92" rx="40" ry="46" fill="${s}"/>${hairSVG(p)}${beard}
       <rect x="76" y="78" width="17" height="5" rx="2.5" fill="${hc}" transform="rotate(-6 84 80)"/>
       <rect x="107" y="78" width="17" height="5" rx="2.5" fill="${hc}" transform="rotate(6 116 80)"/>
       <circle cx="85" cy="92" r="4.5" fill="#20242c"/><circle cx="115" cy="92" r="4.5" fill="#20242c"/>
       <path d="M100 94 q-5 9 1 11" stroke="rgba(0,0,0,.28)" stroke-width="3" fill="none" stroke-linecap="round"/>
       <path d="M86 113 Q100 124 114 113" stroke="#20242c" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    </svg>`;
-  }
+    </svg>`; }
+  function crestSVG(c){ const inner = c.bolt
+      ? `<path d="M33 12 L22 32 h8 L26 50 L40 27 h-9 L36 12 Z" fill="${c.c2}"/>`
+      : `<text x="30" y="37" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="${c.init.length>2?14:17}" fill="${c.c2}">${c.init}</text>`;
+    return `<svg viewBox="0 0 60 62" xmlns="http://www.w3.org/2000/svg"><path d="M30 2 L56 10 V32 C56 46 44 54 30 60 C16 54 4 46 4 32 V10 Z" fill="${c.c1}" stroke="${c.c2}" stroke-width="3"/>${inner}</svg>`; }
 
-  function crestSVG(club) {
-    const inner = club.bolt
-      ? `<path d="M33 12 L22 32 h8 L26 50 L40 27 h-9 L36 12 Z" fill="${club.c2}"/>`
-      : `<text x="30" y="37" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif"
-               font-size="${club.init.length > 2 ? 14 : 17}" fill="${club.c2}">${club.init}</text>`;
-    return `<svg viewBox="0 0 60 62" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 2 L56 10 V32 C56 46 44 54 30 60 C16 54 4 46 4 32 V10 Z"
-            fill="${club.c1}" stroke="${club.c2}" stroke-width="3"/>
-      ${inner}
-    </svg>`;
-  }
+  function cardMarkup(p){ const t=tierByKey(p.tierKey);
+    return `<div class="fifa-card${t.special?" special":""}" style="--c1:${t.c1};--c2:${t.c2};--tc:${t.tc}">
+      <div class="fc-top">
+        <div class="fc-rating"><div class="fc-ovr">${p.rating}</div><div class="fc-pos">${p.pos}</div>
+          <svg class="fc-flag" viewBox="0 0 60 40"><use href="#flag-${p.nation}"/></svg>
+          <span class="fc-crest">${crestSVG(p.club)}</span></div>
+        <div class="fc-art">${portraitSVG(p)}</div>
+      </div>
+      <div class="fc-name">${p.name}</div>
+      <div class="fc-tier">${t.name} · ${t.sub}</div>
+      <div class="fc-stats">
+        <div><b>${p.stats.PAC}</b><span>PAC</span></div><div><b>${p.stats.DRI}</b><span>DRI</span></div>
+        <div><b>${p.stats.SHO}</b><span>SHO</span></div><div><b>${p.stats.DEF}</b><span>DEF</span></div>
+        <div><b>${p.stats.PAS}</b><span>PAS</span></div><div><b>${p.stats.PHY}</b><span>PHY</span></div>
+      </div><div class="fc-shine"></div></div>`; }
+  function miniMarkup(p,dupe){ const t=tierByKey(p.tierKey);
+    return `<button class="mini" data-id="${p.id}" style="--c1:${t.c1};--c2:${t.c2};--tc:${t.tc}">
+      <span class="mini-ovr">${p.rating}</span>${dupe>1?`<span class="mini-dupe">×${dupe}</span>`:""}
+      <span class="mini-art">${portraitSVG(p)}</span>
+      <span class="mini-name">${p.name}</span><span class="mini-pos">${p.pos}</span></button>`; }
 
-  /* ================================================================
-     Put the pulled player everywhere on the page
-     ================================================================ */
-  let current = PLAYERS[0];
+  function attachTilt(card){ if(!card) return;
+    const shine=$(".fc-shine",card);
+    card.addEventListener("pointermove",e=>{ const r=card.getBoundingClientRect();
+      const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+      card.style.transform=`rotateX(${(0.5-py)*16}deg) rotateY(${(px-0.5)*16}deg)`;
+      if(shine) shine.style.background=`radial-gradient(circle at ${px*100}% ${py*100}%, rgba(255,255,255,.9), transparent 55%)`; });
+    card.addEventListener("pointerleave",()=>{ card.style.transform="";
+      if(shine) shine.style.background="radial-gradient(circle at 50% 35%, rgba(255,255,255,.85), transparent 55%)"; }); }
 
-  function applyPlayer(p) {
-    // walkout
-    $("#wPos").textContent = p.pos;
-    $("#wFlag").setAttribute("href", "#flag-" + p.nation);
-    $("#wCrest").innerHTML = crestSVG(p.club);
-    $("#wClubName").textContent = p.club.name;
-    $("#wPortrait").innerHTML = portraitSVG(p);
-    $("#wName").textContent = p.name;
-    // card
-    $("#cOvr").textContent = p.rating;
-    $("#cPos").textContent = p.pos;
-    $("#cFlag").setAttribute("href", "#flag-" + p.nation);
-    $("#cCrest").innerHTML = crestSVG(p.club);
-    $("#cardArt").innerHTML = portraitSVG(p);
-    const nameEl = $("#cName");
-    nameEl.textContent = p.name;
-    nameEl.style.fontSize = p.name.length > 8 ? "clamp(18px, 4.6vw, 27px)" : "";
-    for (const k of ["PAC", "SHO", "PAS", "DRI", "DEF", "PHY"]) $("#s" + k).textContent = p.stats[k];
-    // hero
-    $("#heroKicker").textContent = p.rating >= 99 ? "★ Ultra Rare ★" : p.rating >= 97 ? "Legend Pull" : "Elite Gold";
-    const heroName = $("#heroName");
-    heroName.textContent = p.name;
-    heroName.style.fontSize = p.name.length > 8 ? "clamp(32px, 6vw, 58px)" : "";
-    $("#heroBlurb").textContent = p.blurb;
-    // season stats tiles
-    $("#tGoals").dataset.count = p.rating - 45;
-    $("#tAssists").dataset.count = Math.max(10, p.stats.PAS - 68);
-    $("#tTrophies").dataset.count = Math.max(3, p.rating - 86);
-    $("#tOverall").dataset.count = p.rating;
-    // game
-    $("#playAs").textContent = `PLAYING AS ${p.name} — TAP THE BALL, DON'T LET IT DROP!`;
-    $("#hudFace").innerHTML = portraitSVG(p);
-    $("#hudName").textContent = p.name;
-    setGameMsg("kick", `Ready, ${p.name}?`, "Tap the ball to juggle. One touch = one point.", "Kick Off");
-  }
+  /* ================= STATE ================= */
+  const SAVE_KEY="uf-save-v3";
+  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0 };
+  function load(){ const raw=store.get(SAVE_KEY); if(raw){ try{ const d=JSON.parse(raw); S=Object.assign(S,d); if(!S.owned)S.owned={}; }catch{} } }
+  function save(){ store.set(SAVE_KEY, JSON.stringify(S)); }
+  load();
 
-  /* ---------- pack opening + walkout ---------- */
-  const packScreen = $("#packScreen"), walkout = $("#walkout"), flash = $("#flash"), main = $("#main");
-  let opening = false, walkoutSkipped = false, revealDone = false;
+  const MAX_LUCK=12, MAX_SPEED=8;
+  const luckCost=(lv)=>Math.round(250*Math.pow(1.7,lv)/10)*10;
+  const speedCost=(lv)=>Math.round(200*Math.pow(1.7,lv)/10)*10;
+  const effOdds=(idx)=>Math.min(TIERS[idx].odds + S.luck*0.03, 0.97);
+  const openFactor=()=>Math.pow(0.82,S.speed); // 1 → faster as speed rises
+  const isOwned=(id)=>!!S.owned[id];
+  function bestRating(){ let b=0; for(const id in S.owned){ const r=resolve(id).rating; if(r>b)b=r; } return b; }
+  function ownedCount(){ return Object.keys(S.owned).length; }
 
-  async function openPack() {
-    if (opening) return;
-    opening = true;
-    walkoutSkipped = false;
-    revealDone = false;
-    current = pickPlayer();
-    applyPlayer(current);
-    beep(220, 0.3, "sawtooth", 0.15); beep(330, 0.3, "sawtooth", 0.15, 0.15);
-    const pack = $("#pack");
-    pack.classList.add("shake");
-    await wait(reducedMotion ? 50 : 900);
-    flash.classList.remove("boom"); void flash.offsetWidth; flash.classList.add("boom");
-    beep(1200, 0.5, "square", 0.12);
-    packScreen.classList.add("hidden");
-    walkout.classList.remove("hidden");
-    await runWalkout();
-    finishReveal();
-  }
+  /* ================= RENDER ================= */
+  const coinVal=$("#coinVal");
+  function renderCoins(bump){ coinVal.textContent=S.coins;
+    if(bump){ coinVal.classList.remove("bump"); void coinVal.offsetWidth; coinVal.classList.add("bump"); } }
+  function renderClub(){ if(!S.club) return; const c=CLUBS[S.club];
+    $("#clubCrest").innerHTML=crestSVG(c); $("#clubName").textContent=c.name; $("#squadSub").textContent=`Every player you pull joins ${c.name}.`; }
 
-  async function showItem(id, holdMs) {
-    if (walkoutSkipped) return;
-    const el = $(id);
-    el.classList.remove("gone"); el.classList.add("show");
-    beep(660, 0.2, "triangle", 0.2);
-    await wait(reducedMotion ? 60 : holdMs);
-    el.classList.add("gone");
-    await wait(reducedMotion ? 20 : 420);
-    el.classList.remove("show", "gone");
-  }
+  function renderPacks(){ const g=$("#packGrid");
+    g.innerHTML=TIERS.map((t,idx)=>{ const afford=S.coins>=t.price;
+      return `<div class="pack${t.special?" special":""}" style="--c1:${t.c1};--c2:${t.c2};--tc:${t.tc}">
+        <div class="pack-ico">${t.ico}</div>
+        <div class="pack-name">${t.name}</div><div class="pack-sub">${t.sub}</div>
+        <div class="pack-odds"><b>${Math.round(effOdds(idx)*100)}%</b> ${t.name}${S.luck?` <span style="opacity:.7">(luck+${S.luck*3})</span>`:""}</div>
+        <button class="pack-buy" data-idx="${idx}" ${afford?"":"disabled"}><span class="price">🪙 ${t.price}</span></button>
+      </div>`; }).join(""); }
 
-  async function runWalkout() {
-    await wait(300);
-    await showItem("#w-pos", 1000);
-    await showItem("#w-nation", 1000);
-    await showItem("#w-club", 1100);
-    await showItem("#w-player", 1700);
-  }
+  function renderUpgrades(){ const w=$("#upgWrap");
+    const luckMax=S.luck>=MAX_LUCK, speedMax=S.speed>=MAX_SPEED;
+    const lc=luckCost(S.luck), sc=speedCost(S.speed);
+    w.innerHTML=`
+      <div class="upg"><div class="u-ico">🍀</div>
+        <div class="u-body"><h3>Luck</h3>
+          <div class="u-eff">Headline odds <b>+${S.luck*3}%</b> · Lv ${S.luck}/${MAX_LUCK}</div>
+          <div class="u-bar"><i style="width:${S.luck/MAX_LUCK*100}%"></i></div></div>
+        ${luckMax?`<button class="maxed" disabled>MAX</button>`:`<button data-upg="luck" ${S.coins>=lc?"":"disabled"}>🪙 ${lc}</button>`}
+      </div>
+      <div class="upg"><div class="u-ico">⚡</div>
+        <div class="u-body"><h3>Pack Speed</h3>
+          <div class="u-eff">Open speed <b>${Math.round((1-openFactor())*100)}%</b> faster · Lv ${S.speed}/${MAX_SPEED}</div>
+          <div class="u-bar"><i style="width:${S.speed/MAX_SPEED*100}%"></i></div></div>
+        ${speedMax?`<button class="maxed" disabled>MAX</button>`:`<button data-upg="speed" ${S.coins>=sc?"":"disabled"}>🪙 ${sc}</button>`}
+      </div>`; }
 
-  function finishReveal() {
-    if (revealDone) return;
-    revealDone = true;
-    walkoutSkipped = true;
-    document.body.classList.remove("locked");
-    walkout.classList.add("hidden");
-    packScreen.classList.add("hidden");
-    flash.classList.remove("boom"); void flash.offsetWidth; flash.classList.add("boom");
-    main.classList.add("revealed");
-    // restart card entrance animation
-    const card = $("#card");
-    card.style.animation = "none"; void card.offsetWidth; card.style.animation = "";
-    // re-run counters if the stats section is already on screen from a previous pull
-    if ($("#stats").classList.contains("in")) {
-      document.querySelectorAll("#stats [data-count]").forEach(runCounter);
-    }
-    resetIdleBall();
-    burstConfetti();
-    fanfare();
-    opening = false;
-  }
+  function renderSquad(){ const total=ownedCount();
+    $("#squadSummary").innerHTML=`
+      <div class="sqstat"><div class="n">${total}</div><div class="l">Players</div></div>
+      <div class="sqstat"><div class="n">${bestRating()||"—"}</div><div class="l">Top Rated</div></div>
+      <div class="sqstat"><div class="n">${S.best}</div><div class="l">Juggle PB</div></div>`;
+    const body=$("#squadBody");
+    if(total===0){ body.innerHTML=`<div class="empty-note">No players yet.<br><button class="link-btn" data-goto="packs">Open your first pack →</button></div>`; return; }
+    let html="";
+    for(let i=TIERS.length-1;i>=0;i--){ const t=TIERS[i];
+      const ids=Object.keys(S.owned).filter(id=>resolve(id).tierKey===t.key);
+      if(!ids.length) continue;
+      ids.sort((a,b)=>resolve(b).rating-resolve(a).rating);
+      html+=`<div class="tier-block"><h3><span class="tier-dot" style="background:${t.dot};color:${t.dot}"></span>${t.name} <span style="color:${t.dot}">·</span> ${t.sub}<span class="cnt">${ids.length}/${poolCount(t.key)}</span></h3>
+        <div class="mini-grid">${ids.map(id=>miniMarkup(resolve(id),S.owned[id])).join("")}</div></div>`; }
+    body.innerHTML=html; }
 
-  function goToPack() {
-    playing = false;
-    msg.classList.remove("playing");
-    scrollTo({ top: 0, behavior: "instant" });
-    document.body.classList.add("locked");
-    main.classList.remove("revealed");
-    walkout.classList.add("hidden");
-    packScreen.classList.remove("hidden");
-    $("#pack").classList.remove("shake");
-    opening = false;
-  }
+  function renderAll(){ renderCoins(); renderClub(); renderPacks(); renderUpgrades(); renderSquad(); refreshJuggler(); }
 
-  $("#pack").addEventListener("click", openPack);
-  $("#skipBtn").addEventListener("click", () => { walkoutSkipped = true; finishReveal(); });
-  $("#replayBtn").addEventListener("click", goToPack);
+  /* ================= TOAST ================= */
+  let toastT=null; const toastEl=$("#toast");
+  function toast(msg){ toastEl.textContent=msg; toastEl.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove("show"),1600); }
 
-  /* ---------- card tilt + holo shine ---------- */
-  const card = $("#card"), shine = $("#shine");
-  function tilt(e) {
-    const r = card.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-    card.style.transform = `rotateX(${(0.5 - py) * 20}deg) rotateY(${(px - 0.5) * 20}deg)`;
-    shine.style.background =
-      `radial-gradient(circle at ${px * 100}% ${py * 100}%, rgba(255,255,255,.95), transparent 55%)`;
-  }
-  card.addEventListener("pointermove", tilt);
-  card.addEventListener("pointerleave", () => {
-    card.style.transform = "";
-    shine.style.background = "radial-gradient(circle at 50% 40%, rgba(255,255,255,.9), transparent 55%)";
-  });
+  /* ================= PULL LOGIC ================= */
+  function rollTier(packIdx){ if(Math.random()<effOdds(packIdx)) return packIdx;
+    if(packIdx===0) return 1; // common miss = lucky bump to uncommon
+    const w=[]; let tot=0; for(let i=0;i<packIdx;i++){ w[i]=Math.pow(2,i); tot+=w[i]; }
+    let r=Math.random()*tot; for(let i=0;i<packIdx;i++){ r-=w[i]; if(r<=0) return i; } return 0; }
+  function pickFromTier(tierIdx){ const key=TIERS[tierIdx].key; return poolGet(key, Math.floor(Math.random()*poolCount(key))); }
 
-  /* ---------- scroll reveals + counters ---------- */
-  const io = new IntersectionObserver((entries) => {
-    for (const en of entries) {
-      if (!en.isIntersecting) continue;
-      en.target.classList.add("in");
-      en.target.querySelectorAll("[data-count]").forEach(runCounter);
-      io.unobserve(en.target);
-    }
-  }, { threshold: 0.25 });
-  document.querySelectorAll(".reveal-on-scroll").forEach((el) => io.observe(el));
+  /* ================= PACK OPENING ================= */
+  const reveal=$("#reveal"), rvCard=$("#rvCard"), rvResult=$("#rvResult"), rvAgain=$("#rvAgain"), rvDone=$("#rvDone");
+  let opening=false, lastPackIdx=0;
 
-  function runCounter(el) {
-    const target = +el.dataset.count, t0 = performance.now(), dur = 1400;
-    (function step(t) {
-      const k = Math.min((t - t0) / dur, 1);
-      el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(step);
-    })(t0);
-  }
+  async function openPack(packIdx){ if(opening) return; const pack=TIERS[packIdx];
+    if(S.coins<pack.price){ toast("Not enough coins!"); switchTab("play"); return; }
+    opening=true; lastPackIdx=packIdx;
+    S.coins-=pack.price; save(); renderCoins(true); renderPacks();
+    const tierIdx=rollTier(packIdx); const player=pickFromTier(tierIdx); const t=TIERS[tierIdx];
+    const f=reduced?0.05:openFactor();
+    beep(220,0.28,"sawtooth",0.13); beep(330,0.28,"sawtooth",0.13,0.12);
+    reveal.classList.add("show"); rvResult.innerHTML=""; rvAgain.style.visibility="hidden"; rvDone.style.visibility="hidden";
+    rvCard.innerHTML="";
+    await wait(reduced?10:260*f);
+    flashBoom(); beep(1200,0.5,"square",0.1);
+    rvCard.innerHTML=cardMarkup(player);
+    const cardEl=$(".fifa-card",rvCard); if(cardEl) cardEl.style.animationDuration=(0.7*f)+"s"; attachTilt(cardEl);
+    await wait(reduced?10:760*f);
 
-  /* ---------- keepy-uppy ---------- */
-  const pitch = $("#pitch"), ball = $("#ball"), msg = $("#gameMsg");
-  const scoreEl = $("#score"), bestEl = $("#best");
-  const msgTitle = $("#msgTitle"), msgText = $("#msgText"), playBtn = $("#playBtn");
-  const BALL = 64, GRAV = 0.45;
-  const BEST_KEY = "uf-keepy-best";
-  let bx = 0, by = 0, bvx = 0, bvy = 0, brot = 0, score = 0, playing = false, lastT = 0;
-  let msgMode = "kick"; // "kick" = start the game, "pack" = you lost, open a new pack
-  let best = +(store.get(BEST_KEY) || 0);
-  bestEl.textContent = best;
+    const isNew=!isOwned(player.id); let earned=0;
+    if(isNew){ S.owned[player.id]=1; } else { earned=t.sell; S.coins+=earned; S.owned[player.id]=(S.owned[player.id]||1)+1; }
+    S.best=Math.max(S.best,bestRating()>0?S.best:0);
+    save(); renderCoins(!isNew); renderPacks(); renderUpgrades(); renderSquad();
 
-  function setGameMsg(mode, title, text, btnLabel) {
-    msgMode = mode;
-    msgTitle.textContent = title;
-    msgText.textContent = text;
-    playBtn.textContent = btnLabel;
-  }
+    rvResult.innerHTML = isNew
+      ? `<div class="tag newp">✨ NEW! ${t.name} pull</div><div class="sub">${player.name} joined ${CLUBS[S.club].name}. ${player.blurb}</div>`
+      : `<div class="tag dupe">Duplicate</div><div class="sub">You already own ${player.name} — sold for 🪙 ${earned}.</div>`;
+    const canAgain=S.coins>=pack.price;
+    rvAgain.textContent=`Open Again (🪙 ${pack.price})`; rvAgain.disabled=!canAgain;
+    rvAgain.style.visibility="visible"; rvDone.style.visibility="visible";
+    if(isNew && tierIdx>=3){ burst(); if(tierIdx>=4) fanfare(); }
+    opening=false; }
 
-  function placeBall() {
-    ball.style.transform = `translate(${bx}px, ${by}px) rotate(${brot}deg)`;
-  }
-  function resetIdleBall() {
-    bx = pitch.clientWidth / 2 - BALL / 2; by = pitch.clientHeight * 0.3; brot = 0;
-    score = 0; scoreEl.textContent = 0;
-    placeBall();
-  }
-  resetIdleBall();
+  rvAgain.addEventListener("click",()=>{ if(opening) return; openPack(lastPackIdx); });
+  rvDone.addEventListener("click",()=>{ if(opening) return; reveal.classList.remove("show"); });
 
-  function startGame() {
-    if (playing) return;
-    bx = pitch.clientWidth / 2 - BALL / 2;
-    by = pitch.clientHeight * 0.45;
-    bvx = 0; bvy = -10; brot = 0; score = 0; // opening toss upward: time to react
-    placeBall();
-    scoreEl.textContent = 0;
-    playing = true;
-    msg.classList.add("playing");
-    beep(880, 0.15, "square", 0.15);
-    lastT = performance.now();
-    requestAnimationFrame(gameTick);
-  }
+  /* ================= CARD MODAL ================= */
+  const cardModal=$("#cardModal"), modalCard=$("#modalCard");
+  function openModal(id){ const p=resolve(id); const t=tierByKey(p.tierKey);
+    modalCard.outerHTML=cardMarkup(p); // replace to get fresh element w/ tier styles
+    // re-grab (outerHTML replaced node)
+    const fresh=$("#cardModal .fifa-card"); if(fresh){ fresh.id="modalCard"; attachTilt(fresh); }
+    cardModal.classList.add("show"); }
+  $("#modalClose").addEventListener("click",()=>cardModal.classList.remove("show"));
+  cardModal.addEventListener("click",e=>{ if(e.target===cardModal) cardModal.classList.remove("show"); });
 
-  function gameOver() {
-    playing = false;
-    const isRecord = score > best;
-    if (isRecord) { best = score; store.set(BEST_KEY, best); bestEl.textContent = best; }
-    setGameMsg(
-      "pack",
-      isRecord && score > 0 ? "🏆 New Record!" : score >= 10 ? "World Class!" : "Full Time!",
-      `${score} juggle${score === 1 ? "" : "s"} as ${current.name}. Open a new pack to become a new player!`,
-      "Open New Pack"
-    );
-    msg.classList.remove("playing");
-    beep(196, 0.4, "sawtooth", 0.18);
-  }
+  /* ================= TABS ================= */
+  function switchTab(name){ $$(".tab").forEach(s=>s.classList.toggle("active",s.id==="tab-"+name));
+    $$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
+    if(name==="squad") renderSquad(); if(name==="play") refreshJuggler(); }
+  function $$(s){ return Array.from(document.querySelectorAll(s)); }
+  $("#tabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-tab]"); if(b) switchTab(b.dataset.tab); });
 
-  function gameTick(t) {
-    if (!playing) return;
-    // dt in units of one 60fps frame, so speed is identical on 60Hz and 120Hz screens
-    const dt = Math.min((t - lastT) / 16.667, 3) || 1;
-    lastT = t;
-    const w = pitch.clientWidth, h = pitch.clientHeight;
-    bvy += GRAV * dt;
-    bx += bvx * dt; by += bvy * dt; brot += bvx * 2 * dt;
-    if (bx < 0) { bx = 0; bvx = Math.abs(bvx) * 0.85; }
-    if (bx > w - BALL) { bx = w - BALL; bvx = -Math.abs(bvx) * 0.85; }
-    if (by < -BALL * 2) { by = -BALL * 2; bvy = Math.max(bvy, 0); }
-    placeBall();
-    if (by > h - BALL + 10) { gameOver(); return; }
-    requestAnimationFrame(gameTick);
-  }
+  /* delegated buttons */
+  $("#packGrid").addEventListener("click",e=>{ const b=e.target.closest("button[data-idx]"); if(b) openPack(+b.dataset.idx); });
+  $("#upgWrap").addEventListener("click",e=>{ const b=e.target.closest("button[data-upg]"); if(!b) return;
+    if(b.dataset.upg==="luck"){ if(S.luck>=MAX_LUCK) return; const c=luckCost(S.luck); if(S.coins<c){toast("Not enough coins!");return;}
+      S.coins-=c; S.luck++; beep(880,0.14,"square",0.14); }
+    else { if(S.speed>=MAX_SPEED) return; const c=speedCost(S.speed); if(S.coins<c){toast("Not enough coins!");return;}
+      S.coins-=c; S.speed++; beep(660,0.14,"square",0.14); }
+    save(); renderCoins(); renderUpgrades(); renderPacks(); });
+  $("#squadBody").addEventListener("click",e=>{ const m=e.target.closest(".mini"); if(m){ openModal(m.dataset.id); return; }
+    const g=e.target.closest("[data-goto]"); if(g) switchTab(g.dataset.goto); });
+  $("#resetBtn").addEventListener("click",()=>{ if(confirm("Reset everything — coins, squad, upgrades and club?")){ store.del(SAVE_KEY);
+    S={club:null,coins:300,luck:0,speed:0,owned:{},best:0}; save(); renderAll(); showTeamSelect(); } });
 
-  pitch.addEventListener("pointerdown", (e) => {
-    if (!playing) return;
-    const r = pitch.getBoundingClientRect();
-    const mx = e.clientX - r.left, my = e.clientY - r.top;
-    const cx = bx + BALL / 2, cy = by + BALL / 2;
-    const dist = Math.hypot(mx - cx, my - cy);
-    if (dist < BALL * 1.15) {
-      score++; scoreEl.textContent = score;
-      bvy = -(10.5 + Math.min(score * 0.12, 4));
-      bvx += (cx - mx) * 0.22 + (Math.random() - 0.5) * 2;
-      bvx = Math.max(-9, Math.min(9, bvx));
-      beep(700 + Math.min(score * 18, 500), 0.09, "square", 0.14);
-    }
-  });
+  /* ================= TEAM SELECT ================= */
+  const teamSelect=$("#teamSelect");
+  function showTeamSelect(){ $("#teamGrid").innerHTML=TEAMS.map(k=>{ const c=CLUBS[k];
+      return `<button class="team-pick" data-club="${k}">${crestSVG(c)}<div class="tp-name">${c.name}</div></button>`; }).join("");
+    teamSelect.classList.add("show"); }
+  $("#teamGrid").addEventListener("click",e=>{ const b=e.target.closest("button[data-club]"); if(!b) return;
+    S.club=b.dataset.club; save(); teamSelect.classList.remove("show"); renderAll(); toast(`You are ${CLUBS[S.club].name}!`); beep(700,0.2,"triangle",0.2); });
 
-  // Kick Off must always work: react on pointerdown (with a dedupe window so the
-  // follow-up click doesn't double-fire) and stop the tap reaching the pitch.
-  let lastPress = 0;
-  function pressPlay(e) {
-    e.stopPropagation();
-    const now = performance.now();
-    if (now - lastPress < 400) return;
-    lastPress = now;
-    if (msgMode === "pack") goToPack();
-    else startGame();
-  }
-  playBtn.addEventListener("pointerdown", pressPlay);
-  playBtn.addEventListener("click", pressPlay); // keyboard + fallback
+  /* ================= KEEPY-UPPY ================= */
+  const pitch=$("#pitch"), ball=$("#ball"), gmsg=$("#gameMsg");
+  const scoreEl=$("#score"), bestEl=$("#best"), msgTitle=$("#msgTitle"), msgText=$("#msgText"), playBtn=$("#playBtn");
+  const BALL=64, GRAV=0.45;
+  let bx=0,by=0,bvx=0,bvy=0,brot=0,score=0,playing=false,lastT=0, mode="start";
+  bestEl.textContent=S.best;
+  function placeBall(){ ball.style.transform=`translate(${bx}px,${by}px) rotate(${brot}deg)`; }
+  function resetIdleBall(){ bx=pitch.clientWidth/2-BALL/2; by=pitch.clientHeight*0.3; brot=0; score=0; scoreEl.textContent=0; placeBall(); }
+  function refreshJuggler(){ const b=bestRating()?resolve(Object.keys(S.owned).sort((a,z)=>resolve(z).rating-resolve(a).rating)[0]):null;
+    $("#hudFace").innerHTML=b?portraitSVG(b):""; $("#hudName").textContent=b?b.name:""; bestEl.textContent=S.best;
+    if(!playing){ if(pitch.clientWidth) resetIdleBall(); setMsg("start",`Ready${b?", "+b.name:""}?`,"Tap the ball to juggle. Each juggle = 8 coins.","Kick Off"); } }
+  function setMsg(m,title,text,btn){ mode=m; msgTitle.textContent=title; msgText.textContent=text; playBtn.textContent=btn; }
+  function startGame(){ if(playing) return; bx=pitch.clientWidth/2-BALL/2; by=pitch.clientHeight*0.45;
+    bvx=0; bvy=-10; brot=0; score=0; placeBall(); scoreEl.textContent=0; playing=true; gmsg.classList.add("playing");
+    beep(880,0.15,"square",0.15); lastT=performance.now(); requestAnimationFrame(gameTick); }
+  function gameOver(){ playing=false; const coins=score*8; S.coins+=coins;
+    const record=score>S.best; if(record){ S.best=score; } save(); renderCoins(coins>0); bestEl.textContent=S.best;
+    setMsg("start", record&&score>0?"🏆 New Record!":score>=10?"World Class!":"Full Time!",
+      `${score} juggle${score===1?"":"s"} · earned 🪙 ${coins}. Spend it on packs!`, "Play Again");
+    gmsg.classList.remove("playing"); beep(196,0.4,"sawtooth",0.18); }
+  function gameTick(t){ if(!playing) return; const dt=Math.min((t-lastT)/16.667,3)||1; lastT=t;
+    const w=pitch.clientWidth, h=pitch.clientHeight; bvy+=GRAV*dt; bx+=bvx*dt; by+=bvy*dt; brot+=bvx*2*dt;
+    if(bx<0){bx=0;bvx=Math.abs(bvx)*0.85;} if(bx>w-BALL){bx=w-BALL;bvx=-Math.abs(bvx)*0.85;}
+    if(by<-BALL*2){by=-BALL*2;bvy=Math.max(bvy,0);} placeBall();
+    if(by>h-BALL+10){ gameOver(); return; } requestAnimationFrame(gameTick); }
+  pitch.addEventListener("pointerdown",e=>{ if(!playing) return; const r=pitch.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top, cx2=bx+BALL/2, cy2=by+BALL/2;
+    if(Math.hypot(mx-cx2,my-cy2)<BALL*1.15){ score++; scoreEl.textContent=score; bvy=-(10.5+Math.min(score*0.12,4));
+      bvx+=(cx2-mx)*0.22+(Math.random()-0.5)*2; bvx=clamp(bvx,-9,9); beep(700+Math.min(score*18,500),0.09,"square",0.14); } });
+  let lastPress=0;
+  function pressPlay(e){ e.stopPropagation(); const now=performance.now(); if(now-lastPress<400) return; lastPress=now; startGame(); }
+  playBtn.addEventListener("pointerdown",pressPlay); playBtn.addEventListener("click",pressPlay);
 
-  // little debug/console-play hook
-  window.UF = { PLAYERS, applyPlayer, pickPlayer };
+  /* ================= BOOT ================= */
+  renderAll();
+  if(!S.club || !CLUBS[S.club]) showTeamSelect();
+  window.addEventListener("resize",()=>{ if(!playing) resetIdleBall(); });
+  window.UF={S,save,resolve,openPack,TIERS,PLAYERS:NAMED};
 })();
 </script>
 </body>

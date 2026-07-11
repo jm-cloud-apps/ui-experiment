@@ -1,13 +1,25 @@
 # Ultimate Football ⚽
 
-Open a pack, become a legend, keep the ball up!
+Pick a club, buy packs, pull legends, and build your squad.
 
-- **Pack opening** with a walkout reveal: position → nation → club → your player
-  (cartoon portrait, flag, crest and stats — all drawn in SVG, no image files).
-- **15 pullable players**: CL (ultra rare!), Pelé, Messi, Ronaldo, Mbappé, Haaland,
-  De Bruyne, Vinícius Jr, Salah, Bellingham, Neymar, Kane, Yamal, Lewandowski, Musiala.
-- **You play as the player you pull** in the keepy-uppy game. When you lose,
-  you open a new pack and become a new player.
+## How to play
+1. **Choose your club** (Man United, Real Madrid, Barcelona…). Every player you pull joins *your* squad.
+2. **Buy packs** with coins in the Pack Store. There are **7 tiers**, each with a headline chance of hitting its top rarity:
+   Common (95%) · Uncommon (90%) · Rare (86%) · Epic (79%) · Legendary (67%) · Mythic (50%) · God (24%).
+   Miss the headline and you drop to a lower tier — you never get nothing.
+3. **Collect** — new players fill your Squad; duplicates auto-sell for coins.
+4. **Upgrade** your **Luck** (better headline odds) and **Pack Speed** (faster opening).
+5. **Keepy-Uppy** is an optional mini-game — every juggle earns coins to spend on packs.
+
+## Roster
+- **God — Legends:** CL, Pelé, Maradona, Ronaldinho, Zidane, Cruyff
+- **Mythic — Champions:** Messi, Ronaldo, Mbappé, Neymar, Vinícius Jr, Yamal, Lewandowski, Bellingham
+- **Legendary — Premier League:** Haaland, Salah, Saka, Ødegaard, Palmer, Foden, Son, Van Dijk
+- **Epic — Decent:** Isak, Watkins, Gakpo, Højlund, Maddison, Gordon, Mount, Trippier
+- **Rare / Uncommon / Common:** procedurally generated gold, silver and bronze players
+
+Every player card — portrait, flag, club crest and stats — is drawn in SVG. No image files.
+Progress (coins, squad, upgrades, club) is saved in your browser.
 
 Single self-contained `index.html` — no build, no dependencies.
 
