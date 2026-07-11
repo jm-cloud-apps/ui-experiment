@@ -13,7 +13,10 @@ Pick a club, buy packs, pull legends, and build your squad.
 4. **Collect** — new players fill your Squad; duplicates auto-sell for coins.
 5. **Upgrade** your **Luck** (better headline odds) and **Pack Speed** (faster opening).
 6. **Mini-games** (optional, earn coins to spend on packs):
-   - **Keepy-Uppy** — tap the ball, don't let it drop. Each juggle pays coins.
+   - **Keepy-Uppy** — tap the ball, don't let it drop. Pick a difficulty:
+     **Easy** (big slow ball, ×0.5 coins) · **Medium** (×1) · **Hard** (small fast ball, wind
+     + a sliding bar, ×3) · **Impossible** (tiny ball, brutal gravity, strong wind, two bars, ×7).
+     Coins scale with difficulty and each level keeps its own best score.
    - **Penalty Shootout** — pick a corner, read the keeper's lean, and time your power meter.
      The keeper reads you more the longer you go, scrambles across on soft shots, and only a
      top-corner screamer beats him when he guesses right. Coins per goal (with a streak bonus);

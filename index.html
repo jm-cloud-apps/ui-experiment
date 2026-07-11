@@ -223,6 +223,10 @@
   #hudName { font-family:'Russo One'; font-size:13px; color:var(--gold-1); text-shadow:0 2px 6px rgba(0,0,0,.6); }
   #ball { position:absolute; width:64px; height:64px; left:0; top:0; font-size:56px; line-height:64px; text-align:center;
     filter:drop-shadow(0 8px 10px rgba(0,0,0,.5)); will-change:transform; pointer-events:none; }
+  .ku-bar { position:absolute; left:0; top:0; height:16px; border-radius:8px; display:none; z-index:1; pointer-events:none;
+    will-change:transform; box-shadow:0 3px 10px rgba(0,0,0,.45);
+    background:repeating-linear-gradient(45deg,#ffcf33 0 11px,#1a1443 11px 22px); }
+  .ku-bar.on { display:block; }
   #scoreHud { position:absolute; top:14px; left:0; right:0; display:flex; justify-content:center; gap:30px;
     font-family:'Russo One'; font-size:16px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.6); pointer-events:none; }
   #scoreHud .val { color:var(--gold-1); }
@@ -235,6 +239,12 @@
     color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border:none; border-radius:999px;
     padding:14px 34px; cursor:pointer; box-shadow:0 8px 24px rgba(227,185,77,.4); touch-action:manipulation; }
   #gameMsg button:hover { transform:translateY(-2px); }
+  #kuLevels { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:340px; }
+  #kuLevels button { cursor:pointer; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.75); font-family:'Oswald',sans-serif; font-weight:700; font-size:12px; letter-spacing:.03em;
+    text-transform:uppercase; padding:8px 13px; border-radius:999px; margin:0; box-shadow:none; touch-action:manipulation; }
+  #kuLevels button:hover { color:#fff; transform:none; }
+  #kuLevels button.sel { color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border-color:transparent; }
 
   /* ---------- mini-game switcher ---------- */
   .game-switch { display:flex; gap:8px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
@@ -377,10 +387,18 @@
       <div id="pitch">
         <div id="hudChip"><span id="hudFace"></span><span id="hudName"></span></div>
         <div id="scoreHud"><div>JUGGLES&nbsp;<span class="val" id="score">0</span></div><div>BEST&nbsp;<span class="val" id="best">0</span></div></div>
+        <div class="ku-bar" id="kuBar0"></div>
+        <div class="ku-bar" id="kuBar1"></div>
         <div id="ball">⚽</div>
         <div id="gameMsg">
-          <h3 id="msgTitle">Ready?</h3>
-          <p id="msgText">Tap the ball to juggle. Each juggle = 8 coins.</p>
+          <h3 id="msgTitle">Keepy-Uppy</h3>
+          <div id="kuLevels">
+            <button data-lv="easy" type="button">🟢 Easy</button>
+            <button data-lv="medium" type="button">🟡 Medium</button>
+            <button data-lv="hard" type="button">🟠 Hard</button>
+            <button data-lv="impossible" type="button">🔴 Impossible</button>
+          </div>
+          <p id="msgText">Tap the ball to juggle — don't let it drop!</p>
           <button id="playBtn" type="button">Kick Off</button>
         </div>
       </div>
@@ -688,8 +706,8 @@
 
   /* ================= STATE ================= */
   const SAVE_KEY="uf-save-v3";
-  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0, stock:{}, restockAt:{} };
-  function load(){ const raw=store.get(SAVE_KEY); if(raw){ try{ const d=JSON.parse(raw); S=Object.assign(S,d); if(!S.owned)S.owned={}; }catch{} } }
+  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0, stock:{}, restockAt:{}, kuBest:{}, kuLevel:"medium" };
+  function load(){ const raw=store.get(SAVE_KEY); if(raw){ try{ const d=JSON.parse(raw); S=Object.assign(S,d); if(!S.owned)S.owned={}; if(!S.kuBest)S.kuBest={}; }catch{} } }
   function save(){ store.set(SAVE_KEY, JSON.stringify(S)); }
   load();
 
@@ -761,7 +779,7 @@
     $("#squadSummary").innerHTML=`
       <div class="sqstat"><div class="n">${total}</div><div class="l">Players</div></div>
       <div class="sqstat"><div class="n">${bestRating()||"—"}</div><div class="l">Top Rated</div></div>
-      <div class="sqstat"><div class="n">${S.best}</div><div class="l">Juggle PB</div></div>`;
+      <div class="sqstat"><div class="n">${Math.max(0,...Object.values(S.kuBest||{}))}</div><div class="l">Juggle PB</div></div>`;
     const body=$("#squadBody");
     if(total===0){ body.innerHTML=`<div class="empty-note">No players yet.<br><button class="link-btn" data-goto="packs">Open your first pack →</button></div>`; return; }
     let html="";
@@ -810,7 +828,6 @@
 
     const isNew=!isOwned(player.id); let earned=0;
     if(isNew){ S.owned[player.id]=1; } else { earned=t.sell; S.coins+=earned; S.owned[player.id]=(S.owned[player.id]||1)+1; }
-    S.best=Math.max(S.best,bestRating()>0?S.best:0);
     save(); renderCoins(!isNew); renderPacks(); renderUpgrades(); renderSquad();
 
     rvResult.innerHTML = isNew
@@ -858,7 +875,7 @@
   $("#squadBody").addEventListener("click",e=>{ const m=e.target.closest(".mini"); if(m){ openModal(m.dataset.id); return; }
     const g=e.target.closest("[data-goto]"); if(g) switchTab(g.dataset.goto); });
   $("#resetBtn").addEventListener("click",()=>{ if(confirm("Reset everything — coins, squad, upgrades and club?")){ store.del(SAVE_KEY);
-    S={club:null,coins:300,luck:0,speed:0,owned:{},best:0}; save(); renderAll(); showTeamSelect(); } });
+    S={club:null,coins:300,luck:0,speed:0,owned:{},best:0,pkBest:0,stock:{},restockAt:{},kuBest:{},kuLevel:"medium"}; initStock(); save(); renderAll(); showTeamSelect(); } });
 
   /* ================= TEAM SELECT ================= */
   const teamSelect=$("#teamSelect");
@@ -869,34 +886,78 @@
     S.club=b.dataset.club; save(); teamSelect.classList.remove("show"); renderAll(); toast(`You are ${CLUBS[S.club].name}!`); beep(700,0.2,"triangle",0.2); });
 
   /* ================= KEEPY-UPPY ================= */
+  const KU_LEVELS = {
+    easy:       { name:"Easy",       ball:80, grav:0.32, tap:1.35, bounce:11.8, cap:3, accel:0.05, drift:1.2, wind:0,    bars:0, barSpd:0,   coin:0.5, desc:"nice and slow" },
+    medium:     { name:"Medium",     ball:64, grav:0.45, tap:1.15, bounce:10.6, cap:4, accel:0.10, drift:2.2, wind:0,    bars:0, barSpd:0,   coin:1,   desc:"the classic" },
+    hard:       { name:"Hard",       ball:46, grav:0.62, tap:1.00, bounce:10.0, cap:4, accel:0.14, drift:3.2, wind:0.09, bars:1, barSpd:2.6, coin:3,   desc:"fast, tiny ball, wind + a bar" },
+    impossible: { name:"Impossible", ball:34, grav:0.84, tap:0.85, bounce:9.6,  cap:5, accel:0.18, drift:4.4, wind:0.17, bars:2, barSpd:4.4, coin:7,   desc:"brutal — 2 bars, strong wind" },
+  };
+  const BARH=16;
   const pitch=$("#pitch"), ball=$("#ball"), gmsg=$("#gameMsg");
   const scoreEl=$("#score"), bestEl=$("#best"), msgTitle=$("#msgTitle"), msgText=$("#msgText"), playBtn=$("#playBtn");
-  const BALL=64, GRAV=0.45;
-  let bx=0,by=0,bvx=0,bvy=0,brot=0,score=0,playing=false,lastT=0, mode="start";
-  bestEl.textContent=S.best;
+  const kuBarEls=[$("#kuBar0"),$("#kuBar1")];
+  let kuLevel = KU_LEVELS[S.kuLevel]?S.kuLevel:"medium", LV=KU_LEVELS[kuLevel];
+  let BALL=LV.ball, GRAV=LV.grav;
+  let bx=0,by=0,bvx=0,bvy=0,brot=0,score=0,playing=false,lastT=0, mode="start", kuBars=[];
+
+  const kuBest=()=>(S.kuBest&&S.kuBest[kuLevel])||0;
+  const juggler=()=>bestRating()?resolve(Object.keys(S.owned).sort((a,z)=>resolve(z).rating-resolve(a).rating)[0]):null;
   function placeBall(){ ball.style.transform=`translate(${bx}px,${by}px) rotate(${brot}deg)`; }
+  function applyBallSize(){ ball.style.width=BALL+"px"; ball.style.height=BALL+"px"; ball.style.fontSize=Math.round(BALL*0.88)+"px"; ball.style.lineHeight=BALL+"px"; }
   function resetIdleBall(){ bx=pitch.clientWidth/2-BALL/2; by=pitch.clientHeight*0.3; brot=0; score=0; scoreEl.textContent=0; placeBall(); }
-  function refreshJuggler(){ const b=bestRating()?resolve(Object.keys(S.owned).sort((a,z)=>resolve(z).rating-resolve(a).rating)[0]):null;
-    $("#hudFace").innerHTML=b?portraitSVG(b):""; $("#hudName").textContent=b?b.name:""; bestEl.textContent=S.best;
-    if(!playing){ if(pitch.clientWidth) resetIdleBall(); setMsg("start",`Ready${b?", "+b.name:""}?`,"Tap the ball to juggle. Each juggle = 8 coins.","Kick Off"); } }
+  function hideBars(){ kuBarEls.forEach(el=>el.classList.remove("on")); }
   function setMsg(m,title,text,btn){ mode=m; msgTitle.textContent=title; msgText.textContent=text; playBtn.textContent=btn; }
-  function startGame(){ if(playing) return; bx=pitch.clientWidth/2-BALL/2; by=pitch.clientHeight*0.45;
-    bvx=0; bvy=-10; brot=0; score=0; placeBall(); scoreEl.textContent=0; playing=true; gmsg.classList.add("playing");
+  function readyMsg(){ const b=juggler();
+    setMsg("start", `Keepy-Uppy · ${LV.name}`, `${LV.desc} · ×${LV.coin} coins${b?` · as ${b.name}`:""}`, "Kick Off"); }
+  function markLevelBtns(){ $$("#kuLevels button").forEach(x=>x.classList.toggle("sel",x.dataset.lv===kuLevel)); }
+
+  function setLevel(k){ if(!KU_LEVELS[k]||playing) return; kuLevel=k; LV=KU_LEVELS[k]; S.kuLevel=k; save();
+    BALL=LV.ball; GRAV=LV.grav; applyBallSize(); hideBars(); markLevelBtns(); bestEl.textContent=kuBest();
+    resetIdleBall(); readyMsg(); beep(560,0.09,"square",0.12); }
+
+  function refreshJuggler(){ const b=juggler();
+    $("#hudFace").innerHTML=b?portraitSVG(b):""; $("#hudName").textContent=b?b.name:"";
+    BALL=LV.ball; GRAV=LV.grav; applyBallSize(); bestEl.textContent=kuBest(); markLevelBtns();
+    if(!playing){ if(pitch.clientWidth) resetIdleBall(); readyMsg(); } }
+
+  function setupBars(){ kuBars=[]; hideBars(); const w=pitch.clientWidth,h=pitch.clientHeight;
+    for(let i=0;i<LV.bars;i++){ const bw=Math.max(80,w*0.30), y=h*(i===0?0.34:0.55);
+      const bar={x:i%2?w-bw:0, y, w:bw, vx:(i%2?-1:1)*LV.barSpd*(1+i*0.25)};
+      kuBars.push(bar); const el=kuBarEls[i]; el.style.width=bw+"px"; el.classList.add("on"); el.style.transform=`translate(${bar.x}px,${bar.y}px)`; } }
+
+  function startGame(){ if(playing) return; BALL=LV.ball; GRAV=LV.grav; applyBallSize();
+    bx=pitch.clientWidth/2-BALL/2; by=pitch.clientHeight*0.45; bvx=0; bvy=-LV.bounce; brot=0; score=0;
+    placeBall(); scoreEl.textContent=0; setupBars(); playing=true; gmsg.classList.add("playing");
     beep(880,0.15,"square",0.15); lastT=performance.now(); requestAnimationFrame(gameTick); }
-  function gameOver(){ playing=false; const coins=score*8; S.coins+=coins;
-    const record=score>S.best; if(record){ S.best=score; } save(); renderCoins(coins>0); bestEl.textContent=S.best;
-    setMsg("start", record&&score>0?"🏆 New Record!":score>=10?"World Class!":"Full Time!",
-      `${score} juggle${score===1?"":"s"} · earned 🪙 ${coins}. Spend it on packs!`, "Play Again");
+
+  function gameOver(){ playing=false; hideBars(); const coins=Math.round(score*8*LV.coin); S.coins+=coins;
+    if(!S.kuBest) S.kuBest={}; const record=score>(S.kuBest[kuLevel]||0); if(record) S.kuBest[kuLevel]=score;
+    save(); renderCoins(coins>0); bestEl.textContent=S.kuBest[kuLevel]||0;
+    setMsg("start", record&&score>0?"🏆 New Record!":score>=(kuLevel==="impossible"?3:kuLevel==="hard"?6:10)?"World Class!":"Full Time!",
+      `${score} juggle${score===1?"":"s"} on ${LV.name} · earned 🪙 ${coins}. Go again?`, "Play Again");
     gmsg.classList.remove("playing"); beep(196,0.4,"sawtooth",0.18); }
+
   function gameTick(t){ if(!playing) return; const dt=Math.min((t-lastT)/16.667,3)||1; lastT=t;
-    const w=pitch.clientWidth, h=pitch.clientHeight; bvy+=GRAV*dt; bx+=bvx*dt; by+=bvy*dt; brot+=bvx*2*dt;
+    const w=pitch.clientWidth, h=pitch.clientHeight;
+    bvy+=GRAV*dt; if(LV.wind) bvx+=LV.wind*Math.sin(t/650)*dt;   // gusting wind
+    bx+=bvx*dt; by+=bvy*dt; brot+=bvx*2*dt;
     if(bx<0){bx=0;bvx=Math.abs(bvx)*0.85;} if(bx>w-BALL){bx=w-BALL;bvx=-Math.abs(bvx)*0.85;}
-    if(by<-BALL*2){by=-BALL*2;bvy=Math.max(bvy,0);} placeBall();
+    if(by<-BALL*2){by=-BALL*2;bvy=Math.max(bvy,0);}
+    for(let i=0;i<kuBars.length;i++){ const bar=kuBars[i];
+      bar.x+=bar.vx*dt; if(bar.x<0){bar.x=0;bar.vx=Math.abs(bar.vx);} if(bar.x>w-bar.w){bar.x=w-bar.w;bar.vx=-Math.abs(bar.vx);}
+      kuBarEls[i].style.transform=`translate(${bar.x}px,${bar.y}px)`;
+      if(bx+BALL>bar.x && bx<bar.x+bar.w && by+BALL>bar.y && by<bar.y+BARH){
+        if(bvy>0){ by=bar.y-BALL; bvy=-Math.abs(bvy)*0.55; }      // falling onto bar → weak bounce up
+        else { by=bar.y+BARH; bvy=Math.abs(bvy)*0.7; }           // rising into bar → knocked back down
+        bvx+=(Math.random()-0.5)*5; bvx=clamp(bvx,-11,11); beep(300,0.05,"square",0.12); } }
+    placeBall();
     if(by>h-BALL+10){ gameOver(); return; } requestAnimationFrame(gameTick); }
+
   pitch.addEventListener("pointerdown",e=>{ if(!playing) return; const r=pitch.getBoundingClientRect();
     const mx=e.clientX-r.left, my=e.clientY-r.top, cx2=bx+BALL/2, cy2=by+BALL/2;
-    if(Math.hypot(mx-cx2,my-cy2)<BALL*1.15){ score++; scoreEl.textContent=score; bvy=-(10.5+Math.min(score*0.12,4));
-      bvx+=(cx2-mx)*0.22+(Math.random()-0.5)*2; bvx=clamp(bvx,-9,9); beep(700+Math.min(score*18,500),0.09,"square",0.14); } });
+    if(Math.hypot(mx-cx2,my-cy2)<BALL*LV.tap){ score++; scoreEl.textContent=score; bvy=-(LV.bounce+Math.min(score*LV.accel,LV.cap));
+      bvx+=(cx2-mx)*0.22+(Math.random()-0.5)*LV.drift; bvx=clamp(bvx,-11,11); beep(700+Math.min(score*18,500),0.09,"square",0.14); } });
+  $("#kuLevels").addEventListener("click",e=>{ const b=e.target.closest("button[data-lv]"); if(b){ e.stopPropagation(); setLevel(b.dataset.lv); } });
   let lastPress=0;
   function pressPlay(e){ e.stopPropagation(); const now=performance.now(); if(now-lastPress<400) return; lastPress=now; startGame(); }
   playBtn.addEventListener("pointerdown",pressPlay); playBtn.addEventListener("click",pressPlay);
@@ -1017,7 +1078,8 @@
   setInterval(()=>{ const ch=processRestocks(); if($("#tab-packs").classList.contains("active")) refreshPackCards(); }, 1000);
   window.addEventListener("resize",()=>{ if(!playing) resetIdleBall(); });
   window.UF={S,save,resolve,openPack,TIERS,PLAYERS:NAMED,
-    pk:{ shoot:pkShoot, stepUp:pkStepUp, state:()=>({phase:pkPhase,score:pkScore,lean:pkLean,power:pkPower,active:pkActive}) }};
+    pk:{ shoot:pkShoot, stepUp:pkStepUp, state:()=>({phase:pkPhase,score:pkScore,lean:pkLean,power:pkPower,active:pkActive}) },
+    ku:{ setLevel, start:startGame, levels:KU_LEVELS, state:()=>({level:kuLevel,playing,score,ball:BALL,grav:GRAV,bars:kuBars.length}) }};
 })();
 </script>
 </body>
