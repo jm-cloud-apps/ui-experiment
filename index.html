@@ -75,14 +75,17 @@
   .pack { position:relative; border-radius:18px; padding:20px 14px 16px; text-align:center; overflow:hidden;
     background:linear-gradient(165deg, var(--c1), var(--c2)); border:1px solid rgba(255,255,255,.28);
     box-shadow:0 10px 26px rgba(0,0,0,.4); color:var(--tc); }
-  .pack::before { content:""; position:absolute; inset:0; background:
+  .pack::before { content:""; position:absolute; inset:0; pointer-events:none; background:
     linear-gradient(115deg, transparent 30%, rgba(255,255,255,.5) 48%, transparent 62%); opacity:.5;
     animation:packShine 5s linear infinite; mix-blend-mode:overlay; }
   @keyframes packShine { from{transform:translateX(-120%)} to{transform:translateX(120%)} }
   .pack.special { box-shadow:0 0 30px rgba(255,215,61,.55), 0 10px 26px rgba(0,0,0,.5); }
+  .pack > * { position:relative; }
   .pack .pack-ico { font-size:40px; line-height:1; filter:drop-shadow(0 3px 5px rgba(0,0,0,.35)); }
   .pack .pack-name { font-family:'Russo One'; font-size:20px; margin-top:8px; letter-spacing:.03em; }
   .pack .pack-sub { font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.85; margin-top:2px; }
+  .pack .pack-stock { margin-top:9px; font-size:11px; letter-spacing:.1em; font-weight:700; text-transform:uppercase; opacity:.9; }
+  .pack .pack-stock .oos { display:inline-block; background:rgba(0,0,0,.28); border-radius:7px; padding:3px 9px; letter-spacing:.06em; }
   .pack .pack-odds { margin-top:12px; font-size:12px; font-weight:700; letter-spacing:.04em;
     background:rgba(0,0,0,.22); border-radius:8px; padding:5px 6px; }
   .pack .pack-odds b { font-family:'Russo One'; font-weight:400; }
@@ -328,6 +331,7 @@
   <g id="flag-se"><rect width="60" height="40" fill="#006AA7"/><rect x="18" width="8" height="40" fill="#FECC00"/><rect y="16" width="60" height="8" fill="#FECC00"/></g>
   <g id="flag-dk"><rect width="60" height="40" fill="#C60C30"/><rect x="18" width="8" height="40" fill="#fff"/><rect y="16" width="60" height="8" fill="#fff"/></g>
   <g id="flag-kr"><rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="8" fill="#0047A0"/><path d="M22 20 a8 8 0 0 1 16 0 z" fill="#CD2E3A"/></g>
+  <g id="flag-jp"><rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="9" fill="#BC002D"/></g>
 </defs></svg>
 
 <div id="app">
@@ -499,18 +503,30 @@
     MUN:{name:"Man United",init:"MUN",c1:"#DA291C",c2:"#FBE122"},
     BAY:{name:"Bayern",init:"BAY",c1:"#dc052d",c2:"#fff"},
     PSG:{name:"PSG",init:"PSG",c1:"#004170",c2:"#DA291C"},
+    BHA:{name:"Brighton",init:"BHA",c1:"#0057B8",c2:"#fff"},
+    WHU:{name:"West Ham",init:"WHU",c1:"#7A263A",c2:"#1BB1E7"},
+    BRE:{name:"Brentford",init:"BRE",c1:"#E30613",c2:"#fff"},
+    CRY:{name:"Crystal Palace",init:"CRY",c1:"#1B458F",c2:"#C4122E"},
+    EVE:{name:"Everton",init:"EVE",c1:"#003399",c2:"#fff"},
+    NFO:{name:"Nott'm Forest",init:"NFO",c1:"#DD0000",c2:"#fff"},
+    WOL:{name:"Wolves",init:"WOL",c1:"#FDB913",c2:"#231F20"},
+    FUL:{name:"Fulham",init:"FUL",c1:"#f4f4f8",c2:"#111"},
+    BOU:{name:"Bournemouth",init:"BOU",c1:"#DA291C",c2:"#111"},
+    LEE:{name:"Leeds",init:"LEE",c1:"#f4f4f8",c2:"#1D428A"},
   };
-  const TEAMS = ["MUN","MCI","LIV","ARS","CHE","TOT","NEW","RMA","BAR","BAY","PSG","MIA"];
+  // Your club can be any Premier League side (first block) plus a few Euro giants.
+  const TEAMS = ["MUN","MCI","LIV","ARS","CHE","TOT","NEW","AVL","BHA","WHU","BRE","CRY","EVE","NFO","WOL","FUL","BOU","LEE","RMA","BAR","BAY","PSG","MIA"];
 
   /* ================= TIERS ================= */
+  const MIN=60000;
   const TIERS = [
-    {key:"common",   name:"Common",   sub:"Bad Players",    ico:"🥉", c1:"#c3ccd6",c2:"#8a97a3",tc:"#1a1443",dot:"#aab6c2",odds:.95,price:40,  sell:12,  rMin:45,rMax:58},
-    {key:"uncommon", name:"Uncommon", sub:"Silver Players", ico:"🥈", c1:"#e3e8ee",c2:"#98a6b4",tc:"#1a1443",dot:"#cfd6dd",odds:.90,price:100, sell:30,  rMin:60,rMax:69},
-    {key:"rare",     name:"Rare",     sub:"Gold Players",   ico:"🥇", c1:"#f8e39a",c2:"#c9a13b",tc:"#1a1443",dot:"#f5d97b",odds:.86,price:220, sell:70,  rMin:70,rMax:79},
-    {key:"epic",     name:"Epic",     sub:"Decent Players", ico:"💎", c1:"#8ff0d4",c2:"#1f9e82",tc:"#0c2e26",dot:"#5fe0c0",odds:.79,price:450, sell:150, rMin:78,rMax:84},
-    {key:"legendary",name:"Legendary",sub:"Premier League", ico:"🔥", c1:"#c39bff",c2:"#6d3bd6",tc:"#fff",   dot:"#b388ff",odds:.67,price:900, sell:320, rMin:85,rMax:91},
-    {key:"mythic",   name:"Mythic",   sub:"Champions",      ico:"⭐", c1:"#ff9ec6",c2:"#c62f77",tc:"#fff",   dot:"#ff7ab0",odds:.50,price:1800,sell:750, rMin:90,rMax:96},
-    {key:"god",      name:"God",      sub:"Legends",        ico:"👑", c1:"#ff6b6b",c2:"#7a1020",tc:"#fff",   dot:"#ffd83d",odds:.24,price:4000,sell:1600,rMin:96,rMax:99,special:true},
+    {key:"common",   name:"Common",   sub:"Bad Players",    ico:"🥉", c1:"#c3ccd6",c2:"#8a97a3",tc:"#1a1443",dot:"#aab6c2",odds:.95,price:40,  sell:12,  rMin:45,rMax:58, maxStock:15, restockMs:0.5*MIN},
+    {key:"uncommon", name:"Uncommon", sub:"Silver Players", ico:"🥈", c1:"#e3e8ee",c2:"#98a6b4",tc:"#1a1443",dot:"#cfd6dd",odds:.90,price:100, sell:30,  rMin:60,rMax:69, maxStock:12, restockMs:1*MIN},
+    {key:"rare",     name:"Rare",     sub:"Gold Players",   ico:"🥇", c1:"#f8e39a",c2:"#c9a13b",tc:"#1a1443",dot:"#f5d97b",odds:.86,price:220, sell:70,  rMin:70,rMax:79, maxStock:10, restockMs:2*MIN},
+    {key:"epic",     name:"Epic",     sub:"Decent Players", ico:"💎", c1:"#8ff0d4",c2:"#1f9e82",tc:"#0c2e26",dot:"#5fe0c0",odds:.79,price:450, sell:150, rMin:78,rMax:84, maxStock:8,  restockMs:3*MIN},
+    {key:"legendary",name:"Legendary",sub:"Premier League", ico:"🔥", c1:"#c39bff",c2:"#6d3bd6",tc:"#fff",   dot:"#b388ff",odds:.67,price:900, sell:320, rMin:85,rMax:91, maxStock:6,  restockMs:5*MIN},
+    {key:"mythic",   name:"Mythic",   sub:"Champions",      ico:"⭐", c1:"#ff9ec6",c2:"#c62f77",tc:"#fff",   dot:"#ff7ab0",odds:.50,price:1800,sell:750, rMin:90,rMax:96, maxStock:4,  restockMs:8*MIN},
+    {key:"god",      name:"God",      sub:"Legends",        ico:"👑", c1:"#ff6b6b",c2:"#7a1020",tc:"#fff",   dot:"#ffd83d",odds:.24,price:4000,sell:1600,rMin:96,rMax:99,special:true, maxStock:3, restockMs:12*MIN},
   ];
   const TI = {}; TIERS.forEach((t,i)=>TI[t.key]=i);
   const tierByKey = (k)=>TIERS[TI[k]];
@@ -545,6 +561,15 @@
       {n:"FODEN",p:"CAM",r:88,nat:"en",num:47,cl:"MCI",sk:"#f2cfa5",hs:"crop",hc:"#8a6b46",st:[83,85,86,91,58,66],bl:"The Stockport Iniesta."},
       {n:"SON",p:"LW",r:87,nat:"kr",num:7,cl:"TOT",sk:"#f0c9a2",hs:"crop",hc:"#151515",st:[88,89,83,88,43,74],bl:"Two-footed lightning."},
       {n:"VAN DIJK",p:"CB",r:89,nat:"nl",num:4,cl:"LIV",sk:"#9c6435",hs:"crop",hc:"#141414",bd:"stubble",st:[77,60,71,72,90,86],bl:"The wall. Simply unbeatable."},
+      {n:"RODRI",p:"CDM",r:90,nat:"es",num:16,cl:"MCI",sk:"#e8b98a",hs:"medium",hc:"#3a2716",bd:"stubble",st:[70,80,88,84,86,84],bl:"The Ballon d'Or midfield metronome."},
+      {n:"RICE",p:"CM",r:87,nat:"en",num:41,cl:"ARS",sk:"#9c6435",hs:"crop",hc:"#141414",st:[80,80,84,84,85,88],bl:"The engine room. Runs all day."},
+      {n:"B. FERNANDES",p:"CAM",r:87,nat:"pt",num:8,cl:"MUN",sk:"#e8b98a",hs:"crop",hc:"#3a2716",bd:"stubble",st:[78,85,89,86,66,76],bl:"United's captain and creator."},
+      {n:"SALIBA",p:"CB",r:86,nat:"fr",num:2,cl:"ARS",sk:"#6f4522",hs:"crop",hc:"#151515",st:[84,45,72,76,87,85],bl:"Cool, calm, unbeatable at the back."},
+      {n:"RASHFORD",p:"LW",r:85,nat:"en",num:10,cl:"MUN",sk:"#6f4522",hs:"crop",hc:"#151515",st:[92,84,78,86,45,80],bl:"Rapid down the left."},
+      {n:"WIRTZ",p:"CAM",r:88,nat:"de",num:8,cl:"LIV",sk:"#f2cfa5",hs:"crop",hc:"#6b4a2f",st:[84,84,88,90,58,68],bl:"Germany's silky playmaker."},
+      {n:"GYÖKERES",p:"ST",r:86,nat:"se",num:14,cl:"ARS",sk:"#e8b98a",hs:"crop",hc:"#3a2716",bd:"stubble",st:[90,87,74,84,42,86],bl:"Powerful, unstoppable striker."},
+      {n:"BOWEN",p:"RW",r:85,nat:"en",num:20,cl:"WHU",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",st:[88,84,80,85,52,78],bl:"Non-stop energy on the wing."},
+      {n:"MITOMA",p:"LW",r:85,nat:"jp",num:22,cl:"BHA",sk:"#f0c9a2",hs:"crop",hc:"#151515",st:[90,80,80,90,50,72],bl:"Dribbles like the ball's on a string."},
     ],
     epic:[
       {n:"ISAK",p:"ST",r:84,nat:"se",num:14,cl:"LIV",sk:"#9c6435",hs:"crop",hc:"#141414",st:[86,85,74,86,40,74],bl:"Silky Swedish striker."},
@@ -663,10 +688,19 @@
 
   /* ================= STATE ================= */
   const SAVE_KEY="uf-save-v3";
-  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0 };
+  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0, stock:{}, restockAt:{} };
   function load(){ const raw=store.get(SAVE_KEY); if(raw){ try{ const d=JSON.parse(raw); S=Object.assign(S,d); if(!S.owned)S.owned={}; }catch{} } }
   function save(){ store.set(SAVE_KEY, JSON.stringify(S)); }
   load();
+
+  /* ---- pack stock / restock (fills to max after a per-tier wait) ---- */
+  function initStock(){ if(!S.stock)S.stock={}; if(!S.restockAt)S.restockAt={};
+    TIERS.forEach(t=>{ if(typeof S.stock[t.key]!=="number") S.stock[t.key]=t.maxStock; }); }
+  function processRestocks(){ const now=Date.now(); let ch=false;
+    TIERS.forEach(t=>{ const ra=S.restockAt[t.key]; if(ra && now>=ra){ S.stock[t.key]=t.maxStock; delete S.restockAt[t.key]; ch=true; } });
+    if(ch) save(); return ch; }
+  function fmtTime(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+  initStock(); processRestocks();
 
   const MAX_LUCK=12, MAX_SPEED=8;
   const luckCost=(lv)=>Math.round(250*Math.pow(1.7,lv)/10)*10;
@@ -685,13 +719,26 @@
     $("#clubCrest").innerHTML=crestSVG(c); $("#clubName").textContent=c.name; $("#squadSub").textContent=`Every player you pull joins ${c.name}.`; }
 
   function renderPacks(){ const g=$("#packGrid");
-    g.innerHTML=TIERS.map((t,idx)=>{ const afford=S.coins>=t.price;
-      return `<div class="pack${t.special?" special":""}" style="--c1:${t.c1};--c2:${t.c2};--tc:${t.tc}">
+    g.innerHTML=TIERS.map((t,idx)=>
+      `<div class="pack${t.special?" special":""}" data-idx="${idx}" style="--c1:${t.c1};--c2:${t.c2};--tc:${t.tc}">
         <div class="pack-ico">${t.ico}</div>
         <div class="pack-name">${t.name}</div><div class="pack-sub">${t.sub}</div>
+        <div class="pack-stock"></div>
         <div class="pack-odds"><b>${Math.round(effOdds(idx)*100)}%</b> ${t.name}${S.luck?` <span style="opacity:.7">(luck+${S.luck*3})</span>`:""}</div>
-        <button class="pack-buy" data-idx="${idx}" ${afford?"":"disabled"}><span class="price">🪙 ${t.price}</span></button>
-      </div>`; }).join(""); }
+        <button class="pack-buy" data-idx="${idx}"><span class="price"></span></button>
+      </div>`).join("");
+    refreshPackCards(); }
+
+  // Update only the mutable bits (stock, timer, buy state) so the pack shine keeps animating.
+  function refreshPackCards(){ const now=Date.now();
+    document.querySelectorAll("#packGrid .pack").forEach(card=>{ const t=TIERS[+card.dataset.idx];
+      const stock=S.stock[t.key]||0, ra=S.restockAt[t.key], out=stock<=0, afford=S.coins>=t.price;
+      const sl=card.querySelector(".pack-stock"), btn=card.querySelector(".pack-buy");
+      if(out) sl.innerHTML=`<span class="oos">⏳ ${fmtTime((ra||now)-now)}</span>`;
+      else sl.textContent=`${stock} in stock`;
+      btn.disabled = out || !afford;
+      btn.querySelector(".price").textContent = out ? "Sold Out" : "🪙 "+t.price;
+    }); }
 
   function renderUpgrades(){ const w=$("#upgWrap");
     const luckMax=S.luck>=MAX_LUCK, speedMax=S.speed>=MAX_SPEED;
@@ -744,9 +791,12 @@
   let opening=false, lastPackIdx=0;
 
   async function openPack(packIdx){ if(opening) return; const pack=TIERS[packIdx];
-    if(S.coins<pack.price){ toast("Not enough coins!"); switchTab("play"); return; }
+    if((S.stock[pack.key]||0)<=0){ toast(`${pack.name} sold out — restocking!`); return; }
+    if(S.coins<pack.price){ toast("Not enough coins — play a mini-game!"); return; }
     opening=true; lastPackIdx=packIdx;
-    S.coins-=pack.price; save(); renderCoins(true); renderPacks();
+    S.coins-=pack.price; S.stock[pack.key]--;
+    if(S.stock[pack.key]<=0) S.restockAt[pack.key]=Date.now()+pack.restockMs;
+    save(); renderCoins(true); renderPacks();
     const tierIdx=rollTier(packIdx); const player=pickFromTier(tierIdx); const t=TIERS[tierIdx];
     const f=reduced?0.05:openFactor();
     beep(220,0.28,"sawtooth",0.13); beep(330,0.28,"sawtooth",0.13,0.12);
@@ -766,8 +816,9 @@
     rvResult.innerHTML = isNew
       ? `<div class="tag newp">✨ NEW! ${t.name} pull</div><div class="sub">${player.name} joined ${CLUBS[S.club].name}. ${player.blurb}</div>`
       : `<div class="tag dupe">Duplicate</div><div class="sub">You already own ${player.name} — sold for 🪙 ${earned}.</div>`;
-    const canAgain=S.coins>=pack.price;
-    rvAgain.textContent=`Open Again (🪙 ${pack.price})`; rvAgain.disabled=!canAgain;
+    const canAgain=S.coins>=pack.price && (S.stock[pack.key]||0)>0;
+    rvAgain.textContent = (S.stock[pack.key]||0)>0 ? `Open Again (🪙 ${pack.price})` : "Sold Out";
+    rvAgain.disabled=!canAgain;
     rvAgain.style.visibility="visible"; rvDone.style.visibility="visible";
     if(isNew && tierIdx>=3){ burst(); if(tierIdx>=4) fanfare(); }
     opening=false; }
@@ -790,6 +841,8 @@
     $$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
     if(name!=="play"){ playing=false; pkLeave(); }
     if(name==="squad") renderSquad();
+    if(name==="packs") renderPacks();       // re-check affordability + stock so buttons aren't stale
+    if(name==="upgrades") renderUpgrades();  // same: reflect coins earned in mini-games
     if(name==="play"){ const g=document.querySelector(".game-switch button.active"); showGame(g?g.dataset.game:"juggle"); } }
   function $$(s){ return Array.from(document.querySelectorAll(s)); }
   $("#tabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-tab]"); if(b) switchTab(b.dataset.tab); });
@@ -944,6 +997,8 @@
   /* ================= BOOT ================= */
   renderAll();
   if(!S.club || !CLUBS[S.club]) showTeamSelect();
+  // tick restocks + live countdown while the Packs tab is open
+  setInterval(()=>{ const ch=processRestocks(); if($("#tab-packs").classList.contains("active")) refreshPackCards(); }, 1000);
   window.addEventListener("resize",()=>{ if(!playing) resetIdleBall(); });
   window.UF={S,save,resolve,openPack,TIERS,PLAYERS:NAMED,
     pk:{ shoot:pkShoot, stepUp:pkStepUp, state:()=>({phase:pkPhase,score:pkScore,lean:pkLean,power:pkPower,active:pkActive}) }};
