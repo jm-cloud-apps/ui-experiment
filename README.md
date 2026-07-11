@@ -1,8 +1,13 @@
-# CL ⚡ Ultimate Card
+# Ultimate Football ⚽
 
-A FIFA Ultimate Team–style landing page for CL: gold pack opening, walkout reveal,
-holographic 99-rated player card with 3D tilt, animated season stats, and a
-keepy-uppy mini-game.
+Open a pack, become a legend, keep the ball up!
+
+- **Pack opening** with a walkout reveal: position → nation → club → your player
+  (cartoon portrait, flag, crest and stats — all drawn in SVG, no image files).
+- **15 pullable players**: CL (ultra rare!), Pelé, Messi, Ronaldo, Mbappé, Haaland,
+  De Bruyne, Vinícius Jr, Salah, Bellingham, Neymar, Kane, Yamal, Lewandowski, Musiala.
+- **You play as the player you pull** in the keepy-uppy game. When you lose,
+  you open a new pack and become a new player.
 
 Single self-contained `index.html` — no build, no dependencies.
 

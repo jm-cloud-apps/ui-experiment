@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CL ⚡ Ultimate Card</title>
-<meta name="description" content="CL — 99 rated. The future of football. Open the pack." />
+<title>Ultimate Football ⚽</title>
+<meta name="description" content="Ultimate Football — open a pack, become a legend, keep the ball up!" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -66,18 +66,23 @@
   #packScreen {
     position: fixed; inset: 0; z-index: 50;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 28px; transition: opacity .5s;
+    gap: 24px; transition: opacity .5s;
   }
   #packScreen.hidden, #walkout.hidden { opacity: 0; pointer-events: none; }
   .pack-title {
-    font-size: clamp(20px, 4vw, 34px); letter-spacing: .35em; text-transform: uppercase;
-    color: var(--gold-1); text-shadow: 0 0 24px rgba(245,217,123,.55);
+    font-size: clamp(22px, 5vw, 40px); letter-spacing: .2em; text-transform: uppercase;
+    color: var(--gold-1); text-shadow: 0 0 24px rgba(245,217,123,.55); text-align: center;
+  }
+  .pack-sub {
+    font-size: 14px; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,255,255,.6);
+    margin-top: -14px;
   }
   #pack {
     width: min(46vw, 230px); cursor: pointer; border: none; background: none; padding: 0;
     filter: drop-shadow(0 0 32px rgba(245,217,123,.45));
     animation: packFloat 2.6s ease-in-out infinite;
     transition: transform .15s;
+    touch-action: manipulation;
   }
   #pack:hover { transform: scale(1.05); }
   #pack.shake { animation: packShake .45s ease-in-out 2; }
@@ -121,11 +126,14 @@
   .walkout-label { font-size: 14px; letter-spacing: .6em; text-transform: uppercase; color: rgba(255,255,255,.55); }
   .walkout-value { font-size: clamp(56px, 14vw, 130px); color: var(--gold-1); text-shadow: 0 0 50px rgba(245,217,123,.6); }
   .walkout-item svg { filter: drop-shadow(0 0 30px rgba(245,217,123,.5)); }
+  .walkout-portrait svg { width: min(44vw, 220px); height: auto; }
+  .walkout-crest svg { width: 150px; height: auto; }
   #skipBtn {
     position: absolute; bottom: 28px; right: 28px; z-index: 61;
     background: none; border: 1px solid rgba(255,255,255,.35); color: rgba(255,255,255,.7);
     font-family: inherit; letter-spacing: .3em; text-transform: uppercase; font-size: 12px;
     padding: 10px 20px; border-radius: 999px; cursor: pointer;
+    touch-action: manipulation;
   }
   #skipBtn:hover { border-color: var(--gold-1); color: var(--gold-1); }
 
@@ -183,8 +191,9 @@
   .card-rating .pos { font-family: 'Russo One'; font-size: clamp(16px, 4vw, 22px); margin-top: 2px; }
   .card-rating .flag { margin-top: 8px; width: clamp(28px, 7vw, 38px); border-radius: 3px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
   .card-rating .crest { margin-top: 8px; width: clamp(26px, 6.5vw, 34px); }
+  .card-rating .crest svg { width: 100%; height: auto; display: block; }
   .card-art { flex: 1; display: flex; align-items: center; justify-content: center; }
-  .card-art svg { width: 92%; filter: drop-shadow(0 6px 10px rgba(26,20,67,.35)); }
+  .card-art svg { width: 88%; height: auto; filter: drop-shadow(0 6px 10px rgba(26,20,67,.35)); }
   .card-name {
     text-align: center; font-family: 'Russo One'; font-size: clamp(30px, 7.5vw, 44px);
     letter-spacing: .08em; border-top: 2px solid rgba(26,20,67,.4); border-bottom: 2px solid rgba(26,20,67,.4);
@@ -232,6 +241,16 @@
   #pitch::after {
     content: ""; position: absolute; left: 50%; top: 50%; width: 190px; height: 190px;
     transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,.1); border-radius: 50%;
+    pointer-events: none; /* decorative — was sitting on top of the Kick Off button and eating every tap */
+  }
+  #hudChip {
+    position: absolute; top: 10px; left: 14px; z-index: 2;
+    display: flex; align-items: center; gap: 8px; pointer-events: none;
+  }
+  #hudChip svg { width: 38px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+  #hudName {
+    font-family: 'Russo One'; font-size: 13px; letter-spacing: .08em; color: var(--gold-1);
+    text-shadow: 0 2px 6px rgba(0,0,0,.6);
   }
   #ball {
     position: absolute; width: 64px; height: 64px; left: 0; top: 0;
@@ -246,18 +265,19 @@
   }
   #scoreHud .val { color: var(--gold-1); }
   #gameMsg {
-    position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px;
+    position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; gap: 10px;
     align-items: center; justify-content: center; text-align: center;
     background: rgba(4,8,20,.55); backdrop-filter: blur(3px);
   }
   #gameMsg.playing { display: none; }
   #gameMsg h3 { font-size: clamp(24px, 4vw, 36px); text-transform: uppercase; color: var(--gold-1); }
-  #gameMsg p { color: rgba(255,255,255,.8); letter-spacing: .1em; }
+  #gameMsg p { color: rgba(255,255,255,.8); letter-spacing: .1em; padding: 0 16px; }
   #gameMsg button {
     margin-top: 10px; font-family: 'Russo One'; font-size: 15px; letter-spacing: .15em; text-transform: uppercase;
     color: var(--navy-1); background: linear-gradient(90deg, var(--gold-2), var(--gold-1));
     border: none; border-radius: 999px; padding: 14px 34px; cursor: pointer;
     box-shadow: 0 8px 24px rgba(227,185,77,.4);
+    touch-action: manipulation;
   }
   #gameMsg button:hover { transform: translateY(-2px); }
 
@@ -271,6 +291,7 @@
     border: 1px solid rgba(245,217,123,.4); color: var(--gold-1);
     font-family: inherit; font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
     padding: 12px 24px; border-radius: 999px;
+    touch-action: manipulation;
   }
   #replayBtn:hover { background: rgba(245,217,123,.12); }
 
@@ -295,27 +316,63 @@
   <div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div>
 </div>
 
-<!-- ============ SVG defs used in several places ============ -->
+<!-- ============ SVG defs: national flags ============ -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- Canada flag -->
     <g id="flag-ca">
       <rect width="60" height="40" fill="#fff"/>
       <rect width="15" height="40" fill="#d52b1e"/>
       <rect x="45" width="15" height="40" fill="#d52b1e"/>
       <path fill="#d52b1e" d="M30 8l2 5 4-2-1.5 5.5L39 17l-3 3.5 4 2-4.5 1.5.8 4-5-2.2L31 31h-2l-.3-5.2-5 2.2.8-4L20 22.5l4-2-3-3.5 4.5-.5L24 11l4 2z"/>
     </g>
-    <!-- CL FC crest -->
-    <g id="crest">
-      <path d="M30 2 L56 10 V32 C56 46 44 54 30 60 C16 54 4 46 4 32 V10 Z" fill="#1a1443" stroke="#f5d97b" stroke-width="3"/>
-      <path d="M33 12 L22 32 h8 L26 50 L40 27 h-9 L36 12 Z" fill="#f5d97b"/>
+    <g id="flag-fr">
+      <rect width="20" height="40" fill="#0055A4"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#EF4135"/>
+    </g>
+    <g id="flag-no">
+      <rect width="60" height="40" fill="#BA0C2F"/>
+      <rect x="14" width="10" height="40" fill="#fff"/><rect y="15" width="60" height="10" fill="#fff"/>
+      <rect x="16.5" width="5" height="40" fill="#00205B"/><rect y="17.5" width="60" height="5" fill="#00205B"/>
+    </g>
+    <g id="flag-pt">
+      <rect width="24" height="40" fill="#046A38"/><rect x="24" width="36" height="40" fill="#DA291C"/>
+      <circle cx="24" cy="20" r="8" fill="#FFE900" stroke="#046A38" stroke-width="2"/>
+    </g>
+    <g id="flag-ar">
+      <rect width="60" height="40" fill="#74ACDF"/><rect y="13.3" width="60" height="13.3" fill="#fff"/>
+      <circle cx="30" cy="20" r="4.5" fill="#F6B40E"/>
+    </g>
+    <g id="flag-br">
+      <rect width="60" height="40" fill="#009739"/>
+      <path d="M30 4 L56 20 L30 36 L4 20 Z" fill="#FEDD00"/>
+      <circle cx="30" cy="20" r="8" fill="#012169"/>
+    </g>
+    <g id="flag-es">
+      <rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/>
+    </g>
+    <g id="flag-eg">
+      <rect width="60" height="40" fill="#CE1126"/><rect y="13.3" width="60" height="13.3" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#151515"/>
+      <path d="M30 16 l3 4 -3 5 -3 -5 z" fill="#C09300"/>
+    </g>
+    <g id="flag-en">
+      <rect width="60" height="40" fill="#fff"/>
+      <rect x="26" width="8" height="40" fill="#CE1124"/><rect y="16" width="60" height="8" fill="#CE1124"/>
+    </g>
+    <g id="flag-be">
+      <rect width="20" height="40" fill="#151515"/><rect x="20" width="20" height="40" fill="#FDDA25"/><rect x="40" width="20" height="40" fill="#EF3340"/>
+    </g>
+    <g id="flag-pl">
+      <rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#DC143C"/>
+    </g>
+    <g id="flag-de">
+      <rect width="60" height="13.3" fill="#151515"/><rect y="13.3" width="60" height="13.3" fill="#DD0000"/><rect y="26.6" width="60" height="13.4" fill="#FFCE00"/>
     </g>
   </defs>
 </svg>
 
 <!-- ============ STAGE 1: THE PACK ============ -->
 <div id="packScreen">
-  <div class="pack-title display">Ultimate Pack</div>
+  <div class="pack-title display">Ultimate Football</div>
+  <div class="pack-sub">Open a pack · Become a legend</div>
   <button id="pack" aria-label="Open the pack">
     <svg viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -334,7 +391,7 @@
       <text x="110" y="150" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="26" fill="#fff">GOLD</text>
       <circle cx="110" cy="205" r="36" fill="none" stroke="#f5d97b" stroke-width="3"/>
       <text x="110" y="219" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="38" fill="#f5d97b">?</text>
-      <text x="110" y="290" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="14" letter-spacing="6" fill="#3d2e08">×1 PLAYER</text>
+      <text x="110" y="290" text-anchor="middle" font-family="'Oswald',sans-serif" font-size="14" letter-spacing="6" fill="#3d2e08">×1 LEGEND</text>
     </svg>
   </button>
   <div class="tap-hint">Tap to open</div>
@@ -344,16 +401,21 @@
 <div id="walkout" class="hidden">
   <div class="walkout-item" id="w-pos">
     <div class="walkout-label">Position</div>
-    <div class="walkout-value display">ST</div>
+    <div class="walkout-value display" id="wPos">ST</div>
   </div>
   <div class="walkout-item" id="w-nation">
     <div class="walkout-label">Nation</div>
-    <svg width="180" height="120" viewBox="0 0 60 40"><use href="#flag-ca"/></svg>
+    <svg width="180" height="120" viewBox="0 0 60 40"><use id="wFlag" href="#flag-ca"/></svg>
   </div>
   <div class="walkout-item" id="w-club">
     <div class="walkout-label">Club</div>
-    <svg width="150" height="150" viewBox="0 0 60 62"><use href="#crest"/></svg>
-    <div class="walkout-value display" style="font-size:34px">CL FC</div>
+    <span id="wCrest" class="walkout-crest"></span>
+    <div class="walkout-value display" id="wClubName" style="font-size:34px">CL FC</div>
+  </div>
+  <div class="walkout-item" id="w-player">
+    <div class="walkout-label">Player</div>
+    <span id="wPortrait" class="walkout-portrait"></span>
+    <div class="walkout-value display" id="wName" style="font-size:clamp(30px,7vw,48px)">?</div>
   </div>
   <button id="skipBtn">Skip</button>
 </div>
@@ -382,31 +444,21 @@
         <div class="card-content">
           <div class="card-top">
             <div class="card-rating">
-              <div class="ovr">99</div>
-              <div class="pos">ST</div>
-              <svg class="flag" viewBox="0 0 60 40"><use href="#flag-ca"/></svg>
-              <svg class="crest" viewBox="0 0 60 62"><use href="#crest"/></svg>
+              <div class="ovr" id="cOvr">99</div>
+              <div class="pos" id="cPos">ST</div>
+              <svg class="flag" viewBox="0 0 60 40"><use id="cFlag" href="#flag-ca"/></svg>
+              <span class="crest" id="cCrest"></span>
             </div>
-            <div class="card-art">
-              <!-- jersey #10 -->
-              <svg viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg">
-                <path d="M62 18 L86 8 Q100 20 114 8 L138 18 L172 40 L156 72 L138 62 V170 Q138 178 130 178 H70 Q62 178 62 170 V62 L44 72 L28 40 Z"
-                      fill="#1a1443" stroke="#f5d97b" stroke-width="4"/>
-                <path d="M86 8 Q100 20 114 8 L120 12 Q100 30 80 12 Z" fill="#f5d97b"/>
-                <path d="M62 18 L44 72 L28 40 Z M138 18 L156 72 L172 40 Z" fill="none"/>
-                <text x="100" y="86" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="20" fill="#f5d97b" letter-spacing="2">CL</text>
-                <text x="100" y="150" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif" font-size="62" fill="#f5d97b">10</text>
-              </svg>
-            </div>
+            <div class="card-art" id="cardArt"></div>
           </div>
-          <div class="card-name">CL</div>
+          <div class="card-name" id="cName">CL</div>
           <div class="card-stats">
-            <div><b>99</b><span>PAC</span></div>
-            <div><b>98</b><span>DRI</span></div>
-            <div><b>99</b><span>SHO</span></div>
-            <div><b>97</b><span>DEF</span></div>
-            <div><b>98</b><span>PAS</span></div>
-            <div><b>99</b><span>PHY</span></div>
+            <div><b id="sPAC">99</b><span>PAC</span></div>
+            <div><b id="sDRI">98</b><span>DRI</span></div>
+            <div><b id="sSHO">99</b><span>SHO</span></div>
+            <div><b id="sDEF">97</b><span>DEF</span></div>
+            <div><b id="sPAS">98</b><span>PAS</span></div>
+            <div><b id="sPHY">99</b><span>PHY</span></div>
           </div>
         </div>
         <div id="shine"></div>
@@ -415,21 +467,21 @@
     </div>
 
     <div class="hero-copy">
-      <span class="kicker">Team of the Year</span>
-      <h1>The Legend<br>of CL</h1>
-      <p>Fastest boots in the schoolyard. Ice-cold finisher. 99 rated — because 100 would be unfair to everyone else.</p>
-      <a class="hero-cta" href="#game">⚽ Play Keepy-Uppy</a>
+      <span class="kicker" id="heroKicker">Elite Gold</span>
+      <h1 id="heroName">CL</h1>
+      <p id="heroBlurb">Open a pack to meet your player.</p>
+      <a class="hero-cta" href="#game">⚽ Kick Off</a>
     </div>
   </section>
 
   <section id="stats" class="reveal-on-scroll">
     <h2 class="section-title">Season <span>Stats</span></h2>
-    <p class="section-sub">SCHOOLYARD LEAGUE · SEASON 2026</p>
+    <p class="section-sub">ULTIMATE LEAGUE · SEASON 2026</p>
     <div class="stat-grid">
-      <div class="stat-tile"><div class="num" data-count="47">0</div><div class="lbl">Goals</div></div>
-      <div class="stat-tile"><div class="num" data-count="23">0</div><div class="lbl">Assists</div></div>
-      <div class="stat-tile"><div class="num" data-count="12">0</div><div class="lbl">Trophies</div></div>
-      <div class="stat-tile"><div class="num" data-count="99">0</div><div class="lbl">Overall</div></div>
+      <div class="stat-tile"><div class="num" id="tGoals" data-count="47">0</div><div class="lbl">Goals</div></div>
+      <div class="stat-tile"><div class="num" id="tAssists" data-count="23">0</div><div class="lbl">Assists</div></div>
+      <div class="stat-tile"><div class="num" id="tTrophies" data-count="12">0</div><div class="lbl">Trophies</div></div>
+      <div class="stat-tile"><div class="num" id="tOverall" data-count="99">0</div><div class="lbl">Overall</div></div>
     </div>
     <div class="badges">
       <div class="badge"><div class="stars">★★★★★</div><div class="lbl">Skill Moves</div></div>
@@ -440,8 +492,9 @@
 
   <section id="game" class="reveal-on-scroll">
     <h2 class="section-title">Keepy<span>-</span>Uppy</h2>
-    <p class="section-sub">TAP THE BALL — DON'T LET IT DROP!</p>
+    <p class="section-sub" id="playAs">TAP THE BALL — DON'T LET IT DROP!</p>
     <div id="pitch">
+      <div id="hudChip"><span id="hudFace"></span><span id="hudName"></span></div>
       <div id="scoreHud">
         <div>JUGGLES&nbsp;<span class="val" id="score">0</span></div>
         <div>BEST&nbsp;<span class="val" id="best">0</span></div>
@@ -450,7 +503,7 @@
       <div id="gameMsg">
         <h3 id="msgTitle">Ready?</h3>
         <p id="msgText">Tap the ball to juggle. One touch = one point.</p>
-        <button id="playBtn">Kick Off</button>
+        <button id="playBtn" type="button">Kick Off</button>
       </div>
     </div>
   </section>
@@ -458,7 +511,7 @@
 
 <footer>
   <button id="replayBtn">↺ Open Another Pack</button>
-  <div><b>CL</b> · EST. IN THE SCHOOLYARD · FUTURE BALLON D'OR WINNER</div>
+  <div><b>Ultimate Football</b> · Open packs · Become legends</div>
 </footer>
 
 <script>
@@ -467,6 +520,12 @@
   const $ = (s) => document.querySelector(s);
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // localStorage can throw in private mode / restricted profiles — never let it kill the script
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* no storage — fine */ } },
+  };
 
   /* ---------- floating dust particles ---------- */
   const stadium = $("#stadium");
@@ -527,14 +586,233 @@
     else { confettiRunning = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
   }
 
+  /* ================================================================
+     THE ROSTER — every player you can pull from a pack
+     ================================================================ */
+  const CLUBS = {
+    CLFC: { name: "CL FC",       init: "CL",  c1: "#1a1443", c2: "#f5d97b", bolt: true },
+    SAN:  { name: "Santos",      init: "SAN", c1: "#111111", c2: "#ffffff" },
+    MIA:  { name: "Inter Miami", init: "MIA", c1: "#f7b5cd", c2: "#1a1a1a" },
+    ALN:  { name: "Al-Nassr",    init: "ALN", c1: "#ffd83d", c2: "#123d8c" },
+    RMA:  { name: "Real Madrid", init: "RMA", c1: "#f5f5f7", c2: "#1c2c5b" },
+    MCI:  { name: "Man City",    init: "MCI", c1: "#6cabdd", c2: "#ffffff" },
+    NAP:  { name: "Napoli",      init: "NAP", c1: "#199fd6", c2: "#ffffff" },
+    LIV:  { name: "Liverpool",   init: "LIV", c1: "#d0021b", c2: "#ffffff" },
+    BAY:  { name: "Bayern",      init: "BAY", c1: "#dc052d", c2: "#ffffff" },
+    BAR:  { name: "Barcelona",   init: "BAR", c1: "#a50044", c2: "#f5d97b" },
+  };
+
+  const PLAYERS = [
+    { name: "CL", pos: "ST", rating: 99, nation: "ca", num: 10, weight: 0.4, club: CLUBS.CLFC,
+      skin: "#e8b98a", hair: { style: "spiky", color: "#2b1c10" }, beard: null,
+      jersey: { body: "#1a1443", trim: "#f5d97b" },
+      stats: { PAC: 99, SHO: 99, PAS: 98, DRI: 98, DEF: 97, PHY: 99 },
+      blurb: "Fastest boots in the schoolyard. Ice-cold finisher. 99 rated — because 100 would be unfair to everyone else." },
+    { name: "PELÉ", pos: "CF", rating: 98, nation: "br", num: 10, weight: 0.7, club: CLUBS.SAN,
+      skin: "#6f4522", hair: { style: "crop", color: "#151515" }, beard: null,
+      jersey: { body: "#f6f6f6", trim: "#111111" },
+      stats: { PAC: 95, SHO: 96, PAS: 93, DRI: 96, DEF: 60, PHY: 76 },
+      blurb: "The King of football. Three World Cups. Legend forever." },
+    { name: "MESSI", pos: "RW", rating: 97, nation: "ar", num: 10, weight: 0.7, club: CLUBS.MIA,
+      skin: "#ecc39b", hair: { style: "medium", color: "#6b4a2f" }, beard: "beard",
+      jersey: { body: "#f7b5cd", trim: "#1a1a1a" },
+      stats: { PAC: 85, SHO: 92, PAS: 94, DRI: 97, DEF: 34, PHY: 68 },
+      blurb: "The GOAT. The ball is glued to his left foot." },
+    { name: "RONALDO", pos: "ST", rating: 97, nation: "pt", num: 7, weight: 0.7, club: CLUBS.ALN,
+      skin: "#d9a878", hair: { style: "slick", color: "#161616" }, beard: null,
+      jersey: { body: "#ffd83d", trim: "#123d8c" },
+      stats: { PAC: 87, SHO: 93, PAS: 82, DRI: 89, DEF: 35, PHY: 77 },
+      blurb: "SIUUU! The champion of champions. Header from the clouds." },
+    { name: "MBAPPÉ", pos: "ST", rating: 96, nation: "fr", num: 10, weight: 0.7, club: CLUBS.RMA,
+      skin: "#8d5a30", hair: { style: "crop", color: "#141414" }, beard: null,
+      jersey: { body: "#f5f5f7", trim: "#1c2c5b" },
+      stats: { PAC: 97, SHO: 93, PAS: 86, DRI: 94, DEF: 36, PHY: 78 },
+      blurb: "Zoom! Blink and he's already celebrating." },
+    { name: "HAALAND", pos: "ST", rating: 96, nation: "no", num: 9, weight: 0.7, club: CLUBS.MCI,
+      skin: "#f2cfa5", hair: { style: "bun", color: "#e9c46a" }, beard: null,
+      jersey: { body: "#6cabdd", trim: "#ffffff" },
+      stats: { PAC: 94, SHO: 96, PAS: 78, DRI: 85, DEF: 45, PHY: 94 },
+      blurb: "The goal robot. Beep. Boop. Goal." },
+    { name: "DE BRUYNE", pos: "CM", rating: 94, nation: "be", num: 17, weight: 1, club: CLUBS.NAP,
+      skin: "#f6d7b3", hair: { style: "crop", color: "#c98d4e" }, beard: null,
+      jersey: { body: "#199fd6", trim: "#ffffff" },
+      stats: { PAC: 76, SHO: 88, PAS: 97, DRI: 88, DEF: 64, PHY: 78 },
+      blurb: "X-ray vision. Sees passes nobody else can see." },
+    { name: "VINÍCIUS JR", pos: "LW", rating: 94, nation: "br", num: 7, weight: 1, club: CLUBS.RMA,
+      skin: "#8d5a30", hair: { style: "fluffy", color: "#141414" }, beard: null,
+      jersey: { body: "#f5f5f7", trim: "#1c2c5b" },
+      stats: { PAC: 95, SHO: 86, PAS: 82, DRI: 95, DEF: 32, PHY: 70 },
+      blurb: "Dancing feet. Defenders get dizzy just watching him." },
+    { name: "SALAH", pos: "RW", rating: 93, nation: "eg", num: 11, weight: 1, club: CLUBS.LIV,
+      skin: "#b97a4a", hair: { style: "curly", color: "#191919" }, beard: "beard",
+      jersey: { body: "#d0021b", trim: "#ffffff" },
+      stats: { PAC: 92, SHO: 91, PAS: 84, DRI: 92, DEF: 45, PHY: 76 },
+      blurb: "The Egyptian King. Cut inside, curl it, top corner." },
+    { name: "BELLINGHAM", pos: "CM", rating: 93, nation: "en", num: 5, weight: 1, club: CLUBS.RMA,
+      skin: "#9c6435", hair: { style: "crop", color: "#141414" }, beard: null,
+      jersey: { body: "#f5f5f7", trim: "#1c2c5b" },
+      stats: { PAC: 82, SHO: 88, PAS: 87, DRI: 90, DEF: 72, PHY: 86 },
+      blurb: "Hey Jude! Box-to-box superstar." },
+    { name: "NEYMAR", pos: "LW", rating: 92, nation: "br", num: 10, weight: 1, club: CLUBS.SAN,
+      skin: "#c98e5f", hair: { style: "fluffy", color: "#3a2716" }, beard: "stubble",
+      jersey: { body: "#f6f6f6", trim: "#111111" },
+      stats: { PAC: 88, SHO: 88, PAS: 89, DRI: 95, DEF: 30, PHY: 62 },
+      blurb: "Skills for days. Does rainbow flicks in his sleep." },
+    { name: "KANE", pos: "ST", rating: 92, nation: "en", num: 9, weight: 1, club: CLUBS.BAY,
+      skin: "#f2cfa5", hair: { style: "crop", color: "#8a6b46" }, beard: null,
+      jersey: { body: "#dc052d", trim: "#ffffff" },
+      stats: { PAC: 70, SHO: 95, PAS: 89, DRI: 84, DEF: 48, PHY: 84 },
+      blurb: "Goals, goals, goals. He simply never misses." },
+    { name: "YAMAL", pos: "RW", rating: 91, nation: "es", num: 10, weight: 1, club: CLUBS.BAR,
+      skin: "#c98e5f", hair: { style: "curly", color: "#191919" }, beard: null,
+      jersey: { body: "#a50044", trim: "#f5d97b" },
+      stats: { PAC: 93, SHO: 85, PAS: 86, DRI: 95, DEF: 32, PHY: 60 },
+      blurb: "The wonderkid. Breaking records before finishing homework." },
+    { name: "LEWANDOWSKI", pos: "ST", rating: 91, nation: "pl", num: 9, weight: 1, club: CLUBS.BAR,
+      skin: "#f0c9a2", hair: { style: "slick", color: "#7a5a37" }, beard: "stubble",
+      jersey: { body: "#a50044", trim: "#f5d97b" },
+      stats: { PAC: 78, SHO: 94, PAS: 81, DRI: 86, DEF: 42, PHY: 82 },
+      blurb: "The goal machine. Once scored 5 goals in 9 minutes. Really." },
+    { name: "MUSIALA", pos: "CAM", rating: 90, nation: "de", num: 10, weight: 1, club: CLUBS.BAY,
+      skin: "#9c6435", hair: { style: "curly", color: "#191919" }, beard: null,
+      jersey: { body: "#dc052d", trim: "#ffffff" },
+      stats: { PAC: 85, SHO: 82, PAS: 83, DRI: 94, DEF: 60, PHY: 64 },
+      blurb: "Wriggles through defenders like it's a video game." },
+  ];
+
+  let lastPulledName = null;
+  function pickPlayer() {
+    const pool = PLAYERS.filter((p) => p.name !== lastPulledName);
+    const total = pool.reduce((a, p) => a + p.weight, 0);
+    let r = Math.random() * total;
+    for (const p of pool) { r -= p.weight; if (r <= 0) { lastPulledName = p.name; return p; } }
+    lastPulledName = pool[pool.length - 1].name;
+    return pool[pool.length - 1];
+  }
+
+  /* ================================================================
+     Cartoon portrait + crest generators (pure SVG, no image files)
+     ================================================================ */
+  function hairSVG(p) {
+    const hc = p.hair.color;
+    const dome = `M56 96 Q52 30 100 28 Q148 30 144 96 L134 96 Q138 50 100 48 Q62 50 66 96 Z`;
+    switch (p.hair.style) {
+      case "crop":
+        return `<path d="${dome}" fill="${hc}"/>`;
+      case "slick":
+        return `<path d="${dome}" fill="${hc}"/><path d="M70 42 Q78 18 98 26 Q82 26 76 44 Z" fill="${hc}"/>`;
+      case "spiky":
+        return `<path d="${dome}" fill="${hc}"/>` +
+          `<path d="M60 54 L68 26 L78 46 L88 20 L98 44 L108 22 L118 46 L128 28 L138 54 Q120 40 100 42 Q78 40 60 54 Z" fill="${hc}"/>`;
+      case "bun":
+        return `<path d="${dome}" fill="${hc}"/><circle cx="100" cy="22" r="14" fill="${hc}"/>`;
+      case "fluffy":
+        return `<path d="${dome}" fill="${hc}"/><circle cx="72" cy="52" r="19" fill="${hc}"/>` +
+          `<circle cx="100" cy="40" r="23" fill="${hc}"/><circle cx="128" cy="52" r="19" fill="${hc}"/>`;
+      case "curly":
+        return `<path d="${dome}" fill="${hc}"/>` +
+          `<circle cx="66" cy="66" r="12" fill="${hc}"/><circle cx="80" cy="50" r="13" fill="${hc}"/>` +
+          `<circle cx="100" cy="42" r="14" fill="${hc}"/><circle cx="120" cy="50" r="13" fill="${hc}"/>` +
+          `<circle cx="134" cy="66" r="12" fill="${hc}"/>`;
+      case "medium":
+        return `<path d="M54 112 Q48 26 100 26 Q152 26 146 112 L136 112 Q140 50 100 48 Q60 50 64 112 Z" fill="${hc}"/>`;
+      default:
+        return "";
+    }
+  }
+
+  function portraitSVG(p) {
+    const s = p.skin, hc = p.hair.color, j = p.jersey;
+    let beard = "";
+    if (p.beard) {
+      const op = p.beard === "stubble" ? 0.35 : 1;
+      beard =
+        `<path d="M60 96 Q62 142 100 144 Q138 142 140 96 L132 98 Q132 128 100 130 Q68 128 68 98 Z" fill="${hc}" opacity="${op}"/>` +
+        `<path d="M84 105 Q100 97 116 105 L116 109 Q100 103 84 109 Z" fill="${hc}" opacity="${op}"/>`;
+    }
+    return `<svg viewBox="0 0 200 214" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="59" cy="94" r="9" fill="${s}"/><circle cx="141" cy="94" r="9" fill="${s}"/>
+      <rect x="86" y="122" width="28" height="36" rx="6" fill="${s}"/>
+      <path d="M34 212 Q34 168 68 158 L86 152 Q100 162 114 152 L132 158 Q166 168 166 212 Z"
+            fill="${j.body}" stroke="${j.trim}" stroke-width="4"/>
+      <path d="M86 152 Q100 162 114 152 L118 156 Q100 170 82 156 Z" fill="${j.trim}"/>
+      <text x="100" y="202" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif"
+            font-size="26" fill="${j.trim}">${p.num}</text>
+      <ellipse cx="100" cy="92" rx="40" ry="46" fill="${s}"/>
+      ${hairSVG(p)}
+      ${beard}
+      <rect x="76" y="78" width="17" height="5" rx="2.5" fill="${hc}" transform="rotate(-6 84 80)"/>
+      <rect x="107" y="78" width="17" height="5" rx="2.5" fill="${hc}" transform="rotate(6 116 80)"/>
+      <circle cx="85" cy="92" r="4.5" fill="#20242c"/><circle cx="115" cy="92" r="4.5" fill="#20242c"/>
+      <path d="M100 94 q-5 9 1 11" stroke="rgba(0,0,0,.28)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M86 113 Q100 124 114 113" stroke="#20242c" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  function crestSVG(club) {
+    const inner = club.bolt
+      ? `<path d="M33 12 L22 32 h8 L26 50 L40 27 h-9 L36 12 Z" fill="${club.c2}"/>`
+      : `<text x="30" y="37" text-anchor="middle" font-family="'Russo One','Arial Black',sans-serif"
+               font-size="${club.init.length > 2 ? 14 : 17}" fill="${club.c2}">${club.init}</text>`;
+    return `<svg viewBox="0 0 60 62" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 2 L56 10 V32 C56 46 44 54 30 60 C16 54 4 46 4 32 V10 Z"
+            fill="${club.c1}" stroke="${club.c2}" stroke-width="3"/>
+      ${inner}
+    </svg>`;
+  }
+
+  /* ================================================================
+     Put the pulled player everywhere on the page
+     ================================================================ */
+  let current = PLAYERS[0];
+
+  function applyPlayer(p) {
+    // walkout
+    $("#wPos").textContent = p.pos;
+    $("#wFlag").setAttribute("href", "#flag-" + p.nation);
+    $("#wCrest").innerHTML = crestSVG(p.club);
+    $("#wClubName").textContent = p.club.name;
+    $("#wPortrait").innerHTML = portraitSVG(p);
+    $("#wName").textContent = p.name;
+    // card
+    $("#cOvr").textContent = p.rating;
+    $("#cPos").textContent = p.pos;
+    $("#cFlag").setAttribute("href", "#flag-" + p.nation);
+    $("#cCrest").innerHTML = crestSVG(p.club);
+    $("#cardArt").innerHTML = portraitSVG(p);
+    const nameEl = $("#cName");
+    nameEl.textContent = p.name;
+    nameEl.style.fontSize = p.name.length > 8 ? "clamp(18px, 4.6vw, 27px)" : "";
+    for (const k of ["PAC", "SHO", "PAS", "DRI", "DEF", "PHY"]) $("#s" + k).textContent = p.stats[k];
+    // hero
+    $("#heroKicker").textContent = p.rating >= 99 ? "★ Ultra Rare ★" : p.rating >= 97 ? "Legend Pull" : "Elite Gold";
+    const heroName = $("#heroName");
+    heroName.textContent = p.name;
+    heroName.style.fontSize = p.name.length > 8 ? "clamp(32px, 6vw, 58px)" : "";
+    $("#heroBlurb").textContent = p.blurb;
+    // season stats tiles
+    $("#tGoals").dataset.count = p.rating - 45;
+    $("#tAssists").dataset.count = Math.max(10, p.stats.PAS - 68);
+    $("#tTrophies").dataset.count = Math.max(3, p.rating - 86);
+    $("#tOverall").dataset.count = p.rating;
+    // game
+    $("#playAs").textContent = `PLAYING AS ${p.name} — TAP THE BALL, DON'T LET IT DROP!`;
+    $("#hudFace").innerHTML = portraitSVG(p);
+    $("#hudName").textContent = p.name;
+    setGameMsg("kick", `Ready, ${p.name}?`, "Tap the ball to juggle. One touch = one point.", "Kick Off");
+  }
+
   /* ---------- pack opening + walkout ---------- */
   const packScreen = $("#packScreen"), walkout = $("#walkout"), flash = $("#flash"), main = $("#main");
-  let opening = false, walkoutSkipped = false;
+  let opening = false, walkoutSkipped = false, revealDone = false;
 
   async function openPack() {
     if (opening) return;
     opening = true;
     walkoutSkipped = false;
+    revealDone = false;
+    current = pickPlayer();
+    applyPlayer(current);
     beep(220, 0.3, "sawtooth", 0.15); beep(330, 0.3, "sawtooth", 0.15, 0.15);
     const pack = $("#pack");
     pack.classList.add("shake");
@@ -560,12 +838,15 @@
 
   async function runWalkout() {
     await wait(300);
-    await showItem("#w-pos", 1100);
-    await showItem("#w-nation", 1100);
-    await showItem("#w-club", 1200);
+    await showItem("#w-pos", 1000);
+    await showItem("#w-nation", 1000);
+    await showItem("#w-club", 1100);
+    await showItem("#w-player", 1700);
   }
 
   function finishReveal() {
+    if (revealDone) return;
+    revealDone = true;
     walkoutSkipped = true;
     document.body.classList.remove("locked");
     walkout.classList.add("hidden");
@@ -575,14 +856,19 @@
     // restart card entrance animation
     const card = $("#card");
     card.style.animation = "none"; void card.offsetWidth; card.style.animation = "";
+    // re-run counters if the stats section is already on screen from a previous pull
+    if ($("#stats").classList.contains("in")) {
+      document.querySelectorAll("#stats [data-count]").forEach(runCounter);
+    }
+    resetIdleBall();
     burstConfetti();
     fanfare();
     opening = false;
   }
 
-  $("#pack").addEventListener("click", openPack);
-  $("#skipBtn").addEventListener("click", () => { walkoutSkipped = true; finishReveal(); });
-  $("#replayBtn").addEventListener("click", () => {
+  function goToPack() {
+    playing = false;
+    msg.classList.remove("playing");
     scrollTo({ top: 0, behavior: "instant" });
     document.body.classList.add("locked");
     main.classList.remove("revealed");
@@ -590,7 +876,11 @@
     packScreen.classList.remove("hidden");
     $("#pack").classList.remove("shake");
     opening = false;
-  });
+  }
+
+  $("#pack").addEventListener("click", openPack);
+  $("#skipBtn").addEventListener("click", () => { walkoutSkipped = true; finishReveal(); });
+  $("#replayBtn").addEventListener("click", goToPack);
 
   /* ---------- card tilt + holo shine ---------- */
   const card = $("#card"), shine = $("#shine");
@@ -630,20 +920,33 @@
   /* ---------- keepy-uppy ---------- */
   const pitch = $("#pitch"), ball = $("#ball"), msg = $("#gameMsg");
   const scoreEl = $("#score"), bestEl = $("#best");
-  const msgTitle = $("#msgTitle"), msgText = $("#msgText");
+  const msgTitle = $("#msgTitle"), msgText = $("#msgText"), playBtn = $("#playBtn");
   const BALL = 64, GRAV = 0.45;
+  const BEST_KEY = "uf-keepy-best";
   let bx = 0, by = 0, bvx = 0, bvy = 0, brot = 0, score = 0, playing = false, lastT = 0;
-  let best = +(localStorage.getItem("cl-keepy-best") || 0);
+  let msgMode = "kick"; // "kick" = start the game, "pack" = you lost, open a new pack
+  let best = +(store.get(BEST_KEY) || 0);
   bestEl.textContent = best;
+
+  function setGameMsg(mode, title, text, btnLabel) {
+    msgMode = mode;
+    msgTitle.textContent = title;
+    msgText.textContent = text;
+    playBtn.textContent = btnLabel;
+  }
 
   function placeBall() {
     ball.style.transform = `translate(${bx}px, ${by}px) rotate(${brot}deg)`;
   }
-  // idle ball sits center-ish behind the "Ready?" overlay
-  bx = pitch.clientWidth / 2 - BALL / 2; by = pitch.clientHeight * 0.3;
-  placeBall();
+  function resetIdleBall() {
+    bx = pitch.clientWidth / 2 - BALL / 2; by = pitch.clientHeight * 0.3; brot = 0;
+    score = 0; scoreEl.textContent = 0;
+    placeBall();
+  }
+  resetIdleBall();
 
   function startGame() {
+    if (playing) return;
     bx = pitch.clientWidth / 2 - BALL / 2;
     by = pitch.clientHeight * 0.45;
     bvx = 0; bvy = -10; brot = 0; score = 0; // opening toss upward: time to react
@@ -659,10 +962,13 @@
   function gameOver() {
     playing = false;
     const isRecord = score > best;
-    if (isRecord) { best = score; localStorage.setItem("cl-keepy-best", best); bestEl.textContent = best; }
-    msgTitle.textContent = isRecord && score > 0 ? "🏆 New Record!" : score >= 10 ? "World Class!" : "Full Time!";
-    msgText.textContent = `${score} juggle${score === 1 ? "" : "s"}. ${isRecord && score > 0 ? "CL would be proud." : "Tap faster next time!"}`;
-    $("#playBtn").textContent = "Play Again";
+    if (isRecord) { best = score; store.set(BEST_KEY, best); bestEl.textContent = best; }
+    setGameMsg(
+      "pack",
+      isRecord && score > 0 ? "🏆 New Record!" : score >= 10 ? "World Class!" : "Full Time!",
+      `${score} juggle${score === 1 ? "" : "s"} as ${current.name}. Open a new pack to become a new player!`,
+      "Open New Pack"
+    );
     msg.classList.remove("playing");
     beep(196, 0.4, "sawtooth", 0.18);
   }
@@ -697,7 +1003,23 @@
       beep(700 + Math.min(score * 18, 500), 0.09, "square", 0.14);
     }
   });
-  $("#playBtn").addEventListener("click", startGame);
+
+  // Kick Off must always work: react on pointerdown (with a dedupe window so the
+  // follow-up click doesn't double-fire) and stop the tap reaching the pitch.
+  let lastPress = 0;
+  function pressPlay(e) {
+    e.stopPropagation();
+    const now = performance.now();
+    if (now - lastPress < 400) return;
+    lastPress = now;
+    if (msgMode === "pack") goToPack();
+    else startGame();
+  }
+  playBtn.addEventListener("pointerdown", pressPlay);
+  playBtn.addEventListener("click", pressPlay); // keyboard + fallback
+
+  // little debug/console-play hook
+  window.UF = { PLAYERS, applyPlayer, pickPlayer };
 })();
 </script>
 </body>
