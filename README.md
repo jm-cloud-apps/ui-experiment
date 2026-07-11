@@ -9,7 +9,10 @@ Pick a club, buy packs, pull legends, and build your squad.
    Miss the headline and you drop to a lower tier — you never get nothing.
 3. **Collect** — new players fill your Squad; duplicates auto-sell for coins.
 4. **Upgrade** your **Luck** (better headline odds) and **Pack Speed** (faster opening).
-5. **Keepy-Uppy** is an optional mini-game — every juggle earns coins to spend on packs.
+5. **Mini-games** (optional, earn coins to spend on packs):
+   - **Keepy-Uppy** — tap the ball, don't let it drop. Each juggle pays coins.
+   - **Penalty Shootout** — pick a corner, read the keeper's lean, and time your power.
+     Score coins per goal (with a streak bonus); miss once and the round ends.
 
 ## Roster
 - **God — Legends:** CL, Pelé, Maradona, Ronaldinho, Zidane, Cruyff

@@ -233,6 +233,66 @@
     padding:14px 34px; cursor:pointer; box-shadow:0 8px 24px rgba(227,185,77,.4); touch-action:manipulation; }
   #gameMsg button:hover { transform:translateY(-2px); }
 
+  /* ---------- mini-game switcher ---------- */
+  .game-switch { display:flex; gap:8px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+  .game-switch button { cursor:pointer; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05);
+    color:rgba(255,255,255,.7); font-weight:700; letter-spacing:.05em; text-transform:uppercase; font-size:13px;
+    padding:10px 20px; border-radius:999px; transition:.14s; }
+  .game-switch button:hover { color:#fff; }
+  .game-switch button.active { color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border-color:transparent; }
+  .game-panel { display:none; }
+  .game-panel.active { display:block; }
+
+  /* ---------- penalty shootout ---------- */
+  #pkScene { position:relative; margin:0 auto; max-width:680px; height:440px; border-radius:22px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.14); touch-action:manipulation; user-select:none; -webkit-user-select:none;
+    background:linear-gradient(180deg,#1a2a52 0%,#2a4884 34%,#2f7d43 34%,#186031 100%); }
+  #pkScene::after { content:""; position:absolute; left:0; right:0; top:34%; bottom:0; pointer-events:none;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 46px, transparent 46px 92px); }
+  #pkGoal { position:absolute; left:50%; top:11%; transform:translateX(-50%); width:74%; height:33%;
+    border:7px solid #f4f4f8; border-bottom:none; border-radius:7px 7px 0 0; box-shadow:0 3px 0 rgba(0,0,0,.15); }
+  #pkNet { position:absolute; inset:0; opacity:.65; background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.18) 0 1px, transparent 1px 15px); }
+  #pkKeeperPos { position:absolute; left:50%; margin-left:-8%; bottom:54%; width:16%; z-index:2; }
+  #pkKeeper { width:100%; transform-origin:center bottom; }
+  #pkKeeper svg { width:100%; height:auto; display:block; filter:drop-shadow(0 4px 6px rgba(0,0,0,.4)); }
+  #pkBall { position:absolute; left:calc(50% - 23px); bottom:6%; width:46px; height:46px; font-size:40px; line-height:46px;
+    text-align:center; filter:drop-shadow(0 6px 8px rgba(0,0,0,.5)); z-index:3; will-change:transform; }
+  #pkZones { position:absolute; left:50%; top:11%; transform:translateX(-50%); width:74%; height:33%; z-index:4;
+    display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,1fr); }
+  .pk-zone { pointer-events:none; border:none; background:transparent; cursor:pointer; position:relative; }
+  #pkZones.live .pk-zone { pointer-events:auto; }
+  #pkZones.live .pk-zone::after { content:"◎"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,.28); font-size:24px; transition:.14s; }
+  #pkZones.live .pk-zone:hover::after { color:var(--gold-1); transform:scale(1.35); text-shadow:0 0 12px rgba(245,217,123,.8); }
+  #pkHud { position:absolute; top:10px; left:14px; z-index:7; display:flex; align-items:center; gap:8px; pointer-events:none; }
+  #pkHud svg { width:34px; height:auto; filter:drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+  #pkName { font-family:'Russo One'; font-size:13px; color:var(--gold-1); text-shadow:0 2px 6px rgba(0,0,0,.6); }
+  #pkScore { position:absolute; top:14px; right:16px; z-index:7; font-family:'Russo One'; font-size:15px; color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,.6); pointer-events:none; }
+  #pkScore .val { color:var(--gold-1); }
+  #pkPowerWrap { position:absolute; left:50%; bottom:3.5%; transform:translateX(-50%); width:62%; z-index:5; text-align:center; }
+  #pkPowerTrack { height:12px; border-radius:99px; background:rgba(0,0,0,.4); overflow:hidden; border:1px solid rgba(255,255,255,.22); }
+  #pkPowerFill { height:100%; width:0%; background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); }
+  .pk-power-lbl { font-size:10px; letter-spacing:.32em; color:rgba(255,255,255,.65); margin-top:4px; text-transform:uppercase; }
+  #pkBanner { position:absolute; inset:0; z-index:6; display:none; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+  #pkBanner.show { display:flex; }
+  #pkBanner span { font-family:'Russo One'; font-size:clamp(34px,7vw,62px); animation:pkPop .38s ease; }
+  #pkBanner.goal span { color:var(--gold-1); text-shadow:0 0 26px rgba(245,217,123,.75); }
+  #pkBanner.miss span { color:#ff6b83; text-shadow:0 0 20px rgba(255,84,112,.6); }
+  #pkBanner small { font-family:'Russo One'; font-size:22px; color:#fff; margin-top:6px; animation:pkPop .38s ease; }
+  @keyframes pkPop { from{transform:scale(.4);opacity:0} to{transform:scale(1);opacity:1} }
+  #pkMsg { position:absolute; inset:0; z-index:8; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center;
+    text-align:center; background:rgba(4,8,20,.55); backdrop-filter:blur(3px); }
+  #pkMsg.hidden { display:none; }
+  #pkMsg h3 { font-size:clamp(24px,4vw,34px); text-transform:uppercase; color:var(--gold-1); }
+  #pkMsg p { color:rgba(255,255,255,.85); letter-spacing:.06em; padding:0 18px; max-width:430px; }
+  #pkMsg button { margin-top:8px; font-family:'Russo One'; font-size:15px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border:none; border-radius:999px;
+    padding:14px 34px; cursor:pointer; box-shadow:0 8px 24px rgba(227,185,77,.4); touch-action:manipulation; }
+  #pkMsg button:hover { transform:translateY(-2px); }
+
   #flash { position:fixed; inset:0; z-index:90; background:#fff; opacity:0; pointer-events:none; }
   #flash.boom { animation:boom .9s ease-out; }
   @keyframes boom { 0%{opacity:0} 12%{opacity:1} 100%{opacity:0} }
@@ -242,7 +302,7 @@
     letter-spacing:.22em; text-transform:uppercase; font-size:11px; }
   footer b { color:var(--gold-1); }
 
-  @media (max-width:520px){ #pitch{height:360px} #tabs{top:60px} }
+  @media (max-width:520px){ #pitch{height:360px} #pkScene{height:400px} #tabs{top:60px} }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01s!important;transition-duration:.01s!important} }
 </style>
 </head>
@@ -303,15 +363,50 @@
   </section>
 
   <section id="tab-play" class="tab">
-    <div class="section-head"><h2>Keepy<span>-</span>Uppy</h2><p>Optional mini-game — every juggle earns coins!</p></div>
-    <div id="pitch">
-      <div id="hudChip"><span id="hudFace"></span><span id="hudName"></span></div>
-      <div id="scoreHud"><div>JUGGLES&nbsp;<span class="val" id="score">0</span></div><div>BEST&nbsp;<span class="val" id="best">0</span></div></div>
-      <div id="ball">⚽</div>
-      <div id="gameMsg">
-        <h3 id="msgTitle">Ready?</h3>
-        <p id="msgText">Tap the ball to juggle. Each juggle = 8 coins.</p>
-        <button id="playBtn" type="button">Kick Off</button>
+    <div class="section-head"><h2>Mini-<span>Games</span></h2><p>Optional — earn coins to spend on packs.</p></div>
+    <div class="game-switch">
+      <button data-game="juggle" class="active" type="button">⚽ Keepy-Uppy</button>
+      <button data-game="penalty" type="button">🥅 Penalty Shootout</button>
+    </div>
+
+    <div class="game-panel active" id="game-juggle">
+      <div id="pitch">
+        <div id="hudChip"><span id="hudFace"></span><span id="hudName"></span></div>
+        <div id="scoreHud"><div>JUGGLES&nbsp;<span class="val" id="score">0</span></div><div>BEST&nbsp;<span class="val" id="best">0</span></div></div>
+        <div id="ball">⚽</div>
+        <div id="gameMsg">
+          <h3 id="msgTitle">Ready?</h3>
+          <p id="msgText">Tap the ball to juggle. Each juggle = 8 coins.</p>
+          <button id="playBtn" type="button">Kick Off</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-panel" id="game-penalty">
+      <div id="pkScene">
+        <div id="pkHud"><span id="pkFace"></span><span id="pkName"></span></div>
+        <div id="pkScore">SCORED&nbsp;<span class="val" id="pkScoreVal">0</span> · BEST&nbsp;<span class="val" id="pkBestVal">0</span></div>
+        <div id="pkGoal"><div id="pkNet"></div></div>
+        <div id="pkKeeperPos"><div id="pkKeeper"><svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="52" width="84" height="15" rx="7.5" fill="#17b890"/>
+          <circle cx="12" cy="59.5" r="11" fill="#ffd83d"/><circle cx="88" cy="59.5" r="11" fill="#ffd83d"/>
+          <rect x="35" y="46" width="30" height="58" rx="12" fill="#17b890"/>
+          <rect x="39" y="100" width="9" height="30" rx="3" fill="#12203a"/><rect x="52" y="100" width="9" height="30" rx="3" fill="#12203a"/>
+          <circle cx="50" cy="32" r="14" fill="#e8b98a"/>
+          <path d="M37 30 Q37 15 50 15 Q63 15 63 30 Q56 24 50 24 Q44 24 37 30 Z" fill="#3a2716"/>
+        </svg></div></div>
+        <div id="pkZones">
+          <button class="pk-zone" data-col="0" data-row="0"></button><button class="pk-zone" data-col="1" data-row="0"></button><button class="pk-zone" data-col="2" data-row="0"></button>
+          <button class="pk-zone" data-col="0" data-row="1"></button><button class="pk-zone" data-col="1" data-row="1"></button><button class="pk-zone" data-col="2" data-row="1"></button>
+        </div>
+        <div id="pkBall">⚽</div>
+        <div id="pkBanner"></div>
+        <div id="pkPowerWrap"><div id="pkPowerTrack"><div id="pkPowerFill"></div></div><div class="pk-power-lbl">Power</div></div>
+        <div id="pkMsg">
+          <h3 id="pkMsgTitle">Penalty Shootout</h3>
+          <p id="pkMsgText">Pick a corner, read the keeper's lean, and don't overhit. Miss once and the round ends!</p>
+          <button id="pkBtn" type="button">Step Up</button>
+        </div>
       </div>
     </div>
   </section>
@@ -568,7 +663,7 @@
 
   /* ================= STATE ================= */
   const SAVE_KEY="uf-save-v3";
-  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0 };
+  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0 };
   function load(){ const raw=store.get(SAVE_KEY); if(raw){ try{ const d=JSON.parse(raw); S=Object.assign(S,d); if(!S.owned)S.owned={}; }catch{} } }
   function save(){ store.set(SAVE_KEY, JSON.stringify(S)); }
   load();
@@ -693,7 +788,9 @@
   /* ================= TABS ================= */
   function switchTab(name){ $$(".tab").forEach(s=>s.classList.toggle("active",s.id==="tab-"+name));
     $$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
-    if(name==="squad") renderSquad(); if(name==="play") refreshJuggler(); }
+    if(name!=="play"){ playing=false; pkLeave(); }
+    if(name==="squad") renderSquad();
+    if(name==="play"){ const g=document.querySelector(".game-switch button.active"); showGame(g?g.dataset.game:"juggle"); } }
   function $$(s){ return Array.from(document.querySelectorAll(s)); }
   $("#tabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-tab]"); if(b) switchTab(b.dataset.tab); });
 
@@ -751,11 +848,105 @@
   function pressPlay(e){ e.stopPropagation(); const now=performance.now(); if(now-lastPress<400) return; lastPress=now; startGame(); }
   playBtn.addEventListener("pointerdown",pressPlay); playBtn.addEventListener("click",pressPlay);
 
+  /* ================= PENALTY SHOOTOUT ================= */
+  const pkScene=$("#pkScene"), pkGoal=$("#pkGoal"), pkKeeper=$("#pkKeeper"), pkBall=$("#pkBall"),
+        pkZones=$("#pkZones"), pkBannerEl=$("#pkBanner"), pkPowerFill=$("#pkPowerFill"),
+        pkMsg=$("#pkMsg"), pkMsgTitle=$("#pkMsgTitle"), pkMsgText=$("#pkMsgText"), pkBtn=$("#pkBtn"),
+        pkScoreVal=$("#pkScoreVal"), pkBestVal=$("#pkBestVal");
+  let pkActive=false, pkPhase="ready", pkPower=0, pkDir=1, pkScore=0, pkLean=1, pkRaf=0, pkRoundCoins=0;
+
+  function pkShooter(){ if(!bestRating()) return null; return resolve(Object.keys(S.owned).sort((a,z)=>resolve(z).rating-resolve(a).rating)[0]); }
+  function pkRefresh(){ const b=pkShooter(); $("#pkFace").innerHTML=b?portraitSVG(b):""; $("#pkName").textContent=b?b.name:"You";
+    pkBestVal.textContent=S.pkBest||0; pkScoreVal.textContent=pkScore; }
+  function pkShowMsg(title,text,btn){ pkMsgTitle.textContent=title; pkMsgText.textContent=text; pkBtn.textContent=btn; pkMsg.classList.remove("hidden"); }
+  function pkBanner(txt,cls,sub){ pkBannerEl.innerHTML=`<span>${txt}</span>${sub?`<small>${sub}</small>`:""}`; pkBannerEl.className="show "+cls; }
+  function pkClearBanner(){ pkBannerEl.className=""; }
+  function pkResetBall(){ pkBall.style.transition="none"; pkBall.style.transform=""; void pkBall.offsetWidth; }
+  function pkResetKeeper(){ pkKeeper.style.transition="none"; pkKeeper.style.transform=""; void pkKeeper.offsetWidth; pkKeeper.style.transition="transform .3s ease"; }
+  function pkNewLean(){ pkLean=Math.floor(Math.random()*3); const gw=pkGoal.getBoundingClientRect().width||pkScene.clientWidth*0.74;
+    pkKeeper.style.transform=`translateX(${(pkLean-1)*gw*0.17}px) rotate(${(pkLean-1)*6}deg)`; }
+  function pkStartPower(){ cancelAnimationFrame(pkRaf); (function loop(){ if(pkPhase!=="aim") return;
+    pkPower+=pkDir*2.4; if(pkPower>=100){pkPower=100;pkDir=-1;} else if(pkPower<=0){pkPower=0;pkDir=1;}
+    pkPowerFill.style.width=pkPower+"%";
+    pkPowerFill.style.background = pkPower>90 ? "#ff5470" : (pkPower<35 ? "#8fd6ff" : "linear-gradient(90deg,var(--gold-2),var(--gold-1))");
+    pkRaf=requestAnimationFrame(loop); })(); }
+
+  function pkEnter(){ pkActive=true; pkPhase="ready"; pkScore=0; pkRoundCoins=0; pkResetBall(); pkResetKeeper();
+    pkKeeper.style.transform=""; pkPowerFill.style.width="0%"; pkClearBanner(); pkRefresh();
+    pkShowMsg("Penalty Shootout","Pick a corner, read the keeper's lean, and don't overhit. Miss once and the round ends!","Step Up"); }
+  function pkLeave(){ pkActive=false; pkPhase="ready"; cancelAnimationFrame(pkRaf); }
+
+  function pkStepUp(){ if(pkPhase!=="ready") return; pkScore=0; pkRoundCoins=0; pkScoreVal.textContent=0;
+    pkMsg.classList.add("hidden"); pkClearBanner(); pkResetBall(); pkResetKeeper();
+    pkPhase="aim"; pkNewLean(); pkStartPower(); pkZones.classList.add("live"); }
+
+  function pkResolveShot(col,row,power,kcol){
+    if(row===0 && power>90) return "over";                         // top row + too much = over the bar
+    if(kcol===col){
+      if(row===0 && (col===0||col===2) && power>=60) return "goal"; // top-corner banger
+      if(power>=80 && (col===0||col===2)) return "goal";           // hard side shot beats the dive
+      return "save";
+    }
+    if(Math.abs(kcol-col)===1 && power<30) return "save";          // weak shot, keeper scrambles across
+    return "goal";
+  }
+
+  function pkShoot(col,row,forcePower){ if(pkPhase!=="aim") return; pkPhase="resolving"; cancelAnimationFrame(pkRaf);
+    const power = forcePower!=null?forcePower:pkPower;
+    pkZones.classList.remove("live");
+    let kcol; const reflex=Math.min(pkScore*0.04,0.4);
+    if(Math.random()<reflex) kcol=col;
+    else kcol = Math.random()<0.7 ? pkLean : Math.floor(Math.random()*3);
+    const result = pkResolveShot(col,row,power,kcol);
+    beep(320,0.12,"square",0.16);
+    // animate ball to the chosen zone
+    const zone=pkZones.querySelector(`.pk-zone[data-col="${col}"][data-row="${row}"]`);
+    const zr=zone.getBoundingClientRect(), br=pkBall.getBoundingClientRect();
+    const tx=(zr.left+zr.width/2)-(br.left+br.width/2), ty=(zr.top+zr.height/2)-(br.top+br.height/2);
+    pkBall.style.transition="transform .42s cubic-bezier(.4,.55,.3,1)";
+    pkBall.style.transform=`translate(${tx}px,${ty}px) scale(.6)`;
+    // keeper dives
+    const gr=pkGoal.getBoundingClientRect();
+    pkKeeper.style.transition="transform .4s cubic-bezier(.3,.8,.4,1)";
+    pkKeeper.style.transform=`translateX(${(kcol-1)*gr.width*0.30}px) rotate(${(kcol-1)*66}deg)`;
+    setTimeout(()=>pkResult(result), reduced?60:500);
+  }
+
+  function pkResult(result){
+    if(result==="goal"){
+      pkScore++; const gain=20+(pkScore-1)*5; S.coins+=gain; pkRoundCoins+=gain;
+      if(pkScore>(S.pkBest||0)) S.pkBest=pkScore;
+      save(); renderCoins(true); pkScoreVal.textContent=pkScore; pkBestVal.textContent=S.pkBest;
+      pkBanner("GOAL!","goal",`+🪙 ${gain}`); burst(); [660,880,1100].forEach((f,i)=>beep(f,0.16,"triangle",0.18,i*0.07));
+      setTimeout(()=>{ if(pkActive && pkPhase==="resolving") pkNextShot(); }, reduced?80:850);
+    } else {
+      pkBanner(result==="over"?"OVER!":"SAVED!","miss","");
+      beep(180,0.4,"sawtooth",0.18);
+      setTimeout(()=>{ if(pkActive && pkPhase==="resolving") pkRoundOver(result); }, reduced?80:850);
+    }
+  }
+  function pkNextShot(){ pkClearBanner(); pkResetBall(); pkResetKeeper(); pkPhase="aim"; pkNewLean(); pkStartPower(); pkZones.classList.add("live"); }
+  function pkRoundOver(result){ pkPhase="ready"; pkClearBanner(); pkResetBall(); pkResetKeeper(); pkKeeper.style.transform="";
+    pkShowMsg(result==="over"?"Over the bar!":"Keeper saves!",
+      `You scored ${pkScore} penalt${pkScore===1?"y":"ies"} this round and earned 🪙 ${pkRoundCoins}. Step up again?`,
+      "Shoot Again"); }
+
+  pkZones.addEventListener("click",e=>{ const z=e.target.closest(".pk-zone"); if(z && pkPhase==="aim") pkShoot(+z.dataset.col,+z.dataset.row); });
+  pkBtn.addEventListener("click",()=>{ if(pkPhase==="ready") pkStepUp(); });
+
+  /* ================= MINI-GAME SWITCHER ================= */
+  function showGame(name){ $$(".game-panel").forEach(p=>p.classList.toggle("active",p.id==="game-"+name));
+    $$(".game-switch button").forEach(b=>b.classList.toggle("active",b.dataset.game===name));
+    if(name==="penalty"){ playing=false; gmsg.classList.remove("playing"); pkEnter(); }
+    else { pkLeave(); refreshJuggler(); } }
+  $(".game-switch").addEventListener("click",e=>{ const b=e.target.closest("button[data-game]"); if(b) showGame(b.dataset.game); });
+
   /* ================= BOOT ================= */
   renderAll();
   if(!S.club || !CLUBS[S.club]) showTeamSelect();
   window.addEventListener("resize",()=>{ if(!playing) resetIdleBall(); });
-  window.UF={S,save,resolve,openPack,TIERS,PLAYERS:NAMED};
+  window.UF={S,save,resolve,openPack,TIERS,PLAYERS:NAMED,
+    pk:{ shoot:pkShoot, stepUp:pkStepUp, state:()=>({phase:pkPhase,score:pkScore,lean:pkLean,power:pkPower,active:pkActive}) }};
 })();
 </script>
 </body>
