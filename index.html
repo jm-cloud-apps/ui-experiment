@@ -306,6 +306,59 @@
     padding:14px 34px; cursor:pointer; box-shadow:0 8px 24px rgba(227,185,77,.4); touch-action:manipulation; }
   #pkMsg button:hover { transform:translateY(-2px); }
 
+  /* ---------- premium vault packs ---------- */
+  .vault-head { display:flex; align-items:center; gap:12px; margin:2px 0 14px; }
+  .vault-head h3 { font-family:'Russo One'; font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-1);
+    text-shadow:0 0 14px rgba(245,217,123,.4); white-space:nowrap; }
+  .vault-head .line { flex:1; height:1px; background:linear-gradient(90deg,rgba(245,217,123,.5),transparent); }
+  .special-grid { margin-bottom:30px; }
+  .pack.vault { border-color:rgba(255,255,255,.6); }
+  .pack.vault::after { content:"⚡ RARE"; position:absolute; top:9px; right:9px; z-index:2; font-family:'Oswald',sans-serif;
+    font-size:9px; font-weight:700; letter-spacing:.14em; background:rgba(0,0,0,.4); color:#fff; padding:3px 7px; border-radius:6px; }
+  .pack .pack-odds.vault-odds { background:rgba(0,0,0,.34); color:var(--gold-1); font-family:'Russo One'; font-weight:400; letter-spacing:.08em; }
+
+  /* ---------- passing to players ---------- */
+  #passPitch { position:relative; margin:0 auto; max-width:680px; height:440px; border-radius:22px; overflow:hidden;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 60px, transparent 60px 120px),
+      linear-gradient(180deg,#0d2b18 0%,#144022 100%); border:1px solid rgba(255,255,255,.14);
+    touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+  #passPitch::after { content:""; position:absolute; left:0; right:0; top:50%; height:2px; background:rgba(255,255,255,.08); pointer-events:none; }
+  #passHud { position:absolute; top:10px; left:14px; z-index:6; font-family:'Russo One'; font-size:13px; color:var(--gold-1);
+    text-shadow:0 2px 6px rgba(0,0,0,.6); pointer-events:none; }
+  #passScoreHud { position:absolute; top:12px; right:16px; z-index:6; font-family:'Russo One'; font-size:14px; color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,.6); pointer-events:none; }
+  #passScoreHud .val { color:var(--gold-1); }
+  #passNodes { position:absolute; inset:0; z-index:4; }
+  .pass-node { position:absolute; width:56px; height:56px; margin:-28px 0 0 -28px; border-radius:50%; cursor:pointer;
+    border:3px solid rgba(255,255,255,.45); background:radial-gradient(circle at 40% 32%, #2b3672, #141b45); color:#fff;
+    font-family:'Russo One'; font-size:20px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.45); transition:transform .12s, border-color .12s, box-shadow .12s; }
+  .pass-node.open { border-color:#37e39b; box-shadow:0 0 18px rgba(55,227,155,.7); }
+  .pass-node.open::after { content:"◎"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:#37e39b; font-size:26px; text-shadow:0 0 10px rgba(55,227,155,.8); }
+  .pass-node.guarded { border-color:#ff5470; background:radial-gradient(circle at 40% 32%, #7a1020, #360610); }
+  .pass-node.guarded::after { content:"🛡"; position:absolute; top:-12px; right:-8px; font-size:18px; }
+  .pass-node.cur { border-color:var(--gold-1); box-shadow:0 0 22px rgba(245,217,123,.85); cursor:default; transform:scale(1.06); }
+  .pass-node.bad { animation:passBad .4s ease; }
+  @keyframes passBad { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+  #passBall { position:absolute; left:0; top:0; width:40px; height:40px; font-size:34px; line-height:40px; text-align:center;
+    z-index:5; pointer-events:none; filter:drop-shadow(0 6px 8px rgba(0,0,0,.5)); will-change:transform; }
+  #passTimer { position:absolute; left:8%; right:8%; bottom:12px; height:10px; z-index:6; border-radius:99px;
+    background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.2); overflow:hidden; }
+  #passTimer i { display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); }
+  #passBanner { position:absolute; inset:0; z-index:7; display:none; align-items:center; justify-content:center; pointer-events:none;
+    font-family:'Russo One'; font-size:clamp(30px,7vw,56px); color:#ff6b83; text-shadow:0 0 20px rgba(255,84,112,.6); }
+  #passBanner.show { display:flex; animation:pkPop .38s ease; }
+  #passMsg { position:absolute; inset:0; z-index:8; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center;
+    text-align:center; background:rgba(4,8,20,.55); backdrop-filter:blur(3px); padding:0 16px; }
+  #passMsg.hidden { display:none; }
+  #passMsg h3 { font-size:clamp(24px,4vw,34px); text-transform:uppercase; color:var(--gold-1); }
+  #passMsg p { color:rgba(255,255,255,.85); letter-spacing:.06em; max-width:440px; }
+  #passMsg button { margin-top:8px; font-family:'Russo One'; font-size:15px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--navy-1); background:linear-gradient(90deg,var(--gold-2),var(--gold-1)); border:none; border-radius:999px;
+    padding:14px 34px; cursor:pointer; box-shadow:0 8px 24px rgba(227,185,77,.4); touch-action:manipulation; }
+  #passMsg button:hover { transform:translateY(-2px); }
+
   #flash { position:fixed; inset:0; z-index:90; background:#fff; opacity:0; pointer-events:none; }
   #flash.boom { animation:boom .9s ease-out; }
   @keyframes boom { 0%{opacity:0} 12%{opacity:1} 100%{opacity:0} }
@@ -315,7 +368,7 @@
     letter-spacing:.22em; text-transform:uppercase; font-size:11px; }
   footer b { color:var(--gold-1); }
 
-  @media (max-width:520px){ #pitch{height:360px} #pkScene{height:400px} #tabs{top:60px} }
+  @media (max-width:520px){ #pitch{height:360px} #pkScene{height:400px} #passPitch{height:400px} #tabs{top:60px} }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01s!important;transition-duration:.01s!important} }
 </style>
 </head>
@@ -361,6 +414,9 @@
 
   <section id="tab-packs" class="tab active">
     <div class="section-head"><h2>Pack <span>Store</span></h2><p>Higher packs = better odds at a bigger legend. Buy with coins.</p></div>
+    <div class="vault-head"><h3>🏆 The Vault</h3><span class="line"></span></div>
+    <div class="pack-grid special-grid" id="specialGrid"></div>
+    <div class="vault-head"><h3>Standard Packs</h3><span class="line"></span></div>
     <div class="pack-grid" id="packGrid"></div>
   </section>
 
@@ -381,6 +437,7 @@
     <div class="game-switch">
       <button data-game="juggle" class="active" type="button">⚽ Keepy-Uppy</button>
       <button data-game="penalty" type="button">🥅 Penalty Shootout</button>
+      <button data-game="pass" type="button">🎯 Passing</button>
     </div>
 
     <div class="game-panel active" id="game-juggle">
@@ -428,6 +485,22 @@
           <h3 id="pkMsgTitle">Penalty Shootout</h3>
           <p id="pkMsgText">Pick a corner, read the keeper's lean, and don't overhit. Miss once and the round ends!</p>
           <button id="pkBtn" type="button">Step Up</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-panel" id="game-pass">
+      <div id="passPitch">
+        <div id="passHud">Passing To Players</div>
+        <div id="passScoreHud">PASSES&nbsp;<span class="val" id="passScore">0</span> · BEST&nbsp;<span class="val" id="passBest">0</span></div>
+        <div id="passNodes"></div>
+        <div id="passBall">⚽</div>
+        <div id="passBanner"></div>
+        <div id="passTimer"><i id="passTimerFill"></i></div>
+        <div id="passMsg">
+          <h3 id="passMsgTitle">Passing To Players</h3>
+          <p id="passMsgText">Tap an OPEN team-mate to pass. Pass to a guarded one and it's intercepted — restart!</p>
+          <button id="passBtn" type="button">Kick Off</button>
         </div>
       </div>
     </div>
@@ -547,7 +620,11 @@
     {key:"god",      name:"God",      sub:"Legends",        ico:"👑", c1:"#ff6b6b",c2:"#7a1020",tc:"#fff",   dot:"#ffd83d",odds:.24,price:4000,sell:1600,rMin:96,rMax:99,special:true, maxStock:3, restockMs:12*MIN},
   ];
   const TI = {}; TIERS.forEach((t,i)=>TI[t.key]=i);
-  const tierByKey = (k)=>TIERS[TI[k]];
+  // Extra card tier that lives outside the normal pack ladder (only pulled from the 99-Overload Pack).
+  const OVERLOAD_TIER = {key:"overload", name:"Overload", sub:"Every Stat 99", ico:"9️⃣",
+    c1:"#7af7ff", c2:"#7a00ff", tc:"#fff", dot:"#00e5ff", sell:3000, rMin:99, rMax:99, special:true};
+  const TIER_MAP = {}; [...TIERS, OVERLOAD_TIER].forEach(t=>TIER_MAP[t.key]=t);
+  const tierByKey = (k)=>TIER_MAP[k];
 
   /* ================= NAMED ROSTER ================= */
   // compact: n name, p pos, r rating, nat, num, cl clubKey, sk skin, hs hair style, hc hair color, bd beard, jb/jt jersey, st [PAC,SHO,PAS,DRI,DEF,PHY], bl blurb
@@ -559,6 +636,7 @@
       {n:"RONALDINHO",p:"CAM",r:97,nat:"br",num:10,cl:"BAR",sk:"#8d5a30",hs:"fluffy",hc:"#3a2716",st:[90,88,92,97,45,74],bl:"Samba smile, impossible tricks."},
       {n:"ZIDANE",p:"CAM",r:97,nat:"fr",num:5,cl:"RMA",sk:"#e8b98a",hs:"crop",hc:"#8a6b46",bd:"stubble",st:[84,86,93,95,68,84],bl:"Elegance in the number 10 shirt."},
       {n:"CRUYFF",p:"CF",r:96,nat:"nl",num:14,cl:"AJA",sk:"#f2cfa5",hs:"medium",hc:"#3a2716",st:[92,90,92,94,60,72],bl:"Invented the turn named after him."},
+      {n:"R9 RONALDO",p:"ST",r:98,nat:"br",num:9,cl:"RMA",sk:"#8d5a30",hs:"crop",hc:"#151515",st:[97,97,84,96,40,86],bl:"O Fenômeno. The original Ronaldo."},
     ],
     mythic:[
       {n:"MESSI",p:"RW",r:96,nat:"ar",num:10,cl:"MIA",sk:"#ecc39b",hs:"medium",hc:"#6b4a2f",bd:"beard",st:[85,92,94,97,34,68],bl:"The GOAT. The ball is glued to his left foot."},
@@ -598,6 +676,13 @@
       {n:"GORDON",p:"LW",r:81,nat:"en",num:10,cl:"NEW",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",st:[92,78,76,84,50,68],bl:"Electric pace down the flank."},
       {n:"MOUNT",p:"CM",r:80,nat:"en",num:7,cl:"MUN",sk:"#e8b98a",hs:"crop",hc:"#6b4a2f",st:[76,78,82,82,66,72],bl:"A tireless engine."},
       {n:"TRIPPIER",p:"RB",r:82,nat:"en",num:2,cl:"NEW",sk:"#e8b98a",hs:"crop",hc:"#8a6b46",bd:"stubble",st:[78,66,86,80,80,74],bl:"Deadly delivery from the right."},
+    ],
+    // 99-Overload editions — every face stat is 99 (special "overload" card tier, only from the 99-Overload Pack)
+    overload:[
+      {n:"CL 99",p:"ST",r:99,nat:"ca",num:10,cl:"CLFC",sk:"#e8b98a",hs:"spiky",hc:"#2b1c10",jb:"#1a1443",jt:"#f5d97b",st:[99,99,99,99,99,99],bl:"Maxed out. Every single stat is 99."},
+      {n:"MESSI 99",p:"RW",r:99,nat:"ar",num:10,cl:"MIA",sk:"#ecc39b",hs:"medium",hc:"#6b4a2f",bd:"beard",st:[99,99,99,99,99,99],bl:"The GOAT, dialled up to a perfect 99."},
+      {n:"RONALDO 99",p:"ST",r:99,nat:"pt",num:7,cl:"ALN",sk:"#d9a878",hs:"slick",hc:"#161616",st:[99,99,99,99,99,99],bl:"SIUUU! Nine-nines across the board."},
+      {n:"MBAPPÉ 99",p:"ST",r:99,nat:"fr",num:9,cl:"RMA",sk:"#8d5a30",hs:"crop",hc:"#141414",st:[99,99,99,99,99,99],bl:"Turbo-charged — 99 everywhere."},
     ],
   };
   function buildNamed(key,o,i){ const cl=CLUBS[o.cl];
@@ -639,6 +724,25 @@
   function resolve(id){ const k=id.slice(0,id.lastIndexOf("-")), i=+id.slice(id.lastIndexOf("-")+1); return poolGet(k,i); }
   // finalize NAMED into full player objects
   Object.keys(NAMED).forEach(key=>{ NAMED[key]=NAMED[key].map((o,i)=>buildNamed(key,o,i)); });
+
+  /* ============ SPECIAL "VAULT" PACKS — guaranteed elite pulls, ranked above the God pack ============ */
+  // Pantheon draws the four footballing deities straight from the God pool so they never duplicate.
+  const PANTHEON_IDS = ["god-1","god-2","god-4","god-6"]; // Pelé · Maradona · Zidane · R9 Ronaldo
+  const idsOf = (key)=>NAMED[key].map((_,i)=>key+"-"+i);
+  // Guarantee: prefer a card you don't own yet; only repeat once the whole pool is collected.
+  function pickGuaranteed(ids){ const un=ids.filter(id=>!S.owned[id]); const pool=un.length?un:ids;
+    return resolve(pool[Math.floor(Math.random()*pool.length)]); }
+  // Zero-Variance Ultimate: elite-only (God + Overload), never a duplicate until they're all yours.
+  function pickUltimate(){ return pickGuaranteed([...idsOf("god"), ...idsOf("overload")]); }
+  const SPECIALS = [
+    {key:"pantheon", name:"Pantheon Pack",          sub:"Footballing Deities",   ico:"🏛️", c1:"#fff3c0",c2:"#a9791b",tc:"#3a2a00",
+      odds:"GUARANTEED DEITY",  price:12000, sell:4000, maxStock:1, restockMs:45*MIN, newLabel:"PANTHEON DEITY",   roll:()=>pickGuaranteed(PANTHEON_IDS)},
+    {key:"ultimate", name:"Zero-Variance Ultimate", sub:"Anti-Gamble · No Dupes", ico:"🧊", c1:"#dffbff",c2:"#0090b0",tc:"#00323d",
+      odds:"100 / 100 / 100",   price:16000, sell:6000, maxStock:1, restockMs:60*MIN, newLabel:"ULTIMATE PULL",    roll:pickUltimate},
+    {key:"overload", name:"99-Overload Pack",        sub:"Every Stat 99",         ico:"9️⃣", c1:"#bff6ff",c2:"#6a00ff",tc:"#fff",
+      odds:"GUARANTEED 99 OVR", price:5000,  sell:3000, maxStock:2, restockMs:30*MIN, newLabel:"99-OVERLOAD PULL", roll:()=>pickGuaranteed(idsOf("overload"))},
+  ];
+  const specialByKey = (k)=>SPECIALS.find(s=>s.key===k);
 
   /* ================= SVG portrait / crest ================= */
   function hairSVG(p){ const hc=p.hair.color;
@@ -706,16 +810,16 @@
 
   /* ================= STATE ================= */
   const SAVE_KEY="uf-save-v3";
-  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0, stock:{}, restockAt:{}, kuBest:{}, kuLevel:"medium" };
+  let S = { club:null, coins:300, luck:0, speed:0, owned:{}, best:0, pkBest:0, stock:{}, restockAt:{}, kuBest:{}, kuLevel:"medium", passBest:0 };
   function load(){ const raw=store.get(SAVE_KEY); if(raw){ try{ const d=JSON.parse(raw); S=Object.assign(S,d); if(!S.owned)S.owned={}; if(!S.kuBest)S.kuBest={}; }catch{} } }
   function save(){ store.set(SAVE_KEY, JSON.stringify(S)); }
   load();
 
   /* ---- pack stock / restock (fills to max after a per-tier wait) ---- */
   function initStock(){ if(!S.stock)S.stock={}; if(!S.restockAt)S.restockAt={};
-    TIERS.forEach(t=>{ if(typeof S.stock[t.key]!=="number") S.stock[t.key]=t.maxStock; }); }
+    [...TIERS,...SPECIALS].forEach(t=>{ if(typeof S.stock[t.key]!=="number") S.stock[t.key]=t.maxStock; }); }
   function processRestocks(){ const now=Date.now(); let ch=false;
-    TIERS.forEach(t=>{ const ra=S.restockAt[t.key]; if(ra && now>=ra){ S.stock[t.key]=t.maxStock; delete S.restockAt[t.key]; ch=true; } });
+    [...TIERS,...SPECIALS].forEach(t=>{ const ra=S.restockAt[t.key]; if(ra && now>=ra){ S.stock[t.key]=t.maxStock; delete S.restockAt[t.key]; ch=true; } });
     if(ch) save(); return ch; }
   function fmtTime(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
   initStock(); processRestocks();
@@ -737,6 +841,14 @@
     $("#clubCrest").innerHTML=crestSVG(c); $("#clubName").textContent=c.name; $("#squadSub").textContent=`Every player you pull joins ${c.name}.`; }
 
   function renderPacks(){ const g=$("#packGrid");
+    $("#specialGrid").innerHTML=SPECIALS.map(sp=>
+      `<div class="pack special vault" data-special="${sp.key}" style="--c1:${sp.c1};--c2:${sp.c2};--tc:${sp.tc}">
+        <div class="pack-ico">${sp.ico}</div>
+        <div class="pack-name">${sp.name}</div><div class="pack-sub">${sp.sub}</div>
+        <div class="pack-stock"></div>
+        <div class="pack-odds vault-odds">${sp.odds}</div>
+        <button class="pack-buy" data-special="${sp.key}"><span class="price"></span></button>
+      </div>`).join("");
     g.innerHTML=TIERS.map((t,idx)=>
       `<div class="pack${t.special?" special":""}" data-idx="${idx}" style="--c1:${t.c1};--c2:${t.c2};--tc:${t.tc}">
         <div class="pack-ico">${t.ico}</div>
@@ -756,6 +868,14 @@
       else sl.textContent=`${stock} in stock`;
       btn.disabled = out || !afford;
       btn.querySelector(".price").textContent = out ? "Sold Out" : "🪙 "+t.price;
+    });
+    document.querySelectorAll("#specialGrid .pack").forEach(card=>{ const sp=specialByKey(card.dataset.special); if(!sp) return;
+      const stock=S.stock[sp.key]||0, ra=S.restockAt[sp.key], out=stock<=0, afford=S.coins>=sp.price;
+      const sl=card.querySelector(".pack-stock"), btn=card.querySelector(".pack-buy");
+      if(out) sl.innerHTML=`<span class="oos">⏳ ${fmtTime((ra||now)-now)}</span>`;
+      else sl.textContent=`${stock} in stock`;
+      btn.disabled = out || !afford;
+      btn.querySelector(".price").textContent = out ? "Sold Out" : "🪙 "+sp.price;
     }); }
 
   function renderUpgrades(){ const w=$("#upgWrap");
@@ -783,11 +903,12 @@
     const body=$("#squadBody");
     if(total===0){ body.innerHTML=`<div class="empty-note">No players yet.<br><button class="link-btn" data-goto="packs">Open your first pack →</button></div>`; return; }
     let html="";
-    for(let i=TIERS.length-1;i>=0;i--){ const t=TIERS[i];
-      const ids=Object.keys(S.owned).filter(id=>resolve(id).tierKey===t.key);
+    const SQUAD_ORDER=["overload",...TIERS.map(t=>t.key).reverse()]; // Overload cards on top, then God → Common
+    for(const key of SQUAD_ORDER){ const t=tierByKey(key);
+      const ids=Object.keys(S.owned).filter(id=>resolve(id).tierKey===key);
       if(!ids.length) continue;
       ids.sort((a,b)=>resolve(b).rating-resolve(a).rating);
-      html+=`<div class="tier-block"><h3><span class="tier-dot" style="background:${t.dot};color:${t.dot}"></span>${t.name} <span style="color:${t.dot}">·</span> ${t.sub}<span class="cnt">${ids.length}/${poolCount(t.key)}</span></h3>
+      html+=`<div class="tier-block"><h3><span class="tier-dot" style="background:${t.dot};color:${t.dot}"></span>${t.name} <span style="color:${t.dot}">·</span> ${t.sub}<span class="cnt">${ids.length}/${poolCount(key)}</span></h3>
         <div class="mini-grid">${ids.map(id=>miniMarkup(resolve(id),S.owned[id])).join("")}</div></div>`; }
     body.innerHTML=html; }
 
@@ -806,16 +927,18 @@
 
   /* ================= PACK OPENING ================= */
   const reveal=$("#reveal"), rvCard=$("#rvCard"), rvResult=$("#rvResult"), rvAgain=$("#rvAgain"), rvDone=$("#rvDone");
-  let opening=false, lastPackIdx=0;
+  let opening=false, lastOpenFn=null;
 
-  async function openPack(packIdx){ if(opening) return; const pack=TIERS[packIdx];
-    if((S.stock[pack.key]||0)<=0){ toast(`${pack.name} sold out — restocking!`); return; }
-    if(S.coins<pack.price){ toast("Not enough coins — play a mini-game!"); return; }
-    opening=true; lastPackIdx=packIdx;
-    S.coins-=pack.price; S.stock[pack.key]--;
-    if(S.stock[pack.key]<=0) S.restockAt[pack.key]=Date.now()+pack.restockMs;
+  // Shared reveal for both standard tiers and Vault packs.
+  // cfg: { key, name, price, restockMs, newLabel?, dupeSell?, pull:()=>({player, celebrate}) }
+  async function runOpen(cfg){ if(opening) return;
+    if((S.stock[cfg.key]||0)<=0){ toast(`${cfg.name} sold out — restocking!`); return; }
+    if(S.coins<cfg.price){ toast("Not enough coins — play a mini-game!"); return; }
+    opening=true; lastOpenFn=()=>runOpen(cfg);
+    S.coins-=cfg.price; S.stock[cfg.key]--;
+    if(S.stock[cfg.key]<=0) S.restockAt[cfg.key]=Date.now()+cfg.restockMs;
     save(); renderCoins(true); renderPacks();
-    const tierIdx=rollTier(packIdx); const player=pickFromTier(tierIdx); const t=TIERS[tierIdx];
+    const { player, celebrate=0 } = cfg.pull(); const t=tierByKey(player.tierKey);
     const f=reduced?0.05:openFactor();
     beep(220,0.28,"sawtooth",0.13); beep(330,0.28,"sawtooth",0.13,0.12);
     reveal.classList.add("show"); rvResult.innerHTML=""; rvAgain.style.visibility="hidden"; rvDone.style.visibility="hidden";
@@ -827,20 +950,29 @@
     await wait(reduced?10:760*f);
 
     const isNew=!isOwned(player.id); let earned=0;
-    if(isNew){ S.owned[player.id]=1; } else { earned=t.sell; S.coins+=earned; S.owned[player.id]=(S.owned[player.id]||1)+1; }
+    if(isNew){ S.owned[player.id]=1; }
+    else { earned = cfg.dupeSell!=null ? cfg.dupeSell : (t.sell||0); S.coins+=earned; S.owned[player.id]=(S.owned[player.id]||1)+1; }
     save(); renderCoins(!isNew); renderPacks(); renderUpgrades(); renderSquad();
 
     rvResult.innerHTML = isNew
-      ? `<div class="tag newp">✨ NEW! ${t.name} pull</div><div class="sub">${player.name} joined ${CLUBS[S.club].name}. ${player.blurb}</div>`
+      ? `<div class="tag newp">✨ NEW! ${cfg.newLabel||(t.name+" pull")}</div><div class="sub">${player.name} joined ${CLUBS[S.club].name}. ${player.blurb}</div>`
       : `<div class="tag dupe">Duplicate</div><div class="sub">You already own ${player.name} — sold for 🪙 ${earned}.</div>`;
-    const canAgain=S.coins>=pack.price && (S.stock[pack.key]||0)>0;
-    rvAgain.textContent = (S.stock[pack.key]||0)>0 ? `Open Again (🪙 ${pack.price})` : "Sold Out";
+    const canAgain=S.coins>=cfg.price && (S.stock[cfg.key]||0)>0;
+    rvAgain.textContent = (S.stock[cfg.key]||0)>0 ? `Open Again (🪙 ${cfg.price})` : "Sold Out";
     rvAgain.disabled=!canAgain;
     rvAgain.style.visibility="visible"; rvDone.style.visibility="visible";
-    if(isNew && tierIdx>=3){ burst(); if(tierIdx>=4) fanfare(); }
+    if(isNew && celebrate>=1){ burst(); if(celebrate>=2) fanfare(); }
     opening=false; }
 
-  rvAgain.addEventListener("click",()=>{ if(opening) return; openPack(lastPackIdx); });
+  function openPack(packIdx){ const pack=TIERS[packIdx];
+    return runOpen({ key:pack.key, name:pack.name, price:pack.price, restockMs:pack.restockMs,
+      pull:()=>{ const tierIdx=rollTier(packIdx); return { player:pickFromTier(tierIdx), celebrate: tierIdx>=4?2:(tierIdx>=3?1:0) }; } }); }
+
+  function openSpecialPack(key){ const sp=specialByKey(key); if(!sp) return;
+    return runOpen({ key:sp.key, name:sp.name, price:sp.price, restockMs:sp.restockMs, newLabel:sp.newLabel, dupeSell:sp.sell,
+      pull:()=>({ player:sp.roll(), celebrate:2 }) }); }
+
+  rvAgain.addEventListener("click",()=>{ if(opening) return; if(lastOpenFn) lastOpenFn(); });
   rvDone.addEventListener("click",()=>{ if(opening) return; reveal.classList.remove("show"); });
 
   /* ================= CARD MODAL ================= */
@@ -856,7 +988,7 @@
   /* ================= TABS ================= */
   function switchTab(name){ $$(".tab").forEach(s=>s.classList.toggle("active",s.id==="tab-"+name));
     $$("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
-    if(name!=="play"){ playing=false; pkLeave(); }
+    if(name!=="play"){ playing=false; pkLeave(); passLeave(); }
     if(name==="squad") renderSquad();
     if(name==="packs") renderPacks();       // re-check affordability + stock so buttons aren't stale
     if(name==="upgrades") renderUpgrades();  // same: reflect coins earned in mini-games
@@ -866,6 +998,7 @@
 
   /* delegated buttons */
   $("#packGrid").addEventListener("click",e=>{ const b=e.target.closest("button[data-idx]"); if(b) openPack(+b.dataset.idx); });
+  $("#specialGrid").addEventListener("click",e=>{ const b=e.target.closest("button[data-special]"); if(b) openSpecialPack(b.dataset.special); });
   $("#upgWrap").addEventListener("click",e=>{ const b=e.target.closest("button[data-upg]"); if(!b) return;
     if(b.dataset.upg==="luck"){ if(S.luck>=MAX_LUCK) return; const c=luckCost(S.luck); if(S.coins<c){toast("Not enough coins!");return;}
       S.coins-=c; S.luck++; beep(880,0.14,"square",0.14); }
@@ -875,7 +1008,7 @@
   $("#squadBody").addEventListener("click",e=>{ const m=e.target.closest(".mini"); if(m){ openModal(m.dataset.id); return; }
     const g=e.target.closest("[data-goto]"); if(g) switchTab(g.dataset.goto); });
   $("#resetBtn").addEventListener("click",()=>{ if(confirm("Reset everything — coins, squad, upgrades and club?")){ store.del(SAVE_KEY);
-    S={club:null,coins:300,luck:0,speed:0,owned:{},best:0,pkBest:0,stock:{},restockAt:{},kuBest:{},kuLevel:"medium"}; initStock(); save(); renderAll(); showTeamSelect(); } });
+    S={club:null,coins:300,luck:0,speed:0,owned:{},best:0,pkBest:0,stock:{},restockAt:{},kuBest:{},kuLevel:"medium",passBest:0}; initStock(); save(); renderAll(); showTeamSelect(); } });
 
   /* ================= TEAM SELECT ================= */
   const teamSelect=$("#teamSelect");
@@ -1064,11 +1197,79 @@
   pkZones.addEventListener("click",e=>{ const z=e.target.closest(".pk-zone"); if(z && pkPhase==="aim") pkShoot(+z.dataset.col,+z.dataset.row); });
   pkBtn.addEventListener("click",()=>{ if(pkPhase==="ready") pkStepUp(); });
 
+  /* ================= PASSING TO PLAYERS ================= */
+  const passPitch=$("#passPitch"), passNodesWrap=$("#passNodes"), passBall=$("#passBall"),
+        passMsg=$("#passMsg"), passMsgTitle=$("#passMsgTitle"), passMsgText=$("#passMsgText"), passBtn=$("#passBtn"),
+        passScoreEl=$("#passScore"), passBestEl=$("#passBest"), passBannerEl=$("#passBanner"), passTimerFill=$("#passTimerFill");
+  const PASS_POS=[{x:50,y:84},{x:20,y:64},{x:80,y:64},{x:34,y:42},{x:66,y:42},{x:50,y:20}];
+  const PASS_NUM=[10,7,11,4,8,9];
+  let passActive=false, passPhase="ready", passScore=0, passCur=0, passNodeEls=[], passGuard=[], passRaf=0, passWin=0, passLeft=0, passLast=0;
+  const passBestVal=()=>S.passBest||0;
+
+  function passBuild(){ passNodesWrap.innerHTML=""; passNodeEls=PASS_POS.map((p,i)=>{ const el=document.createElement("button");
+    el.className="pass-node"; el.type="button"; el.dataset.i=i; el.style.left=p.x+"%"; el.style.top=p.y+"%";
+    el.innerHTML=`<span class="pn-jersey">${PASS_NUM[i]}</span>`; passNodesWrap.appendChild(el); return el; }); }
+  function passCenter(i){ const w=passPitch.clientWidth,h=passPitch.clientHeight; return {x:PASS_POS[i].x/100*w, y:PASS_POS[i].y/100*h}; }
+  function passPlaceBall(anim){ const c=passCenter(passCur);
+    passBall.style.transition = anim ? "transform .26s cubic-bezier(.35,.8,.4,1)" : "none";
+    passBall.style.transform = `translate(${c.x-20}px,${c.y-20}px)`; }
+  function passRender(){ const live=(passPhase==="aim"||passPhase==="moving");
+    passNodeEls.forEach((el,i)=>{ el.classList.toggle("cur",i===passCur);
+      el.classList.toggle("guarded",live&&passGuard[i]&&i!==passCur);
+      el.classList.toggle("open",live&&!passGuard[i]&&i!==passCur); }); }
+  function passRollGuards(){ const n=PASS_POS.length; passGuard=new Array(n).fill(false);
+    const others=[]; for(let i=0;i<n;i++) if(i!==passCur) others.push(i);
+    for(let i=others.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [others[i],others[j]]=[others[j],others[i]]; }
+    const g=clamp(1+Math.floor(passScore/2),1,others.length-1); // more defenders as the streak grows, always ≥1 open lane
+    for(let k=0;k<g;k++) passGuard[others[k]]=true; passRender(); }
+  function passStartTurn(){ passPhase="aim"; passRollGuards();
+    passWin=Math.max(850,2200-passScore*90); passLeft=passWin; passLast=performance.now();
+    cancelAnimationFrame(passRaf); passRaf=requestAnimationFrame(passTick); }
+  function passTick(t){ if(passPhase!=="aim") return; passLeft-=(t-passLast); passLast=t;
+    const frac=clamp(passLeft/passWin,0,1); passTimerFill.style.width=(frac*100)+"%";
+    passTimerFill.style.background = frac<0.3 ? "#ff5470" : "linear-gradient(90deg,var(--gold-2),var(--gold-1))";
+    if(passLeft<=0){ passFail("tackled"); return; } passRaf=requestAnimationFrame(passTick); }
+
+  function passShowMsg(t,x,b){ passMsgTitle.textContent=t; passMsgText.textContent=x; passBtn.textContent=b; passMsg.classList.remove("hidden"); }
+  function passBanner(txt){ if(!txt){ passBannerEl.className=""; passBannerEl.textContent=""; return; } passBannerEl.textContent=txt; passBannerEl.className="show"; }
+
+  function passEnter(){ passActive=true; passPhase="ready"; passScore=0; passCur=0; passGuard=new Array(PASS_POS.length).fill(false);
+    passBuild(); passRender(); passPlaceBall(false); passTimerFill.style.width="100%";
+    passScoreEl.textContent=0; passBestEl.textContent=passBestVal(); passBanner("");
+    passShowMsg("Passing To Players","You're on the ball. Tap an OPEN team-mate (green ◎). Pass to a GUARDED one (red 🛡) or run out of time and it's intercepted — restart!","Kick Off"); }
+  function passLeave(){ passActive=false; passPhase="ready"; cancelAnimationFrame(passRaf); }
+
+  function passStart(){ if(passPhase==="aim"||passPhase==="moving") return; passScore=0; passScoreEl.textContent=0;
+    passNodeEls.forEach(el=>el.classList.remove("bad")); passMsg.classList.add("hidden"); passBanner("");
+    passCur=0; passPlaceBall(false); passStartTurn(); }
+
+  function passPass(i){ if(passPhase!=="aim"||i===passCur) return;
+    if(passGuard[i]){ passFail("intercepted",i); return; }
+    cancelAnimationFrame(passRaf); passPhase="moving"; passScore++; passScoreEl.textContent=passScore;
+    if(passScore>passBestVal()){ S.passBest=passScore; passBestEl.textContent=passScore; }
+    beep(560+Math.min(passScore*20,520),0.08,"square",0.13);
+    passCur=i; passRender(); passPlaceBall(true);
+    setTimeout(()=>{ if(passActive && passPhase==="moving") passStartTurn(); }, reduced?20:300); }
+
+  function passFail(reason,i){ cancelAnimationFrame(passRaf); passPhase="ended";
+    const coins=Math.round(passScore*12); S.coins+=coins; save(); renderCoins(coins>0); passBestEl.textContent=passBestVal();
+    if(i!=null && passNodeEls[i]) passNodeEls[i].classList.add("bad");
+    passBanner(reason==="tackled"?"TACKLED!":"INTERCEPTED!"); beep(180,0.4,"sawtooth",0.18);
+    setTimeout(()=>{ if(!passActive) return; passPhase="ready"; passBanner(""); passNodeEls.forEach(el=>el.classList.remove("bad")); passRender();
+      passShowMsg(reason==="tackled"?"Too slow!":"Cut out!",
+        `You strung together ${passScore} pass${passScore===1?"":"es"} and earned 🪙 ${coins}. Go again?`,"Play Again");
+    }, reduced?80:950); }
+
+  passNodesWrap.addEventListener("click",e=>{ const el=e.target.closest(".pass-node"); if(el) passPass(+el.dataset.i); });
+  passBtn.addEventListener("click",()=>{ if(passPhase==="ready"||passPhase==="ended") passStart(); });
+
   /* ================= MINI-GAME SWITCHER ================= */
   function showGame(name){ $$(".game-panel").forEach(p=>p.classList.toggle("active",p.id==="game-"+name));
     $$(".game-switch button").forEach(b=>b.classList.toggle("active",b.dataset.game===name));
-    if(name==="penalty"){ playing=false; gmsg.classList.remove("playing"); pkEnter(); }
-    else { pkLeave(); refreshJuggler(); } }
+    playing=false; gmsg.classList.remove("playing");
+    if(name==="penalty"){ passLeave(); pkEnter(); }
+    else if(name==="pass"){ pkLeave(); passEnter(); }
+    else { pkLeave(); passLeave(); refreshJuggler(); } }
   $(".game-switch").addEventListener("click",e=>{ const b=e.target.closest("button[data-game]"); if(b) showGame(b.dataset.game); });
 
   /* ================= BOOT ================= */
@@ -1076,10 +1277,11 @@
   if(!S.club || !CLUBS[S.club]) showTeamSelect();
   // tick restocks + live countdown while the Packs tab is open
   setInterval(()=>{ const ch=processRestocks(); if($("#tab-packs").classList.contains("active")) refreshPackCards(); }, 1000);
-  window.addEventListener("resize",()=>{ if(!playing) resetIdleBall(); });
-  window.UF={S,save,resolve,openPack,TIERS,PLAYERS:NAMED,
+  window.addEventListener("resize",()=>{ if(!playing) resetIdleBall(); if(passActive) passPlaceBall(false); });
+  window.UF={S,save,resolve,openPack,openSpecialPack,TIERS,SPECIALS,PLAYERS:NAMED,
     pk:{ shoot:pkShoot, stepUp:pkStepUp, state:()=>({phase:pkPhase,score:pkScore,lean:pkLean,power:pkPower,active:pkActive}) },
-    ku:{ setLevel, start:startGame, levels:KU_LEVELS, state:()=>({level:kuLevel,playing,score,ball:BALL,grav:GRAV,bars:kuBars.length}) }};
+    ku:{ setLevel, start:startGame, levels:KU_LEVELS, state:()=>({level:kuLevel,playing,score,ball:BALL,grav:GRAV,bars:kuBars.length}) },
+    pass:{ start:passStart, state:()=>({phase:passPhase,score:passScore,cur:passCur,guard:passGuard.slice()}) }};
 })();
 </script>
 </body>

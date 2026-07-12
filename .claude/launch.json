@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ui-experiment",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5199", "--directory", "/Users/michaeljacinto/Library/CloudStorage/OneDrive-Personal/Desktop - onedrive/github/ui-experiment"],
+      "port": 5199
+    }
+  ]
+}

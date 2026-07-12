@@ -8,6 +8,12 @@ Pick a club, buy packs, pull legends, and build your squad.
 2. **Buy packs** with coins in the Pack Store. There are **7 tiers**, each with a headline chance of hitting its top rarity:
    Common (95%) · Uncommon (90%) · Rare (86%) · Epic (79%) · Legendary (67%) · Mythic (50%) · God (24%).
    Miss the headline and you drop to a lower tier — you never get nothing.
+   - **The Vault** — three premium packs ranked above the God pack, with *guaranteed* elite pulls:
+     - 🏛️ **Pantheon Pack** — the game's rarest. Guarantees a footballing deity (Pelé, Maradona,
+       Zidane or R9 Ronaldo). 1 in stock, barely restocks (~45 min).
+     - 🧊 **Zero-Variance Ultimate** — the anti-gamble pack. *100 / 100 / 100* — it is impossible to
+       pull a duplicate: every pull is a brand-new God- or Overload-tier card you don't own yet.
+     - 9️⃣ **99-Overload Pack** — guarantees a card whose every face stat is **99**.
 3. **Stock & restock** — each pack has limited stock (shown below its name). Buy it out and it
    goes *Sold Out* with a live countdown; rarer packs restock more slowly (Common ~30s … God ~12m).
 4. **Collect** — new players fill your Squad; duplicates auto-sell for coins.
@@ -21,9 +27,13 @@ Pick a club, buy packs, pull legends, and build your squad.
      The keeper reads you more the longer you go, scrambles across on soft shots, and only a
      top-corner screamer beats him when he guesses right. Coins per goal (with a streak bonus);
      miss once and the round ends.
+   - **Passing To Players** — you're on the ball. Tap an **open** team-mate (green ◎) to pass;
+     hit a **guarded** one (red 🛡) or run down the shot clock and it's intercepted — round over.
+     More defenders close in and the clock shrinks as your passing streak grows. Coins per pass.
 
 ## Roster
-- **God — Legends:** CL, Pelé, Maradona, Ronaldinho, Zidane, Cruyff
+- **Overload — Every Stat 99:** CL 99, Messi 99, Ronaldo 99, Mbappé 99 (only from the 99-Overload Pack)
+- **God — Legends:** CL, Pelé, Maradona, Ronaldinho, Zidane, Cruyff, R9 Ronaldo
 - **Mythic — Champions:** Messi, Ronaldo, Mbappé, Neymar, Vinícius Jr, Yamal, Lewandowski, Bellingham
 - **Legendary — Premier League:** Haaland, Salah, Saka, Ødegaard, Palmer, Foden, Son, Van Dijk,
   Rodri, Rice, B. Fernandes, Saliba, Rashford, Wirtz, Gyökeres, Bowen, Mitoma
