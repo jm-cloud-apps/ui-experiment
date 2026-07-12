@@ -86,6 +86,7 @@
   .pack .pack-sub { font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.85; margin-top:2px; }
   .pack .pack-stock { margin-top:9px; font-size:11px; letter-spacing:.1em; font-weight:700; text-transform:uppercase; opacity:.9; }
   .pack .pack-stock .oos { display:inline-block; background:rgba(0,0,0,.28); border-radius:7px; padding:3px 9px; letter-spacing:.06em; }
+  .pack .pack-stock .restock { display:inline-block; margin-left:5px; opacity:.72; font-weight:600; letter-spacing:.04em; }
   .pack .pack-odds { margin-top:12px; font-size:12px; font-weight:700; letter-spacing:.04em;
     background:rgba(0,0,0,.22); border-radius:8px; padding:5px 6px; }
   .pack .pack-odds b { font-family:'Russo One'; font-weight:400; }
@@ -821,6 +822,11 @@
   function processRestocks(){ const now=Date.now(); let ch=false;
     [...TIERS,...SPECIALS].forEach(t=>{ const ra=S.restockAt[t.key]; if(ra && now>=ra){ S.stock[t.key]=t.maxStock; delete S.restockAt[t.key]; ch=true; } });
     if(ch) save(); return ch; }
+  const packDefByKey = (k)=> tierByKey(k) || specialByKey(k);
+  // Start a restock countdown the moment a tier drops below its original stock (if one isn't already running).
+  // When the timer fires, processRestocks refills that tier all the way back to maxStock (the original number).
+  function scheduleRestock(key){ const def=packDefByKey(key); if(!def) return;
+    if((S.stock[key]||0) < def.maxStock && !S.restockAt[key]) S.restockAt[key]=Date.now()+def.restockMs; }
   function fmtTime(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
   initStock(); processRestocks();
 
@@ -864,7 +870,8 @@
     document.querySelectorAll("#packGrid .pack").forEach(card=>{ const t=TIERS[+card.dataset.idx];
       const stock=S.stock[t.key]||0, ra=S.restockAt[t.key], out=stock<=0, afford=S.coins>=t.price;
       const sl=card.querySelector(".pack-stock"), btn=card.querySelector(".pack-buy");
-      if(out) sl.innerHTML=`<span class="oos">⏳ ${fmtTime((ra||now)-now)}</span>`;
+      if(out) sl.innerHTML=`<span class="oos">⏳ restock ${fmtTime((ra||now)-now)}</span>`;
+      else if(ra) sl.innerHTML=`${stock} in stock <span class="restock">⟳ ${fmtTime(ra-now)}</span>`;
       else sl.textContent=`${stock} in stock`;
       btn.disabled = out || !afford;
       btn.querySelector(".price").textContent = out ? "Sold Out" : "🪙 "+t.price;
@@ -872,7 +879,8 @@
     document.querySelectorAll("#specialGrid .pack").forEach(card=>{ const sp=specialByKey(card.dataset.special); if(!sp) return;
       const stock=S.stock[sp.key]||0, ra=S.restockAt[sp.key], out=stock<=0, afford=S.coins>=sp.price;
       const sl=card.querySelector(".pack-stock"), btn=card.querySelector(".pack-buy");
-      if(out) sl.innerHTML=`<span class="oos">⏳ ${fmtTime((ra||now)-now)}</span>`;
+      if(out) sl.innerHTML=`<span class="oos">⏳ restock ${fmtTime((ra||now)-now)}</span>`;
+      else if(ra) sl.innerHTML=`${stock} in stock <span class="restock">⟳ ${fmtTime(ra-now)}</span>`;
       else sl.textContent=`${stock} in stock`;
       btn.disabled = out || !afford;
       btn.querySelector(".price").textContent = out ? "Sold Out" : "🪙 "+sp.price;
@@ -936,7 +944,7 @@
     if(S.coins<cfg.price){ toast("Not enough coins — play a mini-game!"); return; }
     opening=true; lastOpenFn=()=>runOpen(cfg);
     S.coins-=cfg.price; S.stock[cfg.key]--;
-    if(S.stock[cfg.key]<=0) S.restockAt[cfg.key]=Date.now()+cfg.restockMs;
+    scheduleRestock(cfg.key);
     save(); renderCoins(true); renderPacks();
     const { player, celebrate=0 } = cfg.pull(); const t=tierByKey(player.tierKey);
     const f=reduced?0.05:openFactor();
@@ -1201,8 +1209,8 @@
   const passPitch=$("#passPitch"), passNodesWrap=$("#passNodes"), passBall=$("#passBall"),
         passMsg=$("#passMsg"), passMsgTitle=$("#passMsgTitle"), passMsgText=$("#passMsgText"), passBtn=$("#passBtn"),
         passScoreEl=$("#passScore"), passBestEl=$("#passBest"), passBannerEl=$("#passBanner"), passTimerFill=$("#passTimerFill");
-  const PASS_POS=[{x:50,y:84},{x:20,y:64},{x:80,y:64},{x:34,y:42},{x:66,y:42},{x:50,y:20}];
-  const PASS_NUM=[10,7,11,4,8,9];
+  const PASS_POS=[{x:50,y:88},{x:20,y:70},{x:50,y:66},{x:80,y:70},{x:32,y:46},{x:68,y:46},{x:18,y:26},{x:50,y:24},{x:82,y:26}];
+  const PASS_NUM=[10,7,8,11,4,6,2,9,3];
   let passActive=false, passPhase="ready", passScore=0, passCur=0, passNodeEls=[], passGuard=[], passRaf=0, passWin=0, passLeft=0, passLast=0;
   const passBestVal=()=>S.passBest||0;
 
@@ -1220,10 +1228,10 @@
   function passRollGuards(){ const n=PASS_POS.length; passGuard=new Array(n).fill(false);
     const others=[]; for(let i=0;i<n;i++) if(i!==passCur) others.push(i);
     for(let i=others.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [others[i],others[j]]=[others[j],others[i]]; }
-    const g=clamp(1+Math.floor(passScore/2),1,others.length-1); // more defenders as the streak grows, always ≥1 open lane
+    const g=clamp(2+Math.floor(passScore*0.8),1,others.length-1); // swarming defenders — start with 2, ramp fast, always exactly ≥1 open lane
     for(let k=0;k<g;k++) passGuard[others[k]]=true; passRender(); }
   function passStartTurn(){ passPhase="aim"; passRollGuards();
-    passWin=Math.max(850,2200-passScore*90); passLeft=passWin; passLast=performance.now();
+    passWin=Math.max(480,1400-passScore*120); passLeft=passWin; passLast=performance.now();
     cancelAnimationFrame(passRaf); passRaf=requestAnimationFrame(passTick); }
   function passTick(t){ if(passPhase!=="aim") return; passLeft-=(t-passLast); passLast=t;
     const frac=clamp(passLeft/passWin,0,1); passTimerFill.style.width=(frac*100)+"%";
@@ -1236,7 +1244,7 @@
   function passEnter(){ passActive=true; passPhase="ready"; passScore=0; passCur=0; passGuard=new Array(PASS_POS.length).fill(false);
     passBuild(); passRender(); passPlaceBall(false); passTimerFill.style.width="100%";
     passScoreEl.textContent=0; passBestEl.textContent=passBestVal(); passBanner("");
-    passShowMsg("Passing To Players","You're on the ball. Tap an OPEN team-mate (green ◎). Pass to a GUARDED one (red 🛡) or run out of time and it's intercepted — restart!","Kick Off"); }
+    passShowMsg("Passing To Players","Defenders swarm every lane and the clock is brutal — find the ONE open team-mate (green ◎) fast. Hit a guarded one (red 🛡) or stall and it's intercepted — restart!","Kick Off"); }
   function passLeave(){ passActive=false; passPhase="ready"; cancelAnimationFrame(passRaf); }
 
   function passStart(){ if(passPhase==="aim"||passPhase==="moving") return; passScore=0; passScoreEl.textContent=0;
